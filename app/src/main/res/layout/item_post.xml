@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:elevation="0dp"
+    >
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingHorizontal="10dp">
+        <LinearLayout
+            android:id="@+id/cv_icon_blue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <androidx.cardview.widget.CardView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:backgroundTint="@color/blue_stw"
+                app:cardCornerRadius="20dp"/>
+            <View
+                android:layout_width="2dp"
+                android:layout_height="20dp"
+                android:background="@color/blue_stw"
+                android:layout_gravity="center_horizontal"/>
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tv_date"
+            style="@style/TextViewSemeru"
+            android:layout_width="match_parent"
+            android:text="@string/date"
+            android:layout_toEndOf="@+id/cv_icon_blue"
+            android:textAlignment="inherit"
+            android:textSize="16sp"
+            android:textAllCaps="true"
+            android:textColor="@color/black"
+            android:layout_marginStart="3dp"/>
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_below="@id/cv_icon_blue">
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cv_icon_white"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:backgroundTint="@color/blue_stw"
+                app:cardCornerRadius="20dp">
+                <androidx.cardview.widget.CardView
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:backgroundTint="@color/white"
+                    android:layout_gravity="center"
+                    app:cardCornerRadius="20dp"/>
+            </androidx.cardview.widget.CardView>
+
+            <View
+                android:layout_width="2dp"
+                android:layout_height="1dp"
+                android:background="@color/blue_stw"
+                android:layout_marginStart="9dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_below="@id/cv_icon_white"
+                android:layout_alignBottom="@+id/ll_post" />
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cv_bencana"
+                app:cardCornerRadius="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/black"
+                android:layout_toEndOf="@id/cv_icon_white"
+                android:layout_alignTop="@id/cv_icon_white"
+                android:layout_marginStart="3dp">
+
+                <TextView
+                    android:id="@+id/tv_bencana"
+                    style="@style/TextViewSemeru"
+                    tools:ignore="SmallSp"
+                    android:layout_marginHorizontal="5dp"
+                    android:padding="3dp"
+                    android:text="@string/bencana_alam"
+                    android:textColor="@color/white"
+                    android:textSize="12sp" />
+
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cv_level"
+                app:cardCornerRadius="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:backgroundTint="#FF0000"
+                android:layout_toEndOf="@id/cv_bencana"
+                android:layout_alignTop="@id/cv_icon_white">
+
+                <TextView
+                    android:id="@+id/tv_level"
+                    style="@style/TextViewSemeru"
+                    tools:ignore="SmallSp"
+                    android:layout_marginHorizontal="5dp"
+                    android:padding="3dp"
+                    android:text="@string/level_bencana"
+                    android:textColor="@color/white"
+                    android:textSize="12sp" />
+
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cv_status"
+                app:cardCornerRadius="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:backgroundTint="#FF0000"
+                android:layout_toEndOf="@id/cv_level"
+                android:layout_alignTop="@id/cv_icon_white">
+
+                <TextView
+                    android:id="@+id/tv_status"
+                    style="@style/TextViewSemeru"
+                    tools:ignore="SmallSp"
+                    android:layout_marginHorizontal="5dp"
+                    android:padding="3dp"
+                    android:text="@string/status"
+                    android:textColor="@color/white"
+                    android:textSize="12sp" />
+
+            </androidx.cardview.widget.CardView>
+
+            <LinearLayout
+                android:id="@+id/ll_post"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_below="@id/cv_bencana"
+                android:layout_marginTop="5dp"
+                android:layout_marginHorizontal="3dp"
+                android:layout_toEndOf="@id/cv_icon_white">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <androidx.cardview.widget.CardView
+                        app:cardCornerRadius="25dp"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp">
+
+                        <ImageView
+                            android:id="@+id/iv_user"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:contentDescription="@string/icon"
+                            android:src="@drawable/ic_launcher_background" />
+                    </androidx.cardview.widget.CardView>
+                    <TextView
+                        android:id="@+id/tv_user"
+                        style="@style/TextViewSemeru"
+                        android:layout_gravity="center_vertical"
+                        android:text="@string/name"
+                        android:textColor="@color/black"
+                        android:textSize="16sp"
+                        android:layout_marginStart="5dp"
+                        android:textStyle="bold" />
+                    <TextView
+                        android:id="@+id/tv_time"
+                        style="@style/TextViewSemeru"
+                        android:layout_gravity="center_vertical"
+                        android:text="@string/name"
+                        android:textColor="@color/black"
+                        android:textSize="16sp"
+                        android:layout_marginStart="5dp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_baseline_place_24"
+                        android:contentDescription="@string/icon"
+                        android:layout_gravity="center_vertical"/>
+                    <TextView
+                        android:id="@+id/tv_address"
+                        style="@style/TextViewSemeru"
+                        android:text="@string/address" />
+                </LinearLayout>
+
+                <androidx.cardview.widget.CardView
+                    app:cardCornerRadius="12dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="230dp">
+
+                    <ImageView
+                        android:id="@+id/iv_post"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:contentDescription="@string/image"
+                        android:scaleType="fitXY"
+                        android:src="@drawable/ic_launcher_background" />
+                </androidx.cardview.widget.CardView>
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp">
+
+                    <TextView
+                        android:id="@+id/tv_like"
+                        style="@style/TextViewSemeru"
+                        android:layout_centerVertical="true"
+                        android:text="@string/menyukai"
+                        android:textColor="@color/black"
+                        android:textSize="16sp" />
+
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:layout_marginEnd="5dp">
+
+                        <RelativeLayout
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:layout_marginEnd="5dp">
+
+                            <ImageView
+                                android:id="@+id/btn_comment"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:contentDescription="@string/icon"
+                                android:src="@drawable/ic_outline_chat_bubble_outline_24" />
+
+                            <TextView
+                                android:id="@+id/tv_comment"
+                                style="@style/TextViewSemeru"
+                                android:layout_centerHorizontal="true"
+                                android:layout_marginTop="4dp"
+                                android:text="@string/_0"
+                                android:textSize="12sp" />
+
+                        </RelativeLayout>
+
+
+                        <ImageView
+                            android:id="@+id/btn_like"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:contentDescription="@string/icon"
+                            android:src="@drawable/ic_baseline_favorite_border_24" />
+                    </LinearLayout>
+                </RelativeLayout>
+
+                <TextView
+                    android:id="@+id/tv_description"
+                    style="@style/TextViewSemeru"
+                    android:layout_width="match_parent"
+                    android:layout_marginBottom="15dp"
+                    android:text="@string/description"
+                    android:textAlignment="inherit"
+                    android:textSize="16sp" />
+            </LinearLayout>
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+</androidx.cardview.widget.CardView>

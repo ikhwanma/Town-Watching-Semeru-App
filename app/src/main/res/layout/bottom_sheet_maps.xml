@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@drawable/style_bottom_sheet"
+    android:paddingHorizontal="12dp"
+    android:orientation="vertical">
+
+    <View
+        android:layout_width="50dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="20dp"
+        android:background="@drawable/style_button_rounded" />
+
+    <TextView
+        android:id="@+id/tv_description"
+        style="@style/TextViewSemeru.bold"
+        android:layout_width="match_parent"
+        android:textAlignment="inherit"
+        android:layout_marginTop="5dp"
+        android:text="@string/description"
+        android:textColor="@color/black"
+        android:textSize="16sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            style="@style/TextViewSemeru"
+            android:text="@string/nama"
+            android:layout_marginEnd="4dp"
+            android:textColor="@color/black"
+            android:textSize="14sp" />
+        <TextView
+            android:id="@+id/tv_user"
+            style="@style/TextViewSemeru"
+            android:text="@string/name"
+            android:textColor="@color/black"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            style="@style/TextViewSemeru"
+            android:text="@string/kategori"
+            android:textColor="@color/black"
+            android:layout_marginEnd="4dp"
+            android:textSize="14sp" />
+        <TextView
+            android:id="@+id/tv_category"
+            style="@style/TextViewSemeru"
+            android:text="@string/category"
+            android:textColor="@color/black"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            style="@style/TextViewSemeru"
+            android:text="@string/tanggal"
+            android:textColor="@color/black"
+            android:layout_marginEnd="4dp"
+            android:textSize="14sp" />
+        <TextView
+            android:id="@+id/tv_date"
+            style="@style/TextViewSemeru"
+            android:text="@string/date"
+            android:textColor="@color/black"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            style="@style/TextViewSemeru"
+            android:text="@string/alamat"
+            android:textColor="@color/black"
+            android:layout_marginEnd="4dp"
+            android:textSize="14sp" />
+        <TextView
+            android:id="@+id/tv_address"
+            android:layout_width="match_parent"
+            android:textAlignment="inherit"
+            style="@style/TextViewSemeru"
+            android:text="@string/address"
+            android:textColor="@color/black"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        app:cardCornerRadius="8dp">
+        <ImageView
+            android:id="@+id/iv_post"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:src="@color/brown_primary"
+            android:scaleType="fitXY"
+            android:contentDescription="@string/image" />
+    </androidx.cardview.widget.CardView>
+
+    <Button
+        android:id="@+id/btn_route"
+        style="@style/ButtonSemeru"
+        android:layout_marginVertical="10dp"
+        android:text="@string/rute_ke_jalur_evakuasi"/>
+
+
+</LinearLayout>
