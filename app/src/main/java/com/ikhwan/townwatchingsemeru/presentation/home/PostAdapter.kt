@@ -14,10 +14,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.ikhwan.townwatchingsemeru.R
 import com.ikhwan.townwatchingsemeru.common.Constants
-import com.ikhwan.townwatchingsemeru.common.Converter
+import com.ikhwan.townwatchingsemeru.common.utils.Converter
 import com.ikhwan.townwatchingsemeru.databinding.ItemPostBinding
 import com.ikhwan.townwatchingsemeru.domain.model.Post
-import com.ikhwan.townwatchingsemeru.domain.use_case.converter.ConverterDate
 
 class PostAdapter(
     val idUser: Int,
@@ -41,7 +40,7 @@ class PostAdapter(
                 var cardStatusDrawable = cvStatus.background
                 val sBLike = StringBuilder(data.like.size.toString())
                 var textStatus = ""
-                val datePost = ConverterDate().execute(data.createdAt).split(" ")
+                val datePost = Converter.convertDate(data.createdAt).split(" ")
                 val txtCate = "${datePost[0]} ${datePost[1]} ${datePost[2]}"
                 val txtTime = "- ${datePost[3]} WIB"
                 sBLike.append(" Menyukai")

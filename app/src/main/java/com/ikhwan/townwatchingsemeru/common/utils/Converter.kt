@@ -1,9 +1,13 @@
-package com.ikhwan.townwatchingsemeru.domain.use_case.converter
+package com.ikhwan.townwatchingsemeru.common.utils
 
-import com.ikhwan.townwatchingsemeru.common.Converter
+import android.content.Context
+import android.location.Geocoder
+import java.util.*
 
-class ConverterDate {
-    fun execute(date: String): String{
+object Converter {
+
+    fun convertDate(date: String?): String {
+
         val arrDate = date!!.split(" ")
 
         val tempDate = arrDate[0].split("-")
@@ -14,6 +18,14 @@ class ConverterDate {
         val year = tempDate[0]
 
         return "$day $month $year $tempTime"
+    }
+
+    fun convertAddress(context: Context, lat: Double, lng: Double): String {
+
+        val geocoder = Geocoder(context, Locale.getDefault())
+        val addresses = geocoder.getFromLocation(lat, lng, 1)
+
+        return addresses!![0].getAddressLine(0)
     }
 
     private fun convertMonth(month: String): String {

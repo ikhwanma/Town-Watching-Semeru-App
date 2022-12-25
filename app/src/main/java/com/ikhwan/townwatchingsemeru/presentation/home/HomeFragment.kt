@@ -17,14 +17,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.ikhwan.townwatchingsemeru.R
 import com.ikhwan.townwatchingsemeru.common.Resource
+import com.ikhwan.townwatchingsemeru.common.utils.Converter
 import com.ikhwan.townwatchingsemeru.databinding.BottomSheetHomeCategoryBinding
 import com.ikhwan.townwatchingsemeru.databinding.FragmentHomeBinding
 import com.ikhwan.townwatchingsemeru.domain.model.Category
 import com.ikhwan.townwatchingsemeru.domain.model.CategoryUser
 import com.ikhwan.townwatchingsemeru.domain.model.Post
-import com.ikhwan.townwatchingsemeru.domain.use_case.converter.ConverterAddress
 import kotlinx.coroutines.*
-import kotlin.coroutines.coroutineContext
 
 class HomeFragment : Fragment(), View.OnClickListener {
 
@@ -148,11 +147,13 @@ class HomeFragment : Fragment(), View.OnClickListener {
             val adapter = PostAdapter(userId, requireContext(), { tvAddress, lat, lng ->
                 setAddress(tvAddress, lat, lng)
             }, { tvUser, idCategoryUser, name ->
-                val categoryUserFiltered = categoryUser.filter {
-                    it.id == idCategoryUser
+                if (categoryUser.isNotEmpty()){
+                    val categoryUserFiltered = categoryUser.filter {
+                        it.id == idCategoryUser
+                    }
+                    val txtName = "$name (${categoryUserFiltered[0].categoryUser})"
+                    tvUser.text = txtName
                 }
-                val txtName = "$name (${categoryUserFiltered[0].categoryUser})"
-                tvUser.text = txtName
             }, { id ->
                 if (userId == 0) {
                     Toast.makeText(requireContext(), "Belum Login", Toast.LENGTH_SHORT).show()
@@ -177,7 +178,7 @@ class HomeFragment : Fragment(), View.OnClickListener {
     private fun setAddress(tvAddress: TextView, lat: Double, lng: Double) {
         Thread(Runnable {
             val address =
-                ConverterAddress().execute(requireContext(), lat, lng)
+                Converter.convertAddress(requireContext(), lat, lng)
             tvAddress.post(Runnable {
                 tvAddress.text = address
             })
