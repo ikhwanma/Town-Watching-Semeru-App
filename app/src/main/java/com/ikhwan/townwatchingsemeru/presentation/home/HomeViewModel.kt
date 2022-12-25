@@ -10,6 +10,7 @@ import com.ikhwan.townwatchingsemeru.domain.model.Post
 import com.ikhwan.townwatchingsemeru.domain.use_case.post.PostUseCase
 import com.ikhwan.townwatchingsemeru.domain.use_case.user.UserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -41,6 +42,18 @@ class HomeViewModel @Inject constructor(
 
     fun getToken(): LiveData<String> {
         return pref.getToken().asLiveData()
+    }
+
+    fun setToken(token : String){
+        viewModelScope.launch {
+            pref.setToken(token)
+        }
+    }
+
+    fun setId(id: Int){
+        viewModelScope.launch {
+            pref.setId(id)
+        }
     }
 
 }

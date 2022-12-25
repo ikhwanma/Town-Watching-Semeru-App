@@ -56,6 +56,8 @@ class HomeFragment : Fragment(), View.OnClickListener {
         viewModel.getToken().observe(viewLifecycleOwner) {
             token = it
         }
+        viewModel.setToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjcxODcxNzA1LCJleHAiOjE2NzQ0NjM3MDV9.6CXPCMzn_HYPwg4ZPbmLtL-I3mLUAE8nrymAAwTJBwc")
+        viewModel.setId(1)
     }
 
     private fun observeListPosts(

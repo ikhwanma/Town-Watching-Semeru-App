@@ -54,7 +54,7 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener {
             if (map.value) {
                 getCurrentLocation()
             } else {
-                PermissionChecker().checkMapsPermission(requireContext(), requireActivity())
+                PermissionChecker.checkMapsPermission(requireContext(), requireActivity())
             }
         }
     }
@@ -116,7 +116,7 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener {
     }
 
     private fun getCurrentLocation() {
-        val checkSelfPermission = PermissionChecker().checkSelfMapsPermission(requireContext())
+        val checkSelfPermission = PermissionChecker.checkSelfMapsPermission(requireContext())
         if (!checkSelfPermission) return
 
         val semeru = LatLng(-8.2061557, 112.9773703)
