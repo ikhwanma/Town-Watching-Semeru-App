@@ -145,7 +145,7 @@ class PostFragment : Fragment(), View.OnClickListener {
         super.onViewCreated(view, savedInstanceState)
         viewModel.getToken().observe(viewLifecycleOwner) {
             if (it == "") {
-                Toast.makeText(requireContext(), "Belum Login", Toast.LENGTH_SHORT).show()
+                goToLoginPage()
             } else {
                 this.token = it
             }
@@ -183,6 +183,13 @@ class PostFragment : Fragment(), View.OnClickListener {
             btnPost.setOnClickListener(this@PostFragment)
         }
 
+    }
+
+    private fun goToLoginPage(){
+        Navigation.findNavController(requireView())
+            .navigate(R.id.action_postFragment_to_loginFragment)
+        Toast.makeText(requireContext(), "Login terlebih dahulu", Toast.LENGTH_SHORT)
+            .show()
     }
 
     private fun getCurrentLocation() {

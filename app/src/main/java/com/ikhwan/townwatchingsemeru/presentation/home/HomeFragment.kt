@@ -46,25 +46,27 @@ class HomeFragment : Fragment(), View.OnClickListener {
     private var level: String? = null
     private var status: Int? = null
 
-    private fun observeGetId() = lifecycleScope.launchWhenStarted {
+    private fun observeGetId(){
         viewModel.getId().observe(viewLifecycleOwner) { id ->
-            userId = id
+            if(id != 0){
+                userId = id
+            }
         }
     }
 
-    private fun observeGetToken() = lifecycleScope.launchWhenStarted {
+    private fun observeGetToken(){
         viewModel.getToken().observe(viewLifecycleOwner) {
-            token = it
+            if (it != ""){
+                token = it
+            }
         }
-        viewModel.setToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjcxODcxNzA1LCJleHAiOjE2NzQ0NjM3MDV9.6CXPCMzn_HYPwg4ZPbmLtL-I3mLUAE8nrymAAwTJBwc")
-        viewModel.setId(1)
     }
 
     private fun observeListPosts(
         categoryId: Int? = null,
         level: String? = null,
         status: Int? = null
-    ) = lifecycleScope.launchWhenStarted {
+    ){
         viewModel.getAllPosts(categoryId, level, status).observe(viewLifecycleOwner) { result ->
             when (result) {
                 is Resource.Error -> {
@@ -82,7 +84,7 @@ class HomeFragment : Fragment(), View.OnClickListener {
         }
     }
 
-    private fun observeCategoryUser() = lifecycleScope.launchWhenStarted {
+    private fun observeCategoryUser(){
         viewModel.getCategoryUser().observe(viewLifecycleOwner) { result ->
             when (result) {
                 is Resource.Error -> {
@@ -161,7 +163,7 @@ class HomeFragment : Fragment(), View.OnClickListener {
                 }
             }, { id ->
                 if (userId == 0) {
-                    Toast.makeText(requireContext(), "Belum Login", Toast.LENGTH_SHORT).show()
+                    goToLoginPage()
                 } else {
                     val mBundle = bundleOf(Constants.EXTRA_ID to id, Constants.EXTRA_TOKEN to token)
                     Navigation.findNavController(requireView())
@@ -169,7 +171,7 @@ class HomeFragment : Fragment(), View.OnClickListener {
                 }
             }, { post, btnLike, tvLike ->
                 if (userId == 0) {
-                    Toast.makeText(requireContext(), "Belum Login", Toast.LENGTH_SHORT).show()
+                    goToLoginPage()
                 } else {
                     likeChecker(post, btnLike, tvLike)
                 }
@@ -190,6 +192,13 @@ class HomeFragment : Fragment(), View.OnClickListener {
                 tvAddress.text = address
             })
         }).start()
+    }
+
+    private fun goToLoginPage(){
+        Navigation.findNavController(requireView())
+            .navigate(R.id.action_homeFragment_to_loginFragment)
+        Toast.makeText(requireContext(), "Login terlebih dahulu", Toast.LENGTH_SHORT)
+            .show()
     }
 
     private fun likeChecker(

@@ -44,16 +44,4 @@ class HomeViewModel @Inject constructor(
         return pref.getToken().asLiveData()
     }
 
-    fun setToken(token : String){
-        viewModelScope.launch {
-            pref.setToken(token)
-        }
-    }
-
-    fun setId(id: Int){
-        viewModelScope.launch {
-            pref.setId(id)
-        }
-    }
-
 }
