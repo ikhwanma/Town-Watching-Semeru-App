@@ -3,7 +3,7 @@ package com.ikhwan.townwatchingsemeru.data.remote.dto.post
 
 import com.google.gson.annotations.SerializedName
 import com.ikhwan.townwatchingsemeru.data.remote.dto.category.CategoryDto
-import com.ikhwan.townwatchingsemeru.data.remote.dto.post.comment.Comment
+import com.ikhwan.townwatchingsemeru.data.remote.dto.post.comment.CommentDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.like.Like
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.User
 import com.ikhwan.townwatchingsemeru.domain.model.Post
@@ -12,7 +12,7 @@ data class PostDto(
     @SerializedName("category")
     val category: CategoryDto,
     @SerializedName("comment")
-    val comment: List<Comment>,
+    val comment: List<CommentDto>,
     @SerializedName("createdAt")
     val createdAt: String,
     @SerializedName("description")

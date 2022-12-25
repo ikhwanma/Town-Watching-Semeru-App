@@ -10,12 +10,15 @@ import android.view.animation.AnimationUtils
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.ikhwan.townwatchingsemeru.R
+import com.ikhwan.townwatchingsemeru.common.Constants
 import com.ikhwan.townwatchingsemeru.common.Resource
 import com.ikhwan.townwatchingsemeru.common.utils.Converter
 import com.ikhwan.townwatchingsemeru.databinding.BottomSheetHomeCategoryBinding
@@ -59,9 +62,9 @@ class HomeFragment : Fragment(), View.OnClickListener {
         categoryId: Int? = null,
         level: String? = null,
         status: Int? = null
-    ) = lifecycleScope.launchWhenStarted{
-        viewModel.getAllPosts(categoryId, level, status).observe(viewLifecycleOwner){ result->
-            when(result){
+    ) = lifecycleScope.launchWhenStarted {
+        viewModel.getAllPosts(categoryId, level, status).observe(viewLifecycleOwner) { result ->
+            when (result) {
                 is Resource.Error -> {
                     Log.d("HomeFragment", result.message!!)
                 }
@@ -78,8 +81,8 @@ class HomeFragment : Fragment(), View.OnClickListener {
     }
 
     private fun observeCategoryUser() = lifecycleScope.launchWhenStarted {
-        viewModel.getCategoryUser().observe(viewLifecycleOwner){ result ->
-            when(result){
+        viewModel.getCategoryUser().observe(viewLifecycleOwner) { result ->
+            when (result) {
                 is Resource.Error -> {
                     Log.d("HomeFragment", result.message!!)
                 }
@@ -94,8 +97,8 @@ class HomeFragment : Fragment(), View.OnClickListener {
     }
 
     private fun observeCategory() = lifecycleScope.launchWhenStarted {
-        viewModel.getCategory().observe(viewLifecycleOwner){ result->
-            when(result){
+        viewModel.getCategory().observe(viewLifecycleOwner) { result ->
+            when (result) {
                 is Resource.Error -> {
                     Log.d("HomeFragment", result.message!!)
                 }
@@ -105,7 +108,7 @@ class HomeFragment : Fragment(), View.OnClickListener {
                 is Resource.Success -> {
                     val data = result.data!!
 
-                    for(d in data){
+                    for (d in data) {
                         listCategoryName.add(d.category)
                     }
                     listCategory.addAll(data)
@@ -147,7 +150,7 @@ class HomeFragment : Fragment(), View.OnClickListener {
             val adapter = PostAdapter(userId, requireContext(), { tvAddress, lat, lng ->
                 setAddress(tvAddress, lat, lng)
             }, { tvUser, idCategoryUser, name ->
-                if (categoryUser.isNotEmpty()){
+                if (categoryUser.isNotEmpty()) {
                     val categoryUserFiltered = categoryUser.filter {
                         it.id == idCategoryUser
                     }
@@ -158,7 +161,9 @@ class HomeFragment : Fragment(), View.OnClickListener {
                 if (userId == 0) {
                     Toast.makeText(requireContext(), "Belum Login", Toast.LENGTH_SHORT).show()
                 } else {
-                    Toast.makeText(requireContext(), "Sudah Login $id", Toast.LENGTH_SHORT).show()
+                    val mBundle = bundleOf(Constants.EXTRA_ID to id, Constants.EXTRA_TOKEN to token)
+                    Navigation.findNavController(requireView())
+                        .navigate(R.id.action_homeFragment_to_commentFragment, mBundle)
                 }
             }, { post, btnLike, tvLike ->
                 if (userId == 0) {
@@ -199,8 +204,8 @@ class HomeFragment : Fragment(), View.OnClickListener {
 
         var likeSum = post.like.size
 
-        viewModel.addLike(token, post.id).observe(viewLifecycleOwner){ result ->
-            when(result){
+        viewModel.addLike(token, post.id).observe(viewLifecycleOwner) { result ->
+            when (result) {
                 is Resource.Error -> {
                     Log.d("HomeFragment", result.message!!)
                 }

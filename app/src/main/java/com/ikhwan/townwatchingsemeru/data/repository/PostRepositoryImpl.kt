@@ -3,6 +3,9 @@ package com.ikhwan.townwatchingsemeru.data.repository
 import com.ikhwan.townwatchingsemeru.data.remote.PostApi
 import com.ikhwan.townwatchingsemeru.data.remote.dto.category.CategoryDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.PostDto
+import com.ikhwan.townwatchingsemeru.data.remote.dto.post.comment.AddCommentResponseDto
+import com.ikhwan.townwatchingsemeru.data.remote.dto.post.comment.CommentBody
+import com.ikhwan.townwatchingsemeru.data.remote.dto.post.comment.CommentDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.like.LikeResponseDto
 import com.ikhwan.townwatchingsemeru.domain.model.Post
 import com.ikhwan.townwatchingsemeru.domain.repository.PostRepository
@@ -28,5 +31,13 @@ class PostRepositoryImpl @Inject constructor(
 
     override suspend fun getAllCategory(): List<CategoryDto> {
         return api.getAllCategory()
+    }
+
+    override suspend fun getComment(postId: Int): List<CommentDto> {
+        return api.getComment(postId)
+    }
+
+    override suspend fun addComment(auth: String, comment: CommentBody): AddCommentResponseDto {
+        return api.addComment(auth, comment)
     }
 }

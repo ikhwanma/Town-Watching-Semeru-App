@@ -2,6 +2,9 @@ package com.ikhwan.townwatchingsemeru.data.remote
 
 import com.ikhwan.townwatchingsemeru.data.remote.dto.category.CategoryDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.PostDto
+import com.ikhwan.townwatchingsemeru.data.remote.dto.post.comment.AddCommentResponseDto
+import com.ikhwan.townwatchingsemeru.data.remote.dto.post.comment.CommentBody
+import com.ikhwan.townwatchingsemeru.data.remote.dto.post.comment.CommentDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.like.LikeResponseDto
 import com.ikhwan.townwatchingsemeru.domain.model.LikeResponse
 import retrofit2.Response
@@ -23,4 +26,15 @@ interface PostApi {
 
     @GET("post/category")
     suspend fun getAllCategory() : List<CategoryDto>
+
+    @GET("post/comment/{id}")
+    suspend fun getComment(
+        @Path("id")postId : Int
+    ): List<CommentDto>
+
+    @POST("post/comment")
+    suspend fun addComment(
+        @Header("Authorization") auth : String,
+        @Body comment: CommentBody
+    ): AddCommentResponseDto
 }
