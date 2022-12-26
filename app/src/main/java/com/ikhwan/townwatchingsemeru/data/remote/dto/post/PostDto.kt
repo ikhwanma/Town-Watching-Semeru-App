@@ -4,8 +4,8 @@ package com.ikhwan.townwatchingsemeru.data.remote.dto.post
 import com.google.gson.annotations.SerializedName
 import com.ikhwan.townwatchingsemeru.data.remote.dto.category.CategoryDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.comment.CommentDto
-import com.ikhwan.townwatchingsemeru.data.remote.dto.post.like.Like
-import com.ikhwan.townwatchingsemeru.data.remote.dto.user.User
+import com.ikhwan.townwatchingsemeru.data.remote.dto.post.like.LikeDto
+import com.ikhwan.townwatchingsemeru.data.remote.dto.user.UserDto
 import com.ikhwan.townwatchingsemeru.domain.model.Post
 
 data class PostDto(
@@ -26,7 +26,7 @@ data class PostDto(
     @SerializedName("level")
     val level: String,
     @SerializedName("like")
-    val like: List<Like>,
+    val like: List<LikeDto>,
     @SerializedName("longitude")
     val longitude: String,
     @SerializedName("status")
@@ -34,7 +34,7 @@ data class PostDto(
     @SerializedName("updatedAt")
     val updatedAt: String,
     @SerializedName("user")
-    val user: User
+    val user: UserDto
 )
 
 fun PostDto.toPost(): Post {

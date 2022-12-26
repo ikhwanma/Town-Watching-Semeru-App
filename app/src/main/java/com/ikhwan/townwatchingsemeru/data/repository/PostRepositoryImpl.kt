@@ -7,7 +7,9 @@ import com.ikhwan.townwatchingsemeru.data.remote.dto.post.PostDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.comment.AddCommentResponseDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.comment.CommentBody
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.comment.CommentDto
+import com.ikhwan.townwatchingsemeru.data.remote.dto.post.like.LikeDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.like.LikeResponseDto
+import com.ikhwan.townwatchingsemeru.domain.model.Like
 import com.ikhwan.townwatchingsemeru.domain.model.Post
 import com.ikhwan.townwatchingsemeru.domain.repository.PostRepository
 import okhttp3.MultipartBody
@@ -31,6 +33,7 @@ class PostRepositoryImpl @Inject constructor(
             auth, description, latitude, longitude, category, level, status, image
         )
     }
+
     override suspend fun getAllPost(
         categoryId: Int?,
         level: String?,
@@ -39,6 +42,10 @@ class PostRepositoryImpl @Inject constructor(
         return api.getAllPost(
             categoryId, level, status
         )
+    }
+
+    override suspend fun getUserPost(auth: String): List<PostDto> {
+        return api.getUserPost(auth)
     }
 
     override suspend fun addLike(auth: String, postId: Int): LikeResponseDto {
@@ -55,5 +62,9 @@ class PostRepositoryImpl @Inject constructor(
 
     override suspend fun addComment(auth: String, comment: CommentBody): AddCommentResponseDto {
         return api.addComment(auth, comment)
+    }
+
+    override suspend fun getUserLike(auth: String): List<LikeDto> {
+        return api.getUserLike(auth)
     }
 }

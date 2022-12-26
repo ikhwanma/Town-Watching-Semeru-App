@@ -6,11 +6,10 @@ import com.ikhwan.townwatchingsemeru.data.remote.dto.post.PostDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.comment.AddCommentResponseDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.comment.CommentBody
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.comment.CommentDto
+import com.ikhwan.townwatchingsemeru.data.remote.dto.post.like.LikeDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.like.LikeResponseDto
-import com.ikhwan.townwatchingsemeru.domain.model.LikeResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
-import retrofit2.Response
 import retrofit2.http.*
 
 interface PostApi {
@@ -34,6 +33,11 @@ interface PostApi {
         @Query("status") status: Int? = null,
     ) : List<PostDto>
 
+    @GET("post/user")
+    suspend fun getUserPost(
+        @Header("Authorization") auth : String,
+    ) : List<PostDto>
+
     @POST("post/like/{id}")
     suspend fun addLike(
         @Header("Authorization") auth : String,
@@ -53,4 +57,9 @@ interface PostApi {
         @Header("Authorization") auth : String,
         @Body comment: CommentBody
     ): AddCommentResponseDto
+
+    @GET("post/like")
+    suspend fun getUserLike(
+        @Header("Authorization") auth : String
+    ): List<LikeDto>
 }

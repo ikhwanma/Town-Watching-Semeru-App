@@ -1,6 +1,7 @@
 package com.ikhwan.townwatchingsemeru.data.repository
 
 import com.ikhwan.townwatchingsemeru.data.remote.UserApi
+import com.ikhwan.townwatchingsemeru.data.remote.dto.user.UserDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.categoryuser.CategoryUserDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.login.LoginBody
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.login.PostLoginResponseDto
@@ -18,6 +19,10 @@ class UserRepositoryImpl @Inject constructor(
 
     override suspend fun loginUser(user: LoginBody): PostLoginResponseDto {
         return api.loginUser(user)
+    }
+
+    override suspend fun getUser(auth: String): UserDto {
+        return api.getUser(auth)
     }
 
 }

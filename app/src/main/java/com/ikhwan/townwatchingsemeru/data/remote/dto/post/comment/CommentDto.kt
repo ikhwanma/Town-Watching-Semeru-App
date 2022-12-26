@@ -2,7 +2,7 @@ package com.ikhwan.townwatchingsemeru.data.remote.dto.post.comment
 
 
 import com.google.gson.annotations.SerializedName
-import com.ikhwan.townwatchingsemeru.data.remote.dto.user.User
+import com.ikhwan.townwatchingsemeru.data.remote.dto.user.UserDto
 import com.ikhwan.townwatchingsemeru.domain.model.Comment
 
 data class CommentDto(
@@ -17,7 +17,7 @@ data class CommentDto(
     @SerializedName("updatedAt")
     val updatedAt: String,
     @SerializedName("user")
-    val user: User
+    val user: UserDto
 )
 
 fun CommentDto.toComment(): Comment {

@@ -1,9 +1,9 @@
 package com.ikhwan.townwatchingsemeru.domain.model
 
 import com.ikhwan.townwatchingsemeru.data.remote.dto.category.CategoryDto
-import com.ikhwan.townwatchingsemeru.data.remote.dto.post.like.Like
+import com.ikhwan.townwatchingsemeru.data.remote.dto.post.like.LikeDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.comment.CommentDto
-import com.ikhwan.townwatchingsemeru.data.remote.dto.user.User
+import com.ikhwan.townwatchingsemeru.data.remote.dto.user.UserDto
 
 data class Post(
     val category: CategoryDto,
@@ -13,9 +13,9 @@ data class Post(
     val image: String,
     val latitude: String,
     val level: String,
-    val like: List<Like>,
+    val like: List<LikeDto>,
     val longitude: String,
     val status: Boolean,
     val createdAt: String,
-    val user: User
+    val user: UserDto
 )

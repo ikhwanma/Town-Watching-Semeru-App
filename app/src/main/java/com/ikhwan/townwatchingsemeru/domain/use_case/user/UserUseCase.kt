@@ -4,8 +4,10 @@ import com.ikhwan.townwatchingsemeru.common.Resource
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.categoryuser.toCategoryUser
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.login.LoginBody
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.login.toPostLoginResponse
+import com.ikhwan.townwatchingsemeru.data.remote.dto.user.toUser
 import com.ikhwan.townwatchingsemeru.domain.model.CategoryUser
 import com.ikhwan.townwatchingsemeru.domain.model.PostLoginResponse
+import com.ikhwan.townwatchingsemeru.domain.model.User
 import com.ikhwan.townwatchingsemeru.domain.repository.UserRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -32,6 +34,17 @@ class UserUseCase@Inject constructor(
         try {
             emit(Resource.Loading())
             emit(Resource.Success(repository.loginUser(user).toPostLoginResponse()))
+        }catch (e: HttpException){
+            emit(Resource.Error(e.localizedMessage ?: "An unexpected error occured"))
+        }catch (e: IOException){
+            emit(Resource.Error("Couldn't reach server, check connection"))
+        }
+    }
+
+    fun getUser(auth: String): Flow<Resource<User>> = flow {
+        try {
+            emit(Resource.Loading())
+            emit(Resource.Success(repository.getUser(auth).toUser()))
         }catch (e: HttpException){
             emit(Resource.Error(e.localizedMessage ?: "An unexpected error occured"))
         }catch (e: IOException){

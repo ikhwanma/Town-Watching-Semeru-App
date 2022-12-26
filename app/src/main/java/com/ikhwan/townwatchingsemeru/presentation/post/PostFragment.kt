@@ -124,7 +124,7 @@ class PostFragment : Fragment(), View.OnClickListener {
                     Log.d("HomeFragment", result.message!!)
                 }
                 is Resource.Loading -> {
-                    Log.d("HomeFragment", "Loading Category User")
+                    Log.d("HomeFragment", "Loading Category UserDto")
                 }
                 is Resource.Success -> {
                     val data = result.data!!

@@ -1,12 +1,10 @@
 package com.ikhwan.townwatchingsemeru.data.remote
 
+import com.ikhwan.townwatchingsemeru.data.remote.dto.user.UserDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.categoryuser.CategoryUserDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.login.LoginBody
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.login.PostLoginResponseDto
-import retrofit2.http.Body
-import retrofit2.http.GET
-import retrofit2.http.POST
-import retrofit2.http.Query
+import retrofit2.http.*
 
 interface UserApi {
     @GET("user/category?")
@@ -18,4 +16,9 @@ interface UserApi {
     suspend fun loginUser(
         @Body user : LoginBody
     ) : PostLoginResponseDto
+
+    @GET("user")
+    suspend fun getUser(
+        @Header("Authorization") auth : String
+    ) : UserDto
 }

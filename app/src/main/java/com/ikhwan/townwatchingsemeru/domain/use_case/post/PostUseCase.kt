@@ -6,6 +6,7 @@ import com.ikhwan.townwatchingsemeru.data.remote.dto.post.comment.AddCommentResp
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.comment.CommentBody
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.comment.toAddCommentResponse
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.comment.toComment
+import com.ikhwan.townwatchingsemeru.data.remote.dto.post.like.toLike
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.like.toLikeResponse
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.toAddPostResponse
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.toPost
@@ -74,6 +75,17 @@ class PostUseCase @Inject constructor(
         }
     }
 
+    fun getUserPost(auth: String): Flow<Resource<List<Post>>> = flow {
+        try {
+            emit(Resource.Loading())
+            emit(Resource.Success(repository.getUserPost(auth).map { it.toPost() }))
+        } catch (e: HttpException) {
+            emit(Resource.Error(e.localizedMessage ?: "An unexpected error occured"))
+        } catch (e: IOException) {
+            emit(Resource.Error("Couldn't reach server, check connection"))
+        }
+    }
+
     fun addLike(auth: String, postId: Int): Flow<Resource<LikeResponse>> = flow {
         try {
             emit(Resource.Loading())
@@ -111,6 +123,17 @@ class PostUseCase @Inject constructor(
         try {
             emit(Resource.Loading())
             emit(Resource.Success(repository.addComment(auth, comment).toAddCommentResponse()))
+        } catch (e: HttpException) {
+            emit(Resource.Error(e.localizedMessage ?: "An unexpected error occured"))
+        } catch (e: IOException) {
+            emit(Resource.Error("Couldn't reach server, check connection"))
+        }
+    }
+
+    fun getUserLike(auth: String): Flow<Resource<List<Like>>> = flow {
+        try {
+            emit(Resource.Loading())
+            emit(Resource.Success(repository.getUserLike(auth).map { it.toLike() }))
         } catch (e: HttpException) {
             emit(Resource.Error(e.localizedMessage ?: "An unexpected error occured"))
         } catch (e: IOException) {

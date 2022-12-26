@@ -91,7 +91,7 @@ class HomeFragment : Fragment(), View.OnClickListener {
                     Log.d("HomeFragment", result.message!!)
                 }
                 is Resource.Loading -> {
-                    Log.d("HomeFragment", "Loading Category User")
+                    Log.d("HomeFragment", "Loading Category UserDto")
                 }
                 is Resource.Success -> {
                     categoryUser = result.data!!
@@ -107,7 +107,7 @@ class HomeFragment : Fragment(), View.OnClickListener {
                     Log.d("HomeFragment", result.message!!)
                 }
                 is Resource.Loading -> {
-                    Log.d("HomeFragment", "Loading Category User")
+                    Log.d("HomeFragment", "Loading Category UserDto")
                 }
                 is Resource.Success -> {
                     val data = result.data!!
@@ -221,7 +221,7 @@ class HomeFragment : Fragment(), View.OnClickListener {
                     Log.d("HomeFragment", result.message!!)
                 }
                 is Resource.Loading -> {
-                    Log.d("HomeFragment", "Loading Category User")
+                    Log.d("HomeFragment", "Loading Category UserDto")
                 }
                 is Resource.Success -> {
                     val message = result.data!!.message

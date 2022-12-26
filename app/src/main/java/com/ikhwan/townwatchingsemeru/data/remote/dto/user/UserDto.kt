@@ -3,8 +3,9 @@ package com.ikhwan.townwatchingsemeru.data.remote.dto.user
 
 import com.google.gson.annotations.SerializedName
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.categoryuser.CategoryUserDto
+import com.ikhwan.townwatchingsemeru.domain.model.User
 
-data class User(
+data class UserDto(
     @SerializedName("category_user")
     val categoryUser: CategoryUserDto,
     @SerializedName("categoryUserId")
@@ -24,3 +25,9 @@ data class User(
     @SerializedName("updatedAt")
     val updatedAt: String
 )
+
+fun UserDto.toUser(): User {
+    return User(
+        categoryUser = categoryUser, id = id, image = image, name = name
+    )
+}
