@@ -1,7 +1,5 @@
 package com.ikhwan.townwatchingsemeru.domain.model
 
-import com.google.gson.annotations.SerializedName
-
 data class AddPostResponse(
     val categoryId: String,
     val createdAt: String,
