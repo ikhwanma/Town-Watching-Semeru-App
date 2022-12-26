@@ -1,8 +1,10 @@
 package com.ikhwan.townwatchingsemeru.data.repository
 
 import com.ikhwan.townwatchingsemeru.data.remote.UserApi
+import com.ikhwan.townwatchingsemeru.data.remote.dto.user.UpdatePasswordResponseDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.UserDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.categoryuser.CategoryUserDto
+import com.ikhwan.townwatchingsemeru.data.remote.dto.user.editpassword.EditPasswordBody
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.login.LoginBody
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.login.PostLoginResponseDto
 import com.ikhwan.townwatchingsemeru.domain.model.CategoryUser
@@ -23,6 +25,13 @@ class UserRepositoryImpl @Inject constructor(
 
     override suspend fun getUser(auth: String): UserDto {
         return api.getUser(auth)
+    }
+
+    override suspend fun editPassword(
+        auth: String,
+        editPassword: EditPasswordBody
+    ): UpdatePasswordResponseDto {
+        return api.editPassword(auth, editPassword)
     }
 
 }

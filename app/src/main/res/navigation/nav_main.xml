@@ -66,5 +66,19 @@
         <action
             android:id="@+id/action_profileFragment2_to_loginFragment"
             app:destination="@id/loginFragment" />
+        <action
+            android:id="@+id/action_profileFragment_to_editPasswordFragment"
+            app:destination="@id/editPasswordFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/editPasswordFragment"
+        android:name="com.ikhwan.townwatchingsemeru.presentation.edit_password.EditPasswordFragment"
+        android:label="fragment_edit_password"
+        tools:layout="@layout/fragment_edit_password" >
+        <action
+            android:id="@+id/action_editPasswordFragment_to_profileFragment"
+            app:destination="@id/profileFragment"
+            app:popUpTo="@id/editPasswordFragment"
+            app:popUpToInclusive="true" />
     </fragment>
 </navigation>

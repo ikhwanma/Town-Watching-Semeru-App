@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.navigation.Navigation
 import com.bumptech.glide.Glide
@@ -29,6 +30,8 @@ class ProfileFragment : Fragment(), View.OnClickListener {
     private val textAdapter =
         mutableListOf("Laporan Saya", "Laporan Disukai")
 
+    private var token = ""
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -50,8 +53,9 @@ class ProfileFragment : Fragment(), View.OnClickListener {
 
     private fun init() {
 
-        viewModel.getToken().observe(viewLifecycleOwner){
+        viewModel.getToken().observe(viewLifecycleOwner) {
             if (it != "") {
+                token = it
                 getData(it)
             } else {
                 Navigation.findNavController(requireView())
@@ -69,9 +73,9 @@ class ProfileFragment : Fragment(), View.OnClickListener {
         }
     }
 
-    private fun getData(token: String){
-        viewModel.getUser(token).observe(viewLifecycleOwner){ result ->
-            when(result){
+    private fun getData(token: String) {
+        viewModel.getUser(token).observe(viewLifecycleOwner) { result ->
+            when (result) {
                 is Resource.Error -> {
                     Log.d("ProfileFragment", result.message!!)
                 }
@@ -112,10 +116,11 @@ class ProfileFragment : Fragment(), View.OnClickListener {
                     }
                     btnEditPassword.setOnClickListener {
                         bottomSheetDialog.dismiss()
-
+                        val mBundle = bundleOf(Constants.EXTRA_TOKEN to token)
+                        Navigation.findNavController(requireView())
+                            .navigate(R.id.action_profileFragment_to_editPasswordFragment, mBundle)
                     }
                 }
-
             }
         }
     }
