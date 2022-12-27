@@ -2,6 +2,7 @@ package com.ikhwan.townwatchingsemeru.data.remote
 
 import com.ikhwan.townwatchingsemeru.data.remote.dto.category.CategoryDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.AddPostResponseDto
+import com.ikhwan.townwatchingsemeru.data.remote.dto.post.DeletePostResponseDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.PostDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.comment.AddCommentResponseDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.comment.CommentBody
@@ -33,10 +34,22 @@ interface PostApi {
         @Query("status") status: Int? = null,
     ) : List<PostDto>
 
+    @GET("post/{id}")
+    suspend fun getDetailPost(
+        @Path("id")id : Int
+    ): PostDto
+
     @GET("post/user")
     suspend fun getUserPost(
         @Header("Authorization") auth : String,
     ) : List<PostDto>
+
+    @DELETE("post/user/{id}")
+    suspend fun deletePostUser(
+        @Header("Authorization") auth : String,
+        @Path("id")id : Int
+    ): DeletePostResponseDto
+
 
     @POST("post/like/{id}")
     suspend fun addLike(

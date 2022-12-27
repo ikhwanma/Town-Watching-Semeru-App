@@ -3,6 +3,7 @@ package com.ikhwan.townwatchingsemeru.data.repository
 import com.ikhwan.townwatchingsemeru.data.remote.PostApi
 import com.ikhwan.townwatchingsemeru.data.remote.dto.category.CategoryDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.AddPostResponseDto
+import com.ikhwan.townwatchingsemeru.data.remote.dto.post.DeletePostResponseDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.PostDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.comment.AddCommentResponseDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.comment.CommentBody
@@ -44,8 +45,16 @@ class PostRepositoryImpl @Inject constructor(
         )
     }
 
+    override suspend fun getDetailPost(id: Int): PostDto {
+        return api.getDetailPost(id)
+    }
+
     override suspend fun getUserPost(auth: String): List<PostDto> {
         return api.getUserPost(auth)
+    }
+
+    override suspend fun deletePostUser(auth: String, id: Int): DeletePostResponseDto {
+        return api.deletePostUser(auth, id)
     }
 
     override suspend fun addLike(auth: String, postId: Int): LikeResponseDto {

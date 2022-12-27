@@ -3,6 +3,7 @@ package com.ikhwan.townwatchingsemeru.domain.repository
 import com.ikhwan.townwatchingsemeru.common.Resource
 import com.ikhwan.townwatchingsemeru.data.remote.dto.category.CategoryDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.AddPostResponseDto
+import com.ikhwan.townwatchingsemeru.data.remote.dto.post.DeletePostResponseDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.PostDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.comment.AddCommentResponseDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.comment.CommentBody
@@ -37,7 +38,11 @@ interface PostRepository {
         status: Int? = null
     ): List<PostDto>
 
+    suspend fun getDetailPost(id: Int): PostDto
+
     suspend fun getUserPost(auth: String): List<PostDto>
+
+    suspend fun deletePostUser(auth: String, id: Int): DeletePostResponseDto
 
     suspend fun addLike(auth : String, postId : Int): LikeResponseDto
 

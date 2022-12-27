@@ -32,8 +32,20 @@ class MyLikeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        init()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        init()
+    }
+
+    private fun init() {
         viewModel.getToken().observe(viewLifecycleOwner) { auth ->
-            getData(auth)
+            if (auth != "") {
+                getData(auth)
+            }
         }
     }
 

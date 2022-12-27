@@ -68,4 +68,6 @@
     <string name="masyarakat">Masyarakat</string>
     <string name="level">Level</string>
     <string name="komentar">Komentar</string>
+    <string name="hapus_laporan">Hapus Laporan</string>
+    <string name="edit_laporan">Edit Laporan</string>
 </resources>

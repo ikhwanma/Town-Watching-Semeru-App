@@ -9,6 +9,7 @@ import com.ikhwan.townwatchingsemeru.data.remote.dto.post.comment.toComment
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.like.toLike
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.like.toLikeResponse
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.toAddPostResponse
+import com.ikhwan.townwatchingsemeru.data.remote.dto.post.toDeletePostResponse
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.toPost
 import com.ikhwan.townwatchingsemeru.domain.model.*
 import com.ikhwan.townwatchingsemeru.domain.repository.PostRepository
@@ -75,10 +76,32 @@ class PostUseCase @Inject constructor(
         }
     }
 
+    fun getDetailPost(id: Int): Flow<Resource<Post>> = flow {
+        try {
+            emit(Resource.Loading())
+            emit(Resource.Success(repository.getDetailPost(id).toPost()))
+        } catch (e: HttpException) {
+            emit(Resource.Error(e.localizedMessage ?: "An unexpected error occured"))
+        } catch (e: IOException) {
+            emit(Resource.Error("Couldn't reach server, check connection"))
+        }
+    }
+
     fun getUserPost(auth: String): Flow<Resource<List<Post>>> = flow {
         try {
             emit(Resource.Loading())
             emit(Resource.Success(repository.getUserPost(auth).map { it.toPost() }))
+        } catch (e: HttpException) {
+            emit(Resource.Error(e.localizedMessage ?: "An unexpected error occured"))
+        } catch (e: IOException) {
+            emit(Resource.Error("Couldn't reach server, check connection"))
+        }
+    }
+
+    fun deleteUserPost(auth: String, id: Int): Flow<Resource<DeletePostResponse>> = flow {
+        try {
+            emit(Resource.Loading())
+            emit(Resource.Success(repository.deletePostUser(auth, id).toDeletePostResponse()))
         } catch (e: HttpException) {
             emit(Resource.Error(e.localizedMessage ?: "An unexpected error occured"))
         } catch (e: IOException) {

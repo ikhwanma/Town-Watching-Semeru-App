@@ -66,6 +66,7 @@ class CommentFragment : Fragment(), View.OnClickListener {
 
         idPost = arguments?.getInt(Constants.EXTRA_ID)!!
         token = arguments?.getString(Constants.EXTRA_TOKEN)!!
+
         observeGetComment(idPost)
 
         binding.btnComment.setOnClickListener(this)

@@ -211,8 +211,6 @@ class HomeFragment : Fragment(), View.OnClickListener {
 
         btnLike.startAnimation(animation)
 
-        Toast.makeText(requireContext(), userId.toString(), Toast.LENGTH_SHORT).show()
-
         var likeSum = post.like.size
 
         viewModel.addLike(token, post.id).observe(viewLifecycleOwner) { result ->
