@@ -53,7 +53,7 @@ class PostFragment : Fragment(), View.OnClickListener {
     private val listCategoryName = mutableListOf<String>()
     private var token = ""
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
-    private lateinit var currentPhotoPath: String
+    private var currentPhotoPath: String = ""
     private var currentLocation: LatLng? = null
 
     private val viewModel: PostViewModel by hiltNavGraphViewModels(R.id.nav_main)
@@ -72,8 +72,24 @@ class PostFragment : Fragment(), View.OnClickListener {
 
     private val galleryResult =
         registerForActivityResult(ActivityResultContracts.GetContent()) { result ->
-            binding.ivPost.setImageURI(result)
+            val bMap = MediaStore.Images.Media.getBitmap(requireActivity().contentResolver, result)
+
+            val bitmap = if (bMap.height > bMap.width){
+                BitmapResize.getResizedBitmap(
+                    bMap,
+                    1080,
+                    1920
+                )
+            }else{
+                BitmapResize.getResizedBitmap(
+                    bMap,
+                    1920,
+                    1080
+                )
+            }
             image = result!!
+
+            binding.ivPost.setImageBitmap(bitmap)
         }
 
     private val cameraResult =

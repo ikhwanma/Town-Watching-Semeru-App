@@ -1,6 +1,7 @@
 package com.ikhwan.townwatchingsemeru.data.repository
 
 import com.ikhwan.townwatchingsemeru.data.remote.UserApi
+import com.ikhwan.townwatchingsemeru.data.remote.dto.user.UpdateAvaResponseDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.UpdatePasswordResponseDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.UserDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.categoryuser.CategoryUserDto
@@ -9,6 +10,7 @@ import com.ikhwan.townwatchingsemeru.data.remote.dto.user.login.LoginBody
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.login.PostLoginResponseDto
 import com.ikhwan.townwatchingsemeru.domain.model.CategoryUser
 import com.ikhwan.townwatchingsemeru.domain.repository.UserRepository
+import okhttp3.MultipartBody
 import javax.inject.Inject
 
 class UserRepositoryImpl @Inject constructor(
@@ -32,6 +34,10 @@ class UserRepositoryImpl @Inject constructor(
         editPassword: EditPasswordBody
     ): UpdatePasswordResponseDto {
         return api.editPassword(auth, editPassword)
+    }
+
+    override suspend fun updateAva(auth: String, image: MultipartBody.Part): UpdateAvaResponseDto {
+        return api.updateAva(auth, image)
     }
 
 }

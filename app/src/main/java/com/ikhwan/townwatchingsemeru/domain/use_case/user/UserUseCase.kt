@@ -5,15 +5,14 @@ import com.ikhwan.townwatchingsemeru.data.remote.dto.user.categoryuser.toCategor
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.editpassword.EditPasswordBody
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.login.LoginBody
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.login.toPostLoginResponse
+import com.ikhwan.townwatchingsemeru.data.remote.dto.user.toUpdateAvaResponse
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.toUpdatePasswordResponse
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.toUser
-import com.ikhwan.townwatchingsemeru.domain.model.CategoryUser
-import com.ikhwan.townwatchingsemeru.domain.model.PostLoginResponse
-import com.ikhwan.townwatchingsemeru.domain.model.UpdatePasswordResponse
-import com.ikhwan.townwatchingsemeru.domain.model.User
+import com.ikhwan.townwatchingsemeru.domain.model.*
 import com.ikhwan.townwatchingsemeru.domain.repository.UserRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import okhttp3.MultipartBody
 import retrofit2.HttpException
 import java.io.IOException
 import javax.inject.Inject
@@ -72,4 +71,16 @@ class UserUseCase @Inject constructor(
             emit(Resource.Error("Couldn't reach server, check connection"))
         }
     }
+
+    fun updateAva(auth: String, image: MultipartBody.Part): Flow<Resource<UpdateAvaResponse>> =
+        flow {
+            try {
+                emit(Resource.Loading())
+                emit(Resource.Success(repository.updateAva(auth, image).toUpdateAvaResponse()))
+            } catch (e: HttpException) {
+                emit(Resource.Error(e.localizedMessage ?: "An unexpected error occured"))
+            } catch (e: IOException) {
+                emit(Resource.Error("Couldn't reach server, check connection"))
+            }
+        }
 }

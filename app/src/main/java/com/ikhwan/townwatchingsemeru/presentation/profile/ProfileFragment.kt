@@ -1,22 +1,46 @@
 package com.ikhwan.townwatchingsemeru.presentation.profile
 
+import android.Manifest
+import android.app.Activity
+import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
+import android.provider.MediaStore
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.ActivityCompat
+import androidx.core.content.FileProvider
+import androidx.core.net.toUri
 import androidx.core.os.bundleOf
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.navigation.Navigation
 import com.bumptech.glide.Glide
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.tabs.TabLayoutMediator
 import com.ikhwan.townwatchingsemeru.R
 import com.ikhwan.townwatchingsemeru.common.Constants
 import com.ikhwan.townwatchingsemeru.common.Resource
+import com.ikhwan.townwatchingsemeru.common.utils.BitmapResize
+import com.ikhwan.townwatchingsemeru.common.utils.PermissionChecker
+import com.ikhwan.townwatchingsemeru.databinding.BottomSheetPostBinding
 import com.ikhwan.townwatchingsemeru.databinding.BottomSheetProfileBinding
 import com.ikhwan.townwatchingsemeru.databinding.FragmentProfileBinding
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.IOException
 
 class ProfileFragment : Fragment(), View.OnClickListener {
 
@@ -32,6 +56,62 @@ class ProfileFragment : Fragment(), View.OnClickListener {
 
     private var token = ""
 
+    private var currentPhotoPath: String = ""
+
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) {
+        it.entries.forEach { permission ->
+            if (!permission.value) {
+                PermissionChecker.checkPostPermission(requireContext(), requireActivity())
+            }
+        }
+    }
+
+    private val galleryResult =
+        registerForActivityResult(ActivityResultContracts.GetContent()) { result ->
+            updateAva(result!!)
+        }
+
+    private val cameraResult =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val bMap = BitmapFactory.decodeFile(currentPhotoPath)
+
+                val bitmap = if (bMap.height > bMap.width) {
+                    BitmapResize.getResizedBitmap(
+                        bMap,
+                        1080,
+                        1920
+                    )
+                } else {
+                    BitmapResize.getResizedBitmap(
+                        bMap,
+                        1920,
+                        1080
+                    )
+                }
+
+
+                val file = File(requireContext().cacheDir, "semeru-")
+                file.delete()
+                file.createNewFile()
+                val fileOutputStream = file.outputStream()
+                val byteArrayOutputStream = ByteArrayOutputStream()
+                bitmap?.compress(Bitmap.CompressFormat.JPEG, 50, byteArrayOutputStream)
+
+                val bytearray = byteArrayOutputStream.toByteArray()
+                fileOutputStream.write(bytearray)
+                fileOutputStream.flush()
+                fileOutputStream.close()
+                byteArrayOutputStream.close()
+
+                val uriImage = file.toUri()
+                val image = uriImage
+                updateAva(image)
+            }
+        }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -43,7 +123,19 @@ class ProfileFragment : Fragment(), View.OnClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         init()
-        binding.btnSettings.setOnClickListener(this)
+
+        binding.apply {
+            viewPager2.adapter = ProfilePagerAdapter(requireParentFragment())
+
+            TabLayoutMediator(tabLayout, viewPager2) { tab, position ->
+                tab.setIcon(imageIcon[position])
+                tab.text = textAdapter[position]
+            }.attach()
+
+            btnSettings.setOnClickListener(this@ProfileFragment)
+            ivAddImage.setOnClickListener(this@ProfileFragment)
+            imgUser.setOnClickListener(this@ProfileFragment)
+        }
     }
 
     override fun onResume() {
@@ -63,14 +155,13 @@ class ProfileFragment : Fragment(), View.OnClickListener {
             }
         }
 
-        binding.apply {
-            viewPager2.adapter = ProfilePagerAdapter(requireParentFragment())
-
-            TabLayoutMediator(tabLayout, viewPager2) { tab, position ->
-                tab.setIcon(imageIcon[position])
-                tab.text = textAdapter[position]
-            }.attach()
-        }
+        requestPermissionLauncher.launch(
+            arrayOf(
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.CAMERA
+            )
+        )
     }
 
     private fun getData(token: String) {
@@ -100,6 +191,47 @@ class ProfileFragment : Fragment(), View.OnClickListener {
         }
     }
 
+    private fun updateAva(image: Uri) {
+        val contentResolver = requireActivity().applicationContext.contentResolver
+
+        val type = contentResolver.getType(image)
+        val tempFile = File.createTempFile("temp-", null, null)
+        val inputStream = contentResolver.openInputStream(image)
+
+        tempFile.outputStream().use {
+            inputStream?.copyTo(it)
+        }
+
+        val typeNotNull = if (type.isNullOrEmpty()) {
+            "image/jpeg"
+        } else {
+            type
+        }
+        val requestBody: RequestBody = tempFile.asRequestBody(typeNotNull.toMediaType())
+
+        val imageUpload =
+            MultipartBody.Part.createFormData("image", tempFile.name, requestBody)
+
+        viewModel.updateAva(token, imageUpload).observe(viewLifecycleOwner) { result ->
+            when (result) {
+                is Resource.Error -> {
+                    Log.d("ProfileFragment", result.message!!)
+                }
+                is Resource.Loading -> {
+                    Log.d("ProfileFragment", "Loading Update Ava")
+                }
+                is Resource.Success -> {
+                    Toast.makeText(
+                        requireContext(),
+                        result.data!!.message,
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    onResume()
+                }
+            }
+        }
+    }
+
     override fun onClick(p0: View?) {
         when (p0?.id) {
             R.id.btn_settings -> {
@@ -120,6 +252,71 @@ class ProfileFragment : Fragment(), View.OnClickListener {
                         Navigation.findNavController(requireView())
                             .navigate(R.id.action_profileFragment_to_editPasswordFragment, mBundle)
                     }
+                }
+            }
+            R.id.iv_add_image -> {
+                showBottomSheet()
+            }
+            R.id.img_user -> {
+                showBottomSheet()
+            }
+        }
+    }
+
+    private fun showBottomSheet() {
+        val checkSelfPermission =
+            PermissionChecker.checkSelfPostPermission(requireContext())
+
+        if (!checkSelfPermission) {
+            ActivityCompat.requestPermissions(
+                requireActivity(),
+                arrayOf(
+                    Manifest.permission.READ_EXTERNAL_STORAGE,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.CAMERA
+                ),
+                101
+            )
+        } else {
+            val bottomSheetDialog = BottomSheetDialog(requireContext())
+            val bindingSheet = BottomSheetPostBinding.inflate(layoutInflater)
+
+            bottomSheetDialog.setContentView(bindingSheet.root)
+            bottomSheetDialog.show()
+
+            bindingSheet.apply {
+                btnCamera.setOnClickListener {
+
+                    val fileName = "photo"
+                    val storageDirectory =
+                        requireActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+
+                    try {
+                        val imageFile =
+                            File.createTempFile(fileName, ".jpg", storageDirectory)
+
+                        currentPhotoPath = imageFile.absolutePath
+
+                        val imageUri = FileProvider.getUriForFile(
+                            requireContext(),
+                            "com.ikhwan.townwatchingsemeru",
+                            imageFile
+                        )
+
+
+                        val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+                        intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri)
+                        cameraResult.launch(intent)
+                    } catch (e: IOException) {
+                        e.printStackTrace()
+                    }
+
+                    bottomSheetDialog.dismiss()
+                }
+
+                btnGallery.setOnClickListener {
+                    galleryResult.launch("image/*")
+                    bottomSheetDialog.dismiss()
                 }
             }
         }

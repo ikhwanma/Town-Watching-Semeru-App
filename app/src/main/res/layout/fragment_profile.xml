@@ -27,12 +27,12 @@
             android:focusable="true" />
 
         <androidx.cardview.widget.CardView
+            android:id="@+id/cv_img_user"
             android:layout_width="150dp"
             android:layout_height="150dp"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="50dp"
             app:cardCornerRadius="100dp">
-
             <ImageView
                 android:id="@+id/img_user"
                 android:layout_width="match_parent"
@@ -41,6 +41,18 @@
                 android:scaleType="fitXY"
                 android:src="@drawable/ic_launcher_background" />
         </androidx.cardview.widget.CardView>
+
+        <ImageView
+            android:id="@+id/iv_add_image"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/ic_baseline_add_a_photo_24"
+            android:layout_alignTop="@+id/cv_img_user"
+            android:layout_alignEnd="@+id/cv_img_user"
+            android:elevation="10dp"
+            android:layout_marginEnd="-10dp"
+            android:layout_marginTop="-10dp"
+            android:contentDescription="@string/icon" />
     </RelativeLayout>
 
 

@@ -6,10 +6,12 @@ import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.ikhwan.townwatchingsemeru.common.Resource
 import com.ikhwan.townwatchingsemeru.data.local.DataStoreManager
+import com.ikhwan.townwatchingsemeru.domain.model.UpdateAvaResponse
 import com.ikhwan.townwatchingsemeru.domain.model.User
 import com.ikhwan.townwatchingsemeru.domain.use_case.user.UserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import okhttp3.MultipartBody
 import javax.inject.Inject
 
 @HiltViewModel
@@ -36,4 +38,7 @@ class ProfileViewModel @Inject constructor(
             pref.setToken(token)
         }
     }
+
+    fun updateAva(auth: String, image: MultipartBody.Part): LiveData<Resource<UpdateAvaResponse>> =
+        userUseCase.updateAva(auth, image).asLiveData()
 }
