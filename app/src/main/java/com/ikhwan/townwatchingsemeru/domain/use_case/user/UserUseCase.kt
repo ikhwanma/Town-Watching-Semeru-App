@@ -5,6 +5,9 @@ import com.ikhwan.townwatchingsemeru.data.remote.dto.user.categoryuser.toCategor
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.editpassword.EditPasswordBody
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.login.LoginBody
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.login.toPostLoginResponse
+import com.ikhwan.townwatchingsemeru.data.remote.dto.user.register.RegisterBody
+import com.ikhwan.townwatchingsemeru.data.remote.dto.user.register.RegisterResponseDto
+import com.ikhwan.townwatchingsemeru.data.remote.dto.user.register.toRegisterResponse
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.toUpdateAvaResponse
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.toUpdatePasswordResponse
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.toUser
@@ -36,6 +39,17 @@ class UserUseCase @Inject constructor(
         try {
             emit(Resource.Loading())
             emit(Resource.Success(repository.loginUser(user).toPostLoginResponse()))
+        } catch (e: HttpException) {
+            emit(Resource.Error(e.localizedMessage ?: "An unexpected error occured"))
+        } catch (e: IOException) {
+            emit(Resource.Error("Couldn't reach server, check connection"))
+        }
+    }
+
+    fun registerUser(registerBody: RegisterBody): Flow<Resource<RegisterResponse>> = flow {
+        try {
+            emit(Resource.Loading())
+            emit(Resource.Success(repository.registerUser(registerBody).toRegisterResponse()))
         } catch (e: HttpException) {
             emit(Resource.Error(e.localizedMessage ?: "An unexpected error occured"))
         } catch (e: IOException) {

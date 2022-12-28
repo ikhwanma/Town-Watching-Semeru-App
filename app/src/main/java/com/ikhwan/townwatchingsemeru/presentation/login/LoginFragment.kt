@@ -58,6 +58,10 @@ class LoginFragment : Fragment(), View.OnClickListener {
                     login(LoginBody(email, password))
                 }
             }
+            R.id.btn_register -> {
+                Navigation.findNavController(requireView())
+                    .navigate(R.id.action_loginFragment_to_registerFragment)
+            }
         }
     }
 

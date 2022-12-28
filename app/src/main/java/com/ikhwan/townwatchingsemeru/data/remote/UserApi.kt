@@ -7,6 +7,8 @@ import com.ikhwan.townwatchingsemeru.data.remote.dto.user.categoryuser.CategoryU
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.editpassword.EditPasswordBody
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.login.LoginBody
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.login.PostLoginResponseDto
+import com.ikhwan.townwatchingsemeru.data.remote.dto.user.register.RegisterBody
+import com.ikhwan.townwatchingsemeru.data.remote.dto.user.register.RegisterResponseDto
 import okhttp3.MultipartBody
 import retrofit2.http.*
 
@@ -20,6 +22,11 @@ interface UserApi {
     suspend fun loginUser(
         @Body user : LoginBody
     ) : PostLoginResponseDto
+
+    @POST("user/register")
+    suspend fun registerUser(
+        @Body registerBody: RegisterBody
+    ): RegisterResponseDto
 
     @GET("user")
     suspend fun getUser(

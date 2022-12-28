@@ -244,6 +244,8 @@ class ProfileFragment : Fragment(), View.OnClickListener {
                     btnLogout.setOnClickListener {
                         viewModel.setId(0)
                         viewModel.setToken("")
+                        Navigation.findNavController(requireView())
+                            .navigate(R.id.action_profileFragment2_to_loginFragment)
                         bottomSheetDialog.dismiss()
                     }
                     btnEditPassword.setOnClickListener {

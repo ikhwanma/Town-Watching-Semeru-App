@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".presentation.register.RegisterFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="20dp"
+        android:orientation="vertical">
+        <ImageView
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:src="@drawable/app_logo"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="80dp"
+            android:contentDescription="@string/image" />
+
+        <TextView
+            style="@style/TextViewSemeru"
+            android:text="@string/semeru_town_watch"
+            android:textSize="12sp"
+            android:textAlignment="center"
+            android:textColor="@color/blue_stw"
+            android:layout_gravity="center_horizontal"
+            android:textAllCaps="true"
+            />
+
+        <TextView
+            style="@style/TextViewSemeru"
+            android:textColor="@color/blue_stw"
+            android:text="@string/lengkapi_isian_dibawah_ini_untuk_nmelakukan_pendaftaran"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textAlignment="center"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="30dp"
+            android:layout_marginBottom="10dp"/>
+
+        <EditText
+            android:id="@+id/et_nama"
+            style="@style/FormSemeru"
+            android:hint="@string/nama_register"
+            android:inputType="textEmailAddress"
+            android:paddingHorizontal="25dp"
+            android:layout_marginTop="5dp"
+            android:autofillHints="emailAddress" />
+
+        <EditText
+            android:id="@+id/et_email"
+            style="@style/FormSemeru"
+            android:hint="@string/email"
+            android:inputType="textEmailAddress"
+            android:paddingHorizontal="25dp"
+            android:layout_marginTop="13dp"
+            android:autofillHints="emailAddress" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/style_box_rounded"
+            app:boxCornerRadiusBottomStart="20dp"
+            app:boxCornerRadiusTopEnd="20dp"
+            app:boxCornerRadiusTopStart="20dp"
+            app:boxCornerRadiusBottomEnd="20dp"
+            app:boxStrokeWidth="0dp"
+            app:boxStrokeWidthFocused="0dp"
+            android:layout_marginTop="13dp">
+
+            <AutoCompleteTextView
+                android:id="@+id/autoCompleteBencana"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/masyarakat"
+                android:fontFamily="@font/roboto_medium"
+                android:textStyle="bold"
+                android:background="@null"
+                android:ellipsize="end"
+                android:inputType="none"
+                android:paddingStart="25dp"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:maxLines="1"
+                android:textColor="@color/black"
+                android:singleLine="true"
+                tools:ignore="LabelFor,RtlSymmetry" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <EditText
+            android:id="@+id/et_password"
+            style="@style/FormSemeru"
+            android:hint="@string/password"
+            android:inputType="textPassword"
+            android:paddingHorizontal="25dp"
+            android:layout_marginTop="13dp"
+            android:autofillHints="password" />
+
+        <Button
+            android:id="@+id/btn_register"
+            style="@style/ButtonSemeru"
+            android:layout_marginTop="13dp"
+            android:paddingHorizontal="25dp"
+            android:textSize="16sp"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/daftar"/>
+
+        <LinearLayout
+            android:id="@+id/btn_login"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:layout_marginTop="50dp">
+            <TextView
+                style="@style/TextViewSemeru"
+                android:text="@string/anda_sudah_memiliki_akun"
+                android:textColor="@color/blue_stw"
+                android:textSize="18sp"/>
+
+            <TextView
+                style="@style/TextViewSemeru"
+                android:text="@string/masuk"
+                android:layout_marginStart="5dp"
+                android:textColor="@color/orange_stw"
+                android:textSize="18sp"/>
+        </LinearLayout>
+    </LinearLayout>
+
+</ScrollView>

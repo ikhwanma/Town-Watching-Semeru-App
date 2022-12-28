@@ -8,6 +8,8 @@ import com.ikhwan.townwatchingsemeru.data.remote.dto.user.categoryuser.CategoryU
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.editpassword.EditPasswordBody
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.login.LoginBody
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.login.PostLoginResponseDto
+import com.ikhwan.townwatchingsemeru.data.remote.dto.user.register.RegisterBody
+import com.ikhwan.townwatchingsemeru.data.remote.dto.user.register.RegisterResponseDto
 import com.ikhwan.townwatchingsemeru.domain.model.CategoryUser
 import com.ikhwan.townwatchingsemeru.domain.repository.UserRepository
 import okhttp3.MultipartBody
@@ -23,6 +25,10 @@ class UserRepositoryImpl @Inject constructor(
 
     override suspend fun loginUser(user: LoginBody): PostLoginResponseDto {
         return api.loginUser(user)
+    }
+
+    override suspend fun registerUser(registerBody: RegisterBody): RegisterResponseDto {
+        return api.registerUser(registerBody)
     }
 
     override suspend fun getUser(auth: String): UserDto {

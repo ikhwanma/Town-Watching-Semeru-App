@@ -48,7 +48,7 @@
         <ImageView
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:src="@drawable/ic_baseline_password_24"
+            android:src="@drawable/ic_baseline_lock_24"
             android:contentDescription="@string/icon" />
 
         <TextView
