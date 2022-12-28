@@ -1,6 +1,8 @@
 package com.ikhwan.townwatchingsemeru.presentation.register
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -12,6 +14,7 @@ import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.navigation.Navigation
 import com.ikhwan.townwatchingsemeru.R
 import com.ikhwan.townwatchingsemeru.common.Resource
+import com.ikhwan.townwatchingsemeru.common.utils.Validator
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.register.RegisterBody
 import com.ikhwan.townwatchingsemeru.databinding.FragmentRegisterBinding
 
@@ -23,6 +26,10 @@ class RegisterFragment : Fragment(), View.OnClickListener {
     private val viewModel: RegisterViewModel by hiltNavGraphViewModels(R.id.nav_main)
 
     private val hashMap = HashMap<Int, String>()
+
+    private var checkEmail = false
+    private var checkName = false
+    private var checkPassword = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -36,6 +43,84 @@ class RegisterFragment : Fragment(), View.OnClickListener {
         super.onViewCreated(view, savedInstanceState)
 
         setAdapterDropdown()
+
+        binding.etEmail.addTextChangedListener(object : TextWatcher{
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                binding.tvAlertEmail.visibility = View.GONE
+                checkEmail = false
+            }
+
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                val validateEmail = Validator.emailValidator(p0.toString())
+                val txtValidator = "Email tidak sesuai format"
+
+                if (!validateEmail){
+                    checkEmail = false
+                    binding.tvAlertEmail.visibility = View.VISIBLE
+                    binding.tvAlertEmail.text = txtValidator
+                }else{
+                    checkEmail = true
+                    binding.tvAlertEmail.visibility = View.GONE
+                }
+
+            }
+
+            override fun afterTextChanged(p0: Editable?) {
+
+            }
+
+        })
+
+        binding.etNama.addTextChangedListener(object : TextWatcher{
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                binding.tvAlertName.visibility = View.GONE
+                checkName = false
+            }
+
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                val validateName = Validator.nameValidator(p0.toString())
+
+                if (validateName.isEmpty()){
+                    checkName = true
+                    binding.tvAlertName.visibility = View.GONE
+                }else{
+                    checkName = false
+                    binding.tvAlertName.visibility = View.VISIBLE
+                    binding.tvAlertName.text = validateName
+                }
+            }
+
+            override fun afterTextChanged(p0: Editable?) {
+
+            }
+
+        })
+
+        binding.etPassword.addTextChangedListener(object : TextWatcher{
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                binding.tvAlertPassword.visibility = View.GONE
+                checkPassword = false
+            }
+
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                val validatePassword = Validator.passwordValidator(p0.toString())
+
+                if (validatePassword.isEmpty()){
+                    checkPassword = true
+                    binding.tvAlertPassword.visibility = View.GONE
+                }else{
+                    checkPassword = false
+                    binding.tvAlertPassword.visibility = View.VISIBLE
+                    binding.tvAlertPassword.text = validatePassword
+                }
+            }
+
+            override fun afterTextChanged(p0: Editable?) {
+
+            }
+
+        })
+
         binding.btnRegister.setOnClickListener(this)
     }
 
@@ -82,15 +167,15 @@ class RegisterFragment : Fragment(), View.OnClickListener {
                         }
                     }
 
-                    if (name.isNotEmpty() ||
-                        email.isNotEmpty() ||
-                        password.isNotEmpty() ||
-                        categoryUser.isNotEmpty()
+                    if (checkName &&
+                        checkEmail &&
+                        checkPassword
                     ) {
                         registerUser(name, email, password, categoryUserId)
-                    } else {
-                        Toast.makeText(requireContext(), "Isi semua field", Toast.LENGTH_SHORT)
-                            .show()
+                    } else if(
+                        name.isEmpty() || email.isEmpty() || password.isEmpty()
+                    ){
+                        Toast.makeText(requireContext(), "Isi semua field", Toast.LENGTH_SHORT).show()
                     }
                 }
             }

@@ -49,6 +49,15 @@
             android:layout_marginTop="5dp"
             android:autofillHints="emailAddress" />
 
+        <TextView
+            android:id="@+id/tv_alert_name"
+            style="@style/TextViewSemeru"
+            android:text="@string/password_minimal_6_karakter"
+            android:textSize="14sp"
+            android:textColor="@color/red"
+            android:visibility="gone"
+            />
+
         <EditText
             android:id="@+id/et_email"
             style="@style/FormSemeru"
@@ -57,6 +66,15 @@
             android:paddingHorizontal="25dp"
             android:layout_marginTop="13dp"
             android:autofillHints="emailAddress" />
+
+        <TextView
+            android:id="@+id/tv_alert_email"
+            style="@style/TextViewSemeru"
+            android:text="@string/password_minimal_6_karakter"
+            android:textSize="14sp"
+            android:textColor="@color/red"
+            android:visibility="gone"
+            />
 
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
@@ -98,6 +116,15 @@
             android:paddingHorizontal="25dp"
             android:layout_marginTop="13dp"
             android:autofillHints="password" />
+
+        <TextView
+            android:id="@+id/tv_alert_password"
+            style="@style/TextViewSemeru"
+            android:text="@string/password_minimal_6_karakter"
+            android:textSize="14sp"
+            android:textColor="@color/red"
+            android:visibility="gone"
+            />
 
         <Button
             android:id="@+id/btn_register"

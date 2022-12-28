@@ -69,14 +69,14 @@ class LoginFragment : Fragment(), View.OnClickListener {
         viewModel.loginUser(loginBody).observe(viewLifecycleOwner) { result ->
             when (result) {
                 is Resource.Error -> {
-                    Log.d("LoginFragment", result.message!!)
+                    Log.d("LoginFragment", "Err")
                 }
                 is Resource.Loading -> {
                     Log.d("LoginFragment", "Loading Login")
                 }
                 is Resource.Success -> {
-                    result.data.let { response ->
-                        if (response?.message == "Login Successful") {
+                    result.data!!.let { response ->
+                        if (response.token.isNotEmpty()) {
                             viewModel.setId(response.id)
                             viewModel.setToken(response.token)
                             Toast.makeText(requireContext(), "Berhasil Login", Toast.LENGTH_SHORT)
