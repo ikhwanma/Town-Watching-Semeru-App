@@ -2,6 +2,7 @@ package com.ikhwan.townwatchingsemeru.presentation.maps
 
 import android.Manifest
 import android.content.Intent
+import android.location.Location
 import android.net.Uri
 import androidx.fragment.app.Fragment
 
@@ -13,6 +14,7 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.lifecycle.lifecycleScope
@@ -36,6 +38,8 @@ import com.ikhwan.townwatchingsemeru.databinding.BottomSheetMapsBinding
 import com.ikhwan.townwatchingsemeru.databinding.FragmentMapsBinding
 import com.ikhwan.townwatchingsemeru.domain.model.Post
 import com.ikhwan.townwatchingsemeru.common.utils.PermissionChecker
+import java.math.RoundingMode
+import java.text.DecimalFormat
 
 class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener {
 
@@ -46,12 +50,15 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener {
     private var listPosts: List<Post> = emptyList()
 
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
+    private var currentLocation: LatLng? = null
+    private var nearestPoint: LatLng? = null
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) {
         it.entries.forEach { map ->
             if (map.value) {
+
                 getCurrentLocation()
             } else {
                 PermissionChecker.checkMapsPermission(requireContext(), requireActivity())
@@ -71,7 +78,7 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener {
                 is Resource.Success -> {
                     val data = result.data!!
                     val listCategory = mutableListOf("Lihat Semua")
-                    for (d in data){
+                    for (d in data) {
                         listCategory.add(d.category)
                     }
                     val adapterBencana =
@@ -104,7 +111,7 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener {
     }
 
 
-    private fun init(){
+    private fun init() {
         fusedLocationProviderClient =
             LocationServices.getFusedLocationProviderClient(requireContext())
         requestPermissionLauncher.launch(
@@ -116,8 +123,21 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener {
     }
 
     private fun getCurrentLocation() {
-        val checkSelfPermission = PermissionChecker.checkSelfMapsPermission(requireContext())
-        if (!checkSelfPermission) return
+        val checkSelfPermission = PermissionChecker.checkSelfPostPermission(requireContext())
+
+        if (!checkSelfPermission) {
+            return
+        }
+
+        val task = fusedLocationProviderClient.lastLocation
+
+        task.addOnSuccessListener { location ->
+            if (location != null) {
+                val currentLocation = LatLng(location.latitude, location.longitude)
+
+                this.currentLocation = currentLocation
+            }
+        }
 
         val semeru = LatLng(-8.2061557, 112.9773703)
 
@@ -208,8 +228,9 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener {
         val bottomSheetDialog = BottomSheetDialog(requireContext())
         val bindingSheet = BottomSheetMapsBinding.inflate(layoutInflater)
         bottomSheetDialog.setContentView(bindingSheet.root)
-
         bottomSheetDialog.show()
+
+        val nearestLatLng = getNearestPoint()
 
         val post = listPosts.single {
             it.id == marker.tag.toString().toInt()
@@ -232,23 +253,69 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener {
                 post.longitude.toDouble()
             )
 
-            btnRoute.setOnClickListener {
-
-                val latitude = "-8.201375"
-                val longitude =
-                    "112.9837633"
-                val gmmIntentUri =
-                    Uri.parse("google.navigation:q=$latitude,$longitude")
-                val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
-                mapIntent.setPackage("com.google.android.apps.maps")
-                mapIntent.resolveActivity(requireActivity().packageManager)
-                    ?.let {
-                        startActivity(mapIntent)
-                    }
+            if (post.category.id == 4 || post.category.id == 3) {
+                val txtBtn = "Rute ke tempat ini"
+                btnRoute.text = txtBtn
+                btnRoute.setOnClickListener {
+                    val gmmIntentUri =
+                        Uri.parse("google.navigation:q=${post.latitude},${post.longitude}")
+                    val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
+                    mapIntent.setPackage("com.google.android.apps.maps")
+                    mapIntent.resolveActivity(requireActivity().packageManager)
+                        ?.let {
+                            startActivity(mapIntent)
+                        }
+                }
+            } else {
+                btnRoute.setOnClickListener {
+                    val latitude = nearestLatLng.latitude.toString()
+                    val longitude = nearestLatLng.longitude.toString()
+                    val gmmIntentUri =
+                        Uri.parse("google.navigation:q=$latitude,$longitude")
+                    val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
+                    mapIntent.setPackage("com.google.android.apps.maps")
+                    mapIntent.resolveActivity(requireActivity().packageManager)
+                        ?.let {
+                            startActivity(mapIntent)
+                        }
+                }
             }
         }
 
         return false
+    }
+
+    private fun getNearestPoint(): LatLng {
+        val myLatitude = currentLocation!!.latitude
+        val myLongitude = currentLocation!!.longitude
+        val posko = listPosts.filter { it.category.id == 4 }
+        val listDistance = HashMap<LatLng, Double>()
+        val listDistanceWithIndex = HashMap<Int, LatLng>()
+        var i = 0
+
+        val startPoint = Location("LocationA")
+        startPoint.latitude = myLatitude
+        startPoint.longitude = myLongitude
+
+        for (d in posko) {
+            val endPoint = Location("LocationB")
+            endPoint.latitude = d.latitude.toDouble()
+            endPoint.longitude = d.longitude.toDouble()
+
+            val distance = startPoint.distanceTo(endPoint).toDouble()
+
+            listDistance[LatLng(d.latitude.toDouble(), d.longitude.toDouble())] = distance
+        }
+
+        val listDistanceSorted = listDistance.toList().sortedBy { (_, value) -> value }.toMap()
+
+        for (d in listDistanceSorted) {
+            listDistanceWithIndex[i] = d.key
+            i++
+        }
+
+        return listDistanceWithIndex[0]!!
+
     }
 
     private fun setAddress(tvAddress: TextView, lat: Double, lng: Double) {
