@@ -3,6 +3,8 @@ package com.ikhwan.townwatchingsemeru.domain.use_case.user
 import com.ikhwan.townwatchingsemeru.common.Resource
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.categoryuser.toCategoryUser
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.editpassword.EditPasswordBody
+import com.ikhwan.townwatchingsemeru.data.remote.dto.user.editprofile.UpdateProfileBody
+import com.ikhwan.townwatchingsemeru.data.remote.dto.user.editprofile.toUpdateProfileResponse
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.login.LoginBody
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.login.toPostLoginResponse
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.register.RegisterBody
@@ -61,6 +63,24 @@ class UserUseCase @Inject constructor(
         try {
             emit(Resource.Loading())
             emit(Resource.Success(repository.getUser(auth).toUser()))
+        } catch (e: HttpException) {
+            emit(Resource.Error(e.localizedMessage ?: "An unexpected error occured"))
+        } catch (e: IOException) {
+            emit(Resource.Error("Couldn't reach server, check connection"))
+        }
+    }
+
+    fun updateProfile(
+        auth: String,
+        updateProfileBody: UpdateProfileBody
+    ): Flow<Resource<UpdateProfileResponse>> = flow {
+        try {
+            emit(Resource.Loading())
+            emit(
+                Resource.Success(
+                    repository.updateProfile(auth, updateProfileBody).toUpdateProfileResponse()
+                )
+            )
         } catch (e: HttpException) {
             emit(Resource.Error(e.localizedMessage ?: "An unexpected error occured"))
         } catch (e: IOException) {

@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".presentation.update_profile.UpdateProfileFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="20dp"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <ImageView
+                android:id="@+id/btn_back"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/ic_baseline_arrow_back_24"
+                android:backgroundTint="@color/brown_primary"
+                android:contentDescription="@string/icon" />
+
+            <TextView
+                style="@style/TextViewSemeru.bold"
+                android:layout_centerInParent="true"
+                android:text="@string/ubah_profil"
+                android:textColor="@color/brown_primary"
+                android:textSize="16sp" />
+        </RelativeLayout>
+
+        <TextView
+            style="@style/TextViewSemeru"
+            android:layout_marginTop="8dp"
+            android:text="@string/nama_"
+            android:textSize="16sp"
+            android:textColor="@color/black"
+            />
+        <EditText
+            android:id="@+id/et_nama"
+            style="@style/FormSemeru"
+            android:hint="@string/nama_register"
+            android:inputType="textEmailAddress"
+            android:paddingHorizontal="25dp"
+            android:layout_marginTop="5dp"
+            android:autofillHints="emailAddress" />
+
+        <TextView
+            style="@style/TextViewSemeru"
+            android:layout_marginTop="8dp"
+            android:text="@string/email_tidak_dapat_diubah"
+            android:textSize="16sp"
+            android:textColor="@color/black"
+            />
+
+        <EditText
+            android:id="@+id/et_email"
+            style="@style/FormSemeru"
+            android:hint="@string/email"
+            android:inputType="none"
+            android:paddingHorizontal="25dp"
+            android:layout_marginTop="13dp"
+            android:autofillHints="emailAddress"
+            tools:ignore="TextFields" />
+
+        <TextView
+            style="@style/TextViewSemeru"
+            android:layout_marginTop="8dp"
+            android:text="@string/pilih_kategori"
+            android:textSize="16sp"
+            android:textColor="@color/black"
+            />
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/style_box_rounded"
+            app:boxCornerRadiusBottomStart="20dp"
+            app:boxCornerRadiusTopEnd="20dp"
+            app:boxCornerRadiusTopStart="20dp"
+            app:boxCornerRadiusBottomEnd="20dp"
+            app:boxStrokeWidth="0dp"
+            app:boxStrokeWidthFocused="0dp"
+            android:layout_marginTop="13dp">
+
+            <AutoCompleteTextView
+                android:id="@+id/autoCompleteBencana"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/masyarakat"
+                android:fontFamily="@font/roboto_medium"
+                android:textStyle="bold"
+                android:background="@null"
+                android:ellipsize="end"
+                android:inputType="none"
+                android:paddingStart="25dp"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:maxLines="1"
+                android:textColor="@color/black"
+                android:singleLine="true"
+                tools:ignore="LabelFor,RtlSymmetry" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <Button
+            android:id="@+id/btn_update_profile"
+            style="@style/ButtonSemeru"
+            android:layout_marginTop="13dp"
+            android:paddingHorizontal="25dp"
+            android:textSize="16sp"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/ubah_profil"/>
+    </LinearLayout>
+
+</ScrollView>

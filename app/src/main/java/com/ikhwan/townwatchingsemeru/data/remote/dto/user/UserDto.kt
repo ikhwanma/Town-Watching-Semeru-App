@@ -28,6 +28,10 @@ data class UserDto(
 
 fun UserDto.toUser(): User {
     return User(
-        categoryUser = categoryUser, id = id, image = image, name = name
+        categoryUser = categoryUser,
+        id = id,
+        image = image,
+        name = name,
+        email = email
     )
 }

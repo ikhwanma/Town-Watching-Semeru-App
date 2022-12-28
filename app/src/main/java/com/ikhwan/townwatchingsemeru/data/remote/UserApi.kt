@@ -5,6 +5,8 @@ import com.ikhwan.townwatchingsemeru.data.remote.dto.user.UpdatePasswordResponse
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.UserDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.categoryuser.CategoryUserDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.editpassword.EditPasswordBody
+import com.ikhwan.townwatchingsemeru.data.remote.dto.user.editprofile.UpdateProfileBody
+import com.ikhwan.townwatchingsemeru.data.remote.dto.user.editprofile.UpdateProfileResponseDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.login.LoginBody
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.login.PostLoginResponseDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.register.RegisterBody
@@ -32,6 +34,12 @@ interface UserApi {
     suspend fun getUser(
         @Header("Authorization") auth : String
     ) : UserDto
+
+    @PUT("user")
+    suspend fun updateProfile(
+        @Header("Authorization") auth : String,
+        @Body updateProfileBody: UpdateProfileBody
+    ): UpdateProfileResponseDto
 
     @PUT("user/password")
     suspend fun editPassword(

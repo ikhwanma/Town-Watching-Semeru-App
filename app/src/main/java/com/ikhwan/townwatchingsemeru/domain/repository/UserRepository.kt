@@ -5,13 +5,14 @@ import com.ikhwan.townwatchingsemeru.data.remote.dto.user.UpdatePasswordResponse
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.UserDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.categoryuser.CategoryUserDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.editpassword.EditPasswordBody
+import com.ikhwan.townwatchingsemeru.data.remote.dto.user.editprofile.UpdateProfileBody
+import com.ikhwan.townwatchingsemeru.data.remote.dto.user.editprofile.UpdateProfileResponseDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.login.LoginBody
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.login.PostLoginResponseDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.register.RegisterBody
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.register.RegisterResponseDto
+import com.ikhwan.townwatchingsemeru.domain.model.UpdateProfileResponse
 import okhttp3.MultipartBody
-import retrofit2.http.Header
-import retrofit2.http.Part
 
 interface UserRepository {
     suspend fun getCategoryUser(
@@ -29,6 +30,11 @@ interface UserRepository {
     suspend fun getUser(
          auth : String
     ): UserDto
+
+    suspend fun updateProfile(
+        auth : String,
+        updateProfileBody: UpdateProfileBody
+    ): UpdateProfileResponseDto
 
     suspend fun editPassword(
         auth: String,

@@ -6,6 +6,8 @@ import com.ikhwan.townwatchingsemeru.data.remote.dto.user.UpdatePasswordResponse
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.UserDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.categoryuser.CategoryUserDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.editpassword.EditPasswordBody
+import com.ikhwan.townwatchingsemeru.data.remote.dto.user.editprofile.UpdateProfileBody
+import com.ikhwan.townwatchingsemeru.data.remote.dto.user.editprofile.UpdateProfileResponseDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.login.LoginBody
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.login.PostLoginResponseDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.register.RegisterBody
@@ -33,6 +35,13 @@ class UserRepositoryImpl @Inject constructor(
 
     override suspend fun getUser(auth: String): UserDto {
         return api.getUser(auth)
+    }
+
+    override suspend fun updateProfile(
+        auth: String,
+        updateProfileBody: UpdateProfileBody
+    ): UpdateProfileResponseDto {
+        return api.updateProfile(auth, updateProfileBody)
     }
 
     override suspend fun editPassword(

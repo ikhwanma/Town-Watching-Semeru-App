@@ -23,7 +23,6 @@ import androidx.core.os.bundleOf
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.navigation.Navigation
 import com.bumptech.glide.Glide
-import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.tabs.TabLayoutMediator
 import com.ikhwan.townwatchingsemeru.R
@@ -34,6 +33,7 @@ import com.ikhwan.townwatchingsemeru.common.utils.PermissionChecker
 import com.ikhwan.townwatchingsemeru.databinding.BottomSheetPostBinding
 import com.ikhwan.townwatchingsemeru.databinding.BottomSheetProfileBinding
 import com.ikhwan.townwatchingsemeru.databinding.FragmentProfileBinding
+import com.ikhwan.townwatchingsemeru.domain.model.User
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -57,6 +57,8 @@ class ProfileFragment : Fragment(), View.OnClickListener {
     private var token = ""
 
     private var currentPhotoPath: String = ""
+
+    private var user: User? = null
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -185,6 +187,8 @@ class ProfileFragment : Fragment(), View.OnClickListener {
                             tvUser.text = user.name
                             tvCategory.text = sBCategory.toString()
                         }
+
+                        this.user = user
                     }
                 }
             }
@@ -253,6 +257,20 @@ class ProfileFragment : Fragment(), View.OnClickListener {
                         val mBundle = bundleOf(Constants.EXTRA_TOKEN to token)
                         Navigation.findNavController(requireView())
                             .navigate(R.id.action_profileFragment_to_editPasswordFragment, mBundle)
+                    }
+                    btnEditProfile.setOnClickListener {
+                        bottomSheetDialog.dismiss()
+                        val name = user!!.name
+                        val email = user!!.email
+                        val categoryUserId = user!!.categoryUser.id
+                        val mBundle = bundleOf(
+                            Constants.EXTRA_NAME to name,
+                            Constants.EXTRA_CATEGORY to categoryUserId,
+                            Constants.EXTRA_EMAIL to email,
+                            Constants.EXTRA_TOKEN to token
+                        )
+                        Navigation.findNavController(requireView())
+                            .navigate(R.id.action_profileFragment_to_updateProfileFragment, mBundle)
                     }
                 }
             }

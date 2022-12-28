@@ -70,4 +70,7 @@
     <string name="komentar">Komentar</string>
     <string name="hapus_laporan">Hapus Laporan</string>
     <string name="edit_laporan">Edit Laporan</string>
+    <string name="ubah_profil">Ubah Profil</string>
+    <string name="nama_">Nama</string>
+    <string name="email_tidak_dapat_diubah">Email (Tidak dapat diubah)</string>
 </resources>
