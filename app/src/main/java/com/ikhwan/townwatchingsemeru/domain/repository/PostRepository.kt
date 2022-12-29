@@ -10,9 +10,12 @@ import com.ikhwan.townwatchingsemeru.data.remote.dto.post.comment.CommentBody
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.comment.CommentDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.like.LikeDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.like.LikeResponseDto
+import com.ikhwan.townwatchingsemeru.data.remote.dto.post.updatepost.UpdatePostBody
+import com.ikhwan.townwatchingsemeru.data.remote.dto.post.updatepost.UpdatePostResponseDto
 import com.ikhwan.townwatchingsemeru.domain.model.Like
 import com.ikhwan.townwatchingsemeru.domain.model.LikeResponse
 import com.ikhwan.townwatchingsemeru.domain.model.Post
+import com.ikhwan.townwatchingsemeru.domain.model.UpdatePostResponse
 import kotlinx.coroutines.flow.Flow
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -37,6 +40,11 @@ interface PostRepository {
         level: String? = null,
         status: Int? = null
     ): List<PostDto>
+
+    suspend fun updatePost(
+        auth: String,
+        updatePostBody: UpdatePostBody
+    ): UpdatePostResponseDto
 
     suspend fun getDetailPost(id: Int): PostDto
 

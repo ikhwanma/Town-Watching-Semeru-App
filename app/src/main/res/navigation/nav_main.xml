@@ -103,6 +103,9 @@
         <action
             android:id="@+id/action_detailPostFragment_to_commentFragment"
             app:destination="@id/commentFragment" />
+        <action
+            android:id="@+id/action_detailPostFragment_to_updatePostFragment"
+            app:destination="@id/updatePostFragment" />
     </fragment>
     <fragment
         android:id="@+id/registerFragment"
@@ -124,6 +127,17 @@
             android:id="@+id/action_updateProfileFragment_to_profileFragment"
             app:destination="@id/profileFragment"
             app:popUpTo="@id/updateProfileFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/updatePostFragment"
+        android:name="com.ikhwan.townwatchingsemeru.presentation.update_post.UpdatePostFragment"
+        android:label="fragment_update_post"
+        tools:layout="@layout/fragment_update_post" >
+        <action
+            android:id="@+id/action_updatePostFragment_to_detailPostFragment"
+            app:destination="@id/detailPostFragment"
+            app:popUpTo="@id/updatePostFragment"
             app:popUpToInclusive="true" />
     </fragment>
 </navigation>

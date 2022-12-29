@@ -11,6 +11,8 @@ import com.ikhwan.townwatchingsemeru.data.remote.dto.post.like.toLikeResponse
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.toAddPostResponse
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.toDeletePostResponse
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.toPost
+import com.ikhwan.townwatchingsemeru.data.remote.dto.post.updatepost.UpdatePostBody
+import com.ikhwan.townwatchingsemeru.data.remote.dto.post.updatepost.toUpdatePostResponse
 import com.ikhwan.townwatchingsemeru.domain.model.*
 import com.ikhwan.townwatchingsemeru.domain.repository.PostRepository
 import kotlinx.coroutines.flow.Flow
@@ -69,6 +71,20 @@ class PostUseCase @Inject constructor(
                 Resource.Success(
                     repository.getAllPost(categoryId, level, status).map { it.toPost() })
             )
+        } catch (e: HttpException) {
+            emit(Resource.Error(e.localizedMessage ?: "An unexpected error occured"))
+        } catch (e: IOException) {
+            emit(Resource.Error("Couldn't reach server, check connection"))
+        }
+    }
+
+    fun updatePost(
+        auth: String,
+        updatePostBody: UpdatePostBody
+    ): Flow<Resource<UpdatePostResponse>> = flow {
+        try {
+            emit(Resource.Loading())
+            emit(Resource.Success(repository.updatePost(auth, updatePostBody).toUpdatePostResponse()))
         } catch (e: HttpException) {
             emit(Resource.Error(e.localizedMessage ?: "An unexpected error occured"))
         } catch (e: IOException) {

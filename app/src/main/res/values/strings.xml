@@ -73,4 +73,9 @@
     <string name="ubah_profil">Ubah Profil</string>
     <string name="nama_">Nama</string>
     <string name="email_tidak_dapat_diubah">Email (Tidak dapat diubah)</string>
+    <string name="ubah_laporan">Ubah Laporan</string>
+    <string name="gambar_amp_lokasi_tidak_dapat_diubah"><![CDATA[Gambar & Lokasi tidak dapat diubah]]></string>
+    <string name="tuliskan_deskripsi">Tuliskan Deskripsi</string>
+    <string name="pilih_level">Pilih Level</string>
+    <string name="pilih_status">Pilih Status</string>
 </resources>

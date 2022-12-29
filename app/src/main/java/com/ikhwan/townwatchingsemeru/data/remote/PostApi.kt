@@ -9,6 +9,8 @@ import com.ikhwan.townwatchingsemeru.data.remote.dto.post.comment.CommentBody
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.comment.CommentDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.like.LikeDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.like.LikeResponseDto
+import com.ikhwan.townwatchingsemeru.data.remote.dto.post.updatepost.UpdatePostBody
+import com.ikhwan.townwatchingsemeru.data.remote.dto.post.updatepost.UpdatePostResponseDto
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.http.*
@@ -33,6 +35,12 @@ interface PostApi {
         @Query("level") level: String? = null,
         @Query("status") status: Int? = null,
     ) : List<PostDto>
+
+    @PUT("post")
+    suspend fun updatePost(
+        @Header("Authorization") auth: String,
+        @Body updatePostBody: UpdatePostBody
+    ): UpdatePostResponseDto
 
     @GET("post/{id}")
     suspend fun getDetailPost(

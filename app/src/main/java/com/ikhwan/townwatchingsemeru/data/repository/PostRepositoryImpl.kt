@@ -10,6 +10,8 @@ import com.ikhwan.townwatchingsemeru.data.remote.dto.post.comment.CommentBody
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.comment.CommentDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.like.LikeDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.like.LikeResponseDto
+import com.ikhwan.townwatchingsemeru.data.remote.dto.post.updatepost.UpdatePostBody
+import com.ikhwan.townwatchingsemeru.data.remote.dto.post.updatepost.UpdatePostResponseDto
 import com.ikhwan.townwatchingsemeru.domain.model.Like
 import com.ikhwan.townwatchingsemeru.domain.model.Post
 import com.ikhwan.townwatchingsemeru.domain.repository.PostRepository
@@ -43,6 +45,13 @@ class PostRepositoryImpl @Inject constructor(
         return api.getAllPost(
             categoryId, level, status
         )
+    }
+
+    override suspend fun updatePost(
+        auth: String,
+        updatePostBody: UpdatePostBody
+    ): UpdatePostResponseDto {
+        return api.updatePost(auth, updatePostBody)
     }
 
     override suspend fun getDetailPost(id: Int): PostDto {

@@ -37,6 +37,8 @@ class DetailPostFragment : Fragment(), View.OnClickListener {
     private var idUser = 0
     private var idPost = 0
 
+    private var post: Post? = null
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -71,21 +73,23 @@ class DetailPostFragment : Fragment(), View.OnClickListener {
         viewModel.getDetailPost(idPost).observe(viewLifecycleOwner) { result ->
             when (result) {
                 is Resource.Error -> {
-
+                    Log.e("DetailPostFragment", result.message!!)
                 }
                 is Resource.Loading -> {
-
+                    Log.d("DetailPostFragment", "Loading detailpost")
                 }
                 is Resource.Success -> {
                     result.data!!.let { post ->
                         binding.apply {
+                            this@DetailPostFragment.post = post
                             val imageUrl = Constants.BASE_URL + post.image
                             val imageUserUrl = Constants.BASE_URL + post.user.image
                             var cardStatusDrawable = cvStatus.background
                             val status = post.status
                             var textStatus = ""
                             val datePost = Converter.convertDate(post.createdAt).split(" ")
-                            val txtDate = "${datePost[0]} ${datePost[1]} ${datePost[2]} - ${datePost[3]} WIB"
+                            val txtDate =
+                                "${datePost[0]} ${datePost[1]} ${datePost[2]} - ${datePost[3]} WIB"
 
                             Glide.with(requireView()).load(imageUrl).into(ivPost)
                             setAddress(
@@ -202,7 +206,17 @@ class DetailPostFragment : Fragment(), View.OnClickListener {
     override fun onClick(p0: View?) {
         when (p0?.id) {
             R.id.btn_edit_laporan -> {
-
+                val mBundle = bundleOf(
+                    Constants.EXTRA_ID to idPost,
+                    Constants.EXTRA_CATEGORY to post!!.category.id,
+                    Constants.EXTRA_LEVEL to post!!.level,
+                    Constants.EXTRA_TOKEN to token,
+                    Constants.EXTRA_IMAGE to post!!.image,
+                    Constants.EXTRA_DESCRIPTION to post!!.description,
+                    Constants.EXTRA_STATUS to post!!.status
+                )
+                Navigation.findNavController(requireView())
+                    .navigate(R.id.action_detailPostFragment_to_updatePostFragment, mBundle)
             }
             R.id.btn_delete_laporan -> {
                 deletePost()
