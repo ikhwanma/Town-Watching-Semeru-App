@@ -20,6 +20,7 @@ import com.ikhwan.townwatchingsemeru.R
 import com.ikhwan.townwatchingsemeru.common.Constants
 import com.ikhwan.townwatchingsemeru.common.Resource
 import com.ikhwan.townwatchingsemeru.common.utils.Converter
+import com.ikhwan.townwatchingsemeru.common.utils.ShowActionAlertDialog
 import com.ikhwan.townwatchingsemeru.databinding.FragmentDetailPostBinding
 import com.ikhwan.townwatchingsemeru.domain.model.Post
 
@@ -219,7 +220,14 @@ class DetailPostFragment : Fragment(), View.OnClickListener {
                     .navigate(R.id.action_detailPostFragment_to_updatePostFragment, mBundle)
             }
             R.id.btn_delete_laporan -> {
-                deletePost()
+                ShowActionAlertDialog(
+                    context = requireContext(),
+                    title = "Hapus Laporan",
+                    message = "Apakah anda yakin ingin menghapus laporan ini?",
+                    positiveButtonAction = {
+                        deletePost()
+                    }
+                ).invoke()
             }
             R.id.btn_like -> {
                 addLike()

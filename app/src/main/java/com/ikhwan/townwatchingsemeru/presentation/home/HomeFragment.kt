@@ -111,7 +111,8 @@ class HomeFragment : Fragment(), View.OnClickListener {
                 }
                 is Resource.Success -> {
                     val data = result.data!!
-
+                    listCategory.clear()
+                    listCategoryName.clear()
                     for (d in data) {
                         listCategoryName.add(d.category)
                     }
@@ -267,15 +268,13 @@ class HomeFragment : Fragment(), View.OnClickListener {
                     observeListPosts()
                     bottomSheetDialog.dismiss()
                 }
-                val listImage = listOf(
-                    R.drawable.ic_category_volcano,
-                    R.drawable.ic_category_danger,
-                    R.drawable.ic_category_tree,
-                    R.drawable.ic_category_evacuation
-                )
+                val listImage = mutableListOf<String>()
 
+                for(d in listCategory){
+                    listImage.add(d.image)
+                }
 
-                val adapter = CategoryAdapter(listImage) { it1 ->
+                val adapter = CategoryAdapter(listImageUrl = listImage) { it1 ->
                     for (d in listCategory) {
                         if (d.category == it1) {
                             categoryId = d.id
@@ -313,7 +312,7 @@ class HomeFragment : Fragment(), View.OnClickListener {
                     R.drawable.ic_green_brightness_1_24
                 )
 
-                val adapter = CategoryAdapter(listImage) { it1 ->
+                val adapter = CategoryAdapter(listImage = listImage) { it1 ->
                     level = it1
                     setFilterLevel(level)
                     observeListPosts(categoryId, level, status)

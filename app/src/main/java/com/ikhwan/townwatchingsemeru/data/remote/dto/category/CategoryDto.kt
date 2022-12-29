@@ -6,6 +6,8 @@ import com.ikhwan.townwatchingsemeru.domain.model.Category
 data class CategoryDto(
     @SerializedName("category")
     val category: String,
+    @SerializedName("image")
+    val image: String,
     @SerializedName("createdAt")
     val createdAt: String,
     @SerializedName("id")
@@ -16,6 +18,6 @@ data class CategoryDto(
 
 fun CategoryDto.toCategory(): Category{
     return Category(
-        category = category, id = id
+        category = category, image = image, id = id
     )
 }

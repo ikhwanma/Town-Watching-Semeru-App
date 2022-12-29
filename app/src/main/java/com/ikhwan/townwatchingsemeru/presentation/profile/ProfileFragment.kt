@@ -30,6 +30,7 @@ import com.ikhwan.townwatchingsemeru.common.Constants
 import com.ikhwan.townwatchingsemeru.common.Resource
 import com.ikhwan.townwatchingsemeru.common.utils.BitmapResize
 import com.ikhwan.townwatchingsemeru.common.utils.PermissionChecker
+import com.ikhwan.townwatchingsemeru.common.utils.ShowActionAlertDialog
 import com.ikhwan.townwatchingsemeru.databinding.BottomSheetPostBinding
 import com.ikhwan.townwatchingsemeru.databinding.BottomSheetProfileBinding
 import com.ikhwan.townwatchingsemeru.databinding.FragmentProfileBinding
@@ -246,11 +247,19 @@ class ProfileFragment : Fragment(), View.OnClickListener {
 
                 bindingSheet.apply {
                     btnLogout.setOnClickListener {
-                        viewModel.setId(0)
-                        viewModel.setToken("")
-                        Navigation.findNavController(requireView())
-                            .navigate(R.id.action_profileFragment2_to_loginFragment)
-                        bottomSheetDialog.dismiss()
+                        ShowActionAlertDialog(
+                            context = requireContext(),
+                            title = "Logout",
+                            message = "Apakah Anda yakin ingin logout?",
+                            positiveButtonAction = {
+                                viewModel.setId(0)
+                                viewModel.setToken("")
+                                Navigation.findNavController(requireView())
+                                    .navigate(R.id.action_profileFragment2_to_loginFragment)
+                                bottomSheetDialog.dismiss()
+                            }
+                        ).invoke()
+
                     }
                     btnEditPassword.setOnClickListener {
                         bottomSheetDialog.dismiss()

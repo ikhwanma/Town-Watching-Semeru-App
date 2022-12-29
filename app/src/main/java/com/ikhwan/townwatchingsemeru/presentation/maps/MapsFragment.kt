@@ -2,6 +2,8 @@ package com.ikhwan.townwatchingsemeru.presentation.maps
 
 import android.Manifest
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.drawable.Drawable
 import android.location.Location
 import android.net.Uri
 import androidx.fragment.app.Fragment
@@ -14,17 +16,21 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.graphics.createBitmap
+import androidx.core.graphics.scale
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
+import com.bumptech.glide.request.target.CustomTarget
+import com.bumptech.glide.request.transition.Transition
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
@@ -38,8 +44,6 @@ import com.ikhwan.townwatchingsemeru.databinding.BottomSheetMapsBinding
 import com.ikhwan.townwatchingsemeru.databinding.FragmentMapsBinding
 import com.ikhwan.townwatchingsemeru.domain.model.Post
 import com.ikhwan.townwatchingsemeru.common.utils.PermissionChecker
-import java.math.RoundingMode
-import java.text.DecimalFormat
 
 class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener {
 
@@ -191,10 +195,22 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener {
                                     )
 
                                     if (category == "Pilih Bencana" || category == "Lihat Semua" || category == "") {
-                                        addMarkerMaps(d.category.id, googleMap, loc, d.id)
+                                        addMarkerMaps(
+                                            d.category.id,
+                                            googleMap,
+                                            loc,
+                                            d.id,
+                                            d.category.image
+                                        )
                                     } else {
                                         if (d.category.category == category) {
-                                            addMarkerMaps(d.category.id, googleMap, loc, d.id)
+                                            addMarkerMaps(
+                                                d.category.id,
+                                                googleMap,
+                                                loc,
+                                                d.id,
+                                                d.category.image
+                                            )
                                         } else {
                                             Log.d("Category", "Null")
                                         }
@@ -210,7 +226,7 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener {
                                     d.longitude.toDouble()
                                 )
 
-                                addMarkerMaps(d.category.id, googleMap, loc, d.id)
+                                addMarkerMaps(d.category.id, googleMap, loc, d.id, d.category.image)
 
                                 googleMap.setOnMarkerClickListener(this)
 
@@ -328,57 +344,28 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener {
         }).start()
     }
 
-    private fun addMarkerMaps(id: Int, googleMap: GoogleMap, loc: LatLng, id1: Int) {
-        when (id) {
-            1 -> {
+    private fun addMarkerMaps(id: Int, googleMap: GoogleMap, loc: LatLng, id1: Int, image: String) {
+        val imageUrl = Constants.BASE_URL + image
+
+        Glide.with(requireContext()).asBitmap().load(imageUrl).into(object :
+            CustomTarget<Bitmap>() {
+            override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+                val bitmap = resource.scale(80, 80)
                 val markerMap = googleMap.addMarker(
                     MarkerOptions().position(loc)
                         .icon(
-                            BitmapDescriptor.bitmapDescriptorFromVector(
-                                requireContext(),
-                                R.drawable.ic_category_volcano
-                            )
+                            BitmapDescriptorFactory.fromBitmap(bitmap)
                         )
                 )
                 markerMap?.tag = id1
             }
-            2 -> {
-                val markerMap = googleMap.addMarker(
-                    MarkerOptions().position(loc)
-                        .icon(
-                            BitmapDescriptor.bitmapDescriptorFromVector(
-                                requireContext(),
-                                R.drawable.ic_category_danger
-                            )
-                        )
-                )
-                markerMap?.tag = id1
+
+            override fun onLoadCleared(placeholder: Drawable?) {
+
             }
-            3 -> {
-                val markerMap = googleMap.addMarker(
-                    MarkerOptions().position(loc)
-                        .icon(
-                            BitmapDescriptor.bitmapDescriptorFromVector(
-                                requireContext(),
-                                R.drawable.ic_category_tree
-                            )
-                        )
-                )
-                markerMap?.tag = id1
-            }
-            else -> {
-                val markerMap = googleMap.addMarker(
-                    MarkerOptions().position(loc)
-                        .icon(
-                            BitmapDescriptor.bitmapDescriptorFromVector(
-                                requireContext(),
-                                R.drawable.ic_category_evacuation
-                            )
-                        )
-                )
-                markerMap?.tag = id1
-            }
-        }
+
+
+        })
     }
 
 }
