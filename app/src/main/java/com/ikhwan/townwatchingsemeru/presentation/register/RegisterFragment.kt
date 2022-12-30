@@ -14,6 +14,7 @@ import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.navigation.Navigation
 import com.ikhwan.townwatchingsemeru.R
 import com.ikhwan.townwatchingsemeru.common.Resource
+import com.ikhwan.townwatchingsemeru.common.utils.ShowLoadingAlertDialog
 import com.ikhwan.townwatchingsemeru.common.utils.Validator
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.register.RegisterBody
 import com.ikhwan.townwatchingsemeru.databinding.FragmentRegisterBinding
@@ -31,6 +32,8 @@ class RegisterFragment : Fragment(), View.OnClickListener {
     private var checkName = false
     private var checkPassword = false
 
+    private lateinit var dialog: ShowLoadingAlertDialog
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -41,7 +44,7 @@ class RegisterFragment : Fragment(), View.OnClickListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        dialog = ShowLoadingAlertDialog(requireActivity())
         setAdapterDropdown()
 
         binding.etEmail.addTextChangedListener(object : TextWatcher{
@@ -192,12 +195,15 @@ class RegisterFragment : Fragment(), View.OnClickListener {
         viewModel.registerUser(registerBody).observe(viewLifecycleOwner) { result ->
             when (result) {
                 is Resource.Error -> {
+                    dialog.dismissDialog()
                     Log.d("RegisterFragment", result.message!!)
                 }
                 is Resource.Loading -> {
+                    dialog.startDialog()
                     Log.d("RegisterFragment", "Loading Register")
                 }
                 is Resource.Success -> {
+                    dialog.dismissDialog()
                     Toast.makeText(requireContext(), "Akun didaftarkan", Toast.LENGTH_SHORT).show()
                     Navigation.findNavController(requireView())
                         .navigate(R.id.action_registerFragment_to_loginFragment)

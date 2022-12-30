@@ -6,9 +6,12 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.ikhwan.townwatchingsemeru.R
+import com.ikhwan.townwatchingsemeru.common.Constants
 import com.ikhwan.townwatchingsemeru.common.Resource
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.PostDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.toPost
@@ -61,6 +64,7 @@ class MyLikeFragment : Fragment() {
                 is Resource.Success -> {
                     result.data?.let { likes ->
                         if (likes.isNotEmpty()) {
+                            binding.tvAlertEmptyPost.visibility = View.GONE
                             val posts = mutableListOf<PostDto>()
 
                             for (d in likes) {
@@ -68,7 +72,14 @@ class MyLikeFragment : Fragment() {
                             }
 
                             val adapter = MyLikeAdapter {
-
+                                val mBundle = bundleOf(
+                                    Constants.EXTRA_ID to it.id,
+                                    Constants.EXTRA_FRAGMENT to 1
+                                )
+                                findNavController().navigate(
+                                    R.id.action_profileFragment_to_detailPostFragment,
+                                    mBundle
+                                )
                             }
                             adapter.submitData(posts)
                             binding.apply {
@@ -76,6 +87,8 @@ class MyLikeFragment : Fragment() {
                                 rvLike.layoutManager = GridLayoutManager(requireContext(), 3)
 
                             }
+                        } else {
+                            binding.tvAlertEmptyPost.visibility = View.VISIBLE
                         }
                     }
                 }

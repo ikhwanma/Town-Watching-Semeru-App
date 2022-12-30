@@ -8,19 +8,20 @@ import com.ikhwan.townwatchingsemeru.common.Resource
 import com.ikhwan.townwatchingsemeru.data.local.DataStoreManager
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.login.LoginBody
 import com.ikhwan.townwatchingsemeru.domain.model.PostLoginResponse
-import com.ikhwan.townwatchingsemeru.domain.use_case.user.UserUseCase
+import com.ikhwan.townwatchingsemeru.domain.use_case.user.GetCategoryUserUseCase
+import com.ikhwan.townwatchingsemeru.domain.use_case.user.LoginUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val userUseCase: UserUseCase,
+    private val loginUserUseCase: LoginUserUseCase,
     private val pref: DataStoreManager
 ): ViewModel() {
 
-    fun loginUser(user: LoginBody): LiveData<Resource<PostLoginResponse>> =
-        userUseCase.loginUser(user).asLiveData()
+    suspend fun loginUser(user: LoginBody): LiveData<Resource<PostLoginResponse>> =
+        loginUserUseCase.invoke(user).asLiveData()
 
     fun setToken(token : String){
         viewModelScope.launch {

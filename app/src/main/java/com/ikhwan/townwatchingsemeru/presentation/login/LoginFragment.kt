@@ -12,6 +12,7 @@ import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.navigation.Navigation
 import com.ikhwan.townwatchingsemeru.R
 import com.ikhwan.townwatchingsemeru.common.Resource
+import com.ikhwan.townwatchingsemeru.common.utils.ShowLoadingAlertDialog
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.login.LoginBody
 import com.ikhwan.townwatchingsemeru.databinding.FragmentLoginBinding
 
@@ -23,6 +24,8 @@ class LoginFragment : Fragment(), View.OnClickListener {
 
     private val viewModel: LoginViewModel by hiltNavGraphViewModels(R.id.nav_main)
 
+    private lateinit var dialog: ShowLoadingAlertDialog
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -33,6 +36,7 @@ class LoginFragment : Fragment(), View.OnClickListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        dialog = ShowLoadingAlertDialog(requireActivity())
         requireActivity().onBackPressedDispatcher.addCallback(
             viewLifecycleOwner,
             object : OnBackPressedCallback(true) {
@@ -69,12 +73,15 @@ class LoginFragment : Fragment(), View.OnClickListener {
         viewModel.loginUser(loginBody).observe(viewLifecycleOwner) { result ->
             when (result) {
                 is Resource.Error -> {
-                    Log.d("LoginFragment", "Err")
+                    dialog.dismissDialog()
+                    Toast.makeText(requireContext(), result.message!!, Toast.LENGTH_SHORT).show()
                 }
                 is Resource.Loading -> {
+                    dialog.startDialog()
                     Log.d("LoginFragment", "Loading Login")
                 }
                 is Resource.Success -> {
+                    dialog.dismissDialog()
                     result.data!!.let { response ->
                         if (response.token.isNotEmpty()) {
                             viewModel.setId(response.id)

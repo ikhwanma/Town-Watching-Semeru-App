@@ -1,6 +1,7 @@
 package com.ikhwan.townwatchingsemeru.presentation.profile
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
@@ -31,6 +32,7 @@ import com.ikhwan.townwatchingsemeru.common.Resource
 import com.ikhwan.townwatchingsemeru.common.utils.BitmapResize
 import com.ikhwan.townwatchingsemeru.common.utils.PermissionChecker
 import com.ikhwan.townwatchingsemeru.common.utils.ShowActionAlertDialog
+import com.ikhwan.townwatchingsemeru.common.utils.ShowLoadingAlertDialog
 import com.ikhwan.townwatchingsemeru.databinding.BottomSheetPostBinding
 import com.ikhwan.townwatchingsemeru.databinding.BottomSheetProfileBinding
 import com.ikhwan.townwatchingsemeru.databinding.FragmentProfileBinding
@@ -60,6 +62,8 @@ class ProfileFragment : Fragment(), View.OnClickListener {
     private var currentPhotoPath: String = ""
 
     private var user: User? = null
+
+    private lateinit var dialog: ShowLoadingAlertDialog
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -97,21 +101,31 @@ class ProfileFragment : Fragment(), View.OnClickListener {
 
 
                 val file = File(requireContext().cacheDir, "semeru-")
-                file.delete()
-                file.createNewFile()
+                file.run {
+                    delete()
+                    createNewFile()
+                }
                 val fileOutputStream = file.outputStream()
                 val byteArrayOutputStream = ByteArrayOutputStream()
                 bitmap?.compress(Bitmap.CompressFormat.JPEG, 50, byteArrayOutputStream)
 
                 val bytearray = byteArrayOutputStream.toByteArray()
-                fileOutputStream.write(bytearray)
-                fileOutputStream.flush()
-                fileOutputStream.close()
-                byteArrayOutputStream.close()
+                fileOutputStream.run {
+                    write(bytearray)
+                    flush()
+                    close()
+                }
+                byteArrayOutputStream.run {
+                    fileOutputStream.run {
+                                write(bytearray)
+                                flush()
+                                close()
+                            }
+                    close()
+                }
 
                 val uriImage = file.toUri()
-                val image = uriImage
-                updateAva(image)
+                updateAva(uriImage)
             }
         }
 
@@ -120,6 +134,7 @@ class ProfileFragment : Fragment(), View.OnClickListener {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentProfileBinding.inflate(inflater, container, false)
+        dialog = ShowLoadingAlertDialog(requireActivity())
         return binding.root
     }
 
@@ -196,6 +211,7 @@ class ProfileFragment : Fragment(), View.OnClickListener {
         }
     }
 
+    @SuppressLint("Recycle")
     private fun updateAva(image: Uri) {
         val contentResolver = requireActivity().applicationContext.contentResolver
 
@@ -220,12 +236,15 @@ class ProfileFragment : Fragment(), View.OnClickListener {
         viewModel.updateAva(token, imageUpload).observe(viewLifecycleOwner) { result ->
             when (result) {
                 is Resource.Error -> {
-                    Log.d("ProfileFragment", result.message!!)
+                    dialog.dismissDialog()
+                    Toast.makeText(requireContext(), result.message!!, Toast.LENGTH_SHORT).show()
                 }
                 is Resource.Loading -> {
+                    dialog.startDialog()
                     Log.d("ProfileFragment", "Loading Update Ava")
                 }
                 is Resource.Success -> {
+                    dialog.dismissDialog()
                     Toast.makeText(
                         requireContext(),
                         result.data!!.message,

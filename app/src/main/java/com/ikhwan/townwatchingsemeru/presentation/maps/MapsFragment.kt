@@ -7,7 +7,6 @@ import android.graphics.drawable.Drawable
 import android.location.Location
 import android.net.Uri
 import androidx.fragment.app.Fragment
-
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -16,8 +15,8 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.graphics.createBitmap
 import androidx.core.graphics.scale
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.lifecycle.lifecycleScope
@@ -27,7 +26,6 @@ import com.bumptech.glide.request.transition.Transition
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
-
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
@@ -37,7 +35,6 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.ikhwan.townwatchingsemeru.R
 import com.ikhwan.townwatchingsemeru.common.Constants
-import com.ikhwan.townwatchingsemeru.common.utils.BitmapDescriptor
 import com.ikhwan.townwatchingsemeru.common.Resource
 import com.ikhwan.townwatchingsemeru.common.utils.Converter
 import com.ikhwan.townwatchingsemeru.databinding.BottomSheetMapsBinding
@@ -55,7 +52,6 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener {
 
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private var currentLocation: LatLng? = null
-    private var nearestPoint: LatLng? = null
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -153,7 +149,7 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener {
             viewModel.getAllPosts().observe(viewLifecycleOwner) { result ->
                 when (result) {
                     is Resource.Error -> {
-                        Log.d("MapsFragment", result.message!!)
+                        Toast.makeText(requireContext(), result.message!!, Toast.LENGTH_SHORT).show()
                     }
                     is Resource.Loading -> {
                         Log.d("MapsFragment", "Loading Post")
@@ -166,7 +162,7 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener {
                         var category = binding.autoCompleteBencana.text.toString()
 
                         binding.autoCompleteBencana.onItemClickListener =
-                            AdapterView.OnItemClickListener { parent, view, position, id ->
+                            AdapterView.OnItemClickListener { _, _, _, _ ->
                                 googleMap.clear()
                                 category = binding.autoCompleteBencana.text.toString()
 
@@ -196,7 +192,6 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener {
 
                                     if (category == "Pilih Bencana" || category == "Lihat Semua" || category == "") {
                                         addMarkerMaps(
-                                            d.category.id,
                                             googleMap,
                                             loc,
                                             d.id,
@@ -205,7 +200,6 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener {
                                     } else {
                                         if (d.category.category == category) {
                                             addMarkerMaps(
-                                                d.category.id,
                                                 googleMap,
                                                 loc,
                                                 d.id,
@@ -226,7 +220,7 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener {
                                     d.longitude.toDouble()
                                 )
 
-                                addMarkerMaps(d.category.id, googleMap, loc, d.id, d.category.image)
+                                addMarkerMaps(googleMap, loc, d.id, d.category.image)
 
                                 googleMap.setOnMarkerClickListener(this)
 
@@ -284,16 +278,24 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener {
                 }
             } else {
                 btnRoute.setOnClickListener {
-                    val latitude = nearestLatLng.latitude.toString()
-                    val longitude = nearestLatLng.longitude.toString()
-                    val gmmIntentUri =
-                        Uri.parse("google.navigation:q=$latitude,$longitude")
-                    val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
-                    mapIntent.setPackage("com.google.android.apps.maps")
-                    mapIntent.resolveActivity(requireActivity().packageManager)
-                        ?.let {
-                            startActivity(mapIntent)
-                        }
+                    if (nearestLatLng != LatLng(0.0, 0.0)) {
+                        val latitude = nearestLatLng.latitude.toString()
+                        val longitude = nearestLatLng.longitude.toString()
+                        val gmmIntentUri =
+                            Uri.parse("google.navigation:q=$latitude,$longitude")
+                        val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
+                        mapIntent.setPackage("com.google.android.apps.maps")
+                        mapIntent.resolveActivity(requireActivity().packageManager)
+                            ?.let {
+                                startActivity(mapIntent)
+                            }
+                    } else {
+                        Toast.makeText(
+                            requireContext(),
+                            "Tidak ada posko evakuasi yang aktif",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                 }
             }
         }
@@ -305,6 +307,7 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener {
         val myLatitude = currentLocation!!.latitude
         val myLongitude = currentLocation!!.longitude
         val posko = listPosts.filter { it.category.id == 4 }
+        val poskoActive = posko.filter { it.status }
         val listDistance = HashMap<LatLng, Double>()
         val listDistanceWithIndex = HashMap<Int, LatLng>()
         var i = 0
@@ -313,7 +316,8 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener {
         startPoint.latitude = myLatitude
         startPoint.longitude = myLongitude
 
-        for (d in posko) {
+        for (d in poskoActive) {
+
             val endPoint = Location("LocationB")
             endPoint.latitude = d.latitude.toDouble()
             endPoint.longitude = d.longitude.toDouble()
@@ -321,6 +325,7 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener {
             val distance = startPoint.distanceTo(endPoint).toDouble()
 
             listDistance[LatLng(d.latitude.toDouble(), d.longitude.toDouble())] = distance
+
         }
 
         val listDistanceSorted = listDistance.toList().sortedBy { (_, value) -> value }.toMap()
@@ -330,7 +335,13 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener {
             i++
         }
 
-        return listDistanceWithIndex[0]!!
+
+        return if (listDistanceWithIndex.isNotEmpty()) {
+            listDistanceWithIndex[0]!!
+        } else {
+            LatLng(0.0, 0.0)
+        }
+
 
     }
 
@@ -344,7 +355,7 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener {
         }).start()
     }
 
-    private fun addMarkerMaps(id: Int, googleMap: GoogleMap, loc: LatLng, id1: Int, image: String) {
+    private fun addMarkerMaps(googleMap: GoogleMap, loc: LatLng, id1: Int, image: String) {
         val imageUrl = Constants.BASE_URL + image
 
         Glide.with(requireContext()).asBitmap().load(imageUrl).into(object :

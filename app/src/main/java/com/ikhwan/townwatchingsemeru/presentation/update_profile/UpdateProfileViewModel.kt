@@ -7,20 +7,22 @@ import com.ikhwan.townwatchingsemeru.common.Resource
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.editprofile.UpdateProfileBody
 import com.ikhwan.townwatchingsemeru.domain.model.CategoryUser
 import com.ikhwan.townwatchingsemeru.domain.model.UpdateProfileResponse
-import com.ikhwan.townwatchingsemeru.domain.use_case.user.UserUseCase
+import com.ikhwan.townwatchingsemeru.domain.use_case.user.GetCategoryUserUseCase
+import com.ikhwan.townwatchingsemeru.domain.use_case.user.UpdateProfileUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
 class UpdateProfileViewModel @Inject constructor(
-    private val userUseCase: UserUseCase
+    private val getCategoryUserUseCase: GetCategoryUserUseCase,
+    private val updateProfileUseCase: UpdateProfileUseCase
 ) : ViewModel() {
-    fun getCategoryUser(): LiveData<Resource<List<CategoryUser>>> =
-        userUseCase.getCategoryUser().asLiveData()
+    suspend fun getCategoryUser(): LiveData<Resource<List<CategoryUser>>> =
+        getCategoryUserUseCase.invoke().asLiveData()
 
-    fun updateProfile(
+    suspend fun updateProfile(
         auth: String,
         updateProfileBody: UpdateProfileBody
     ): LiveData<Resource<UpdateProfileResponse>> =
-        userUseCase.updateProfile(auth, updateProfileBody).asLiveData()
+        updateProfileUseCase.invoke(auth, updateProfileBody).asLiveData()
 }

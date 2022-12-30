@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Town Watching Semeru</string>
+    <string name="app_name">Town Watch Semeru</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="maps">Maps</string>
     <string name="home">Home</string>
@@ -78,4 +78,8 @@
     <string name="tuliskan_deskripsi">Tuliskan Deskripsi</string>
     <string name="pilih_level">Pilih Level</string>
     <string name="pilih_status">Pilih Status</string>
+    <string name="harap_tunggu_sebentar">Harap Tunggu Sebentar...</string>
+    <string name="jadilah_yang_pertama_mengomentari_laporan_ini">Jadilah yang pertama mengomentari laporan ini.</string>
+    <string name="belum_ada_laporan">Belum ada laporan...</string>
+    <string name="belum_ada_laporan_yang_disukai">Belum ada laporan yang disukai...</string>
 </resources>

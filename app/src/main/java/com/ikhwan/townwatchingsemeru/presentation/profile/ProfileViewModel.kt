@@ -8,7 +8,9 @@ import com.ikhwan.townwatchingsemeru.common.Resource
 import com.ikhwan.townwatchingsemeru.data.local.DataStoreManager
 import com.ikhwan.townwatchingsemeru.domain.model.UpdateAvaResponse
 import com.ikhwan.townwatchingsemeru.domain.model.User
-import com.ikhwan.townwatchingsemeru.domain.use_case.user.UserUseCase
+import com.ikhwan.townwatchingsemeru.domain.use_case.user.GetUserUseCase
+import com.ikhwan.townwatchingsemeru.domain.use_case.user.LoginUserUseCase
+import com.ikhwan.townwatchingsemeru.domain.use_case.user.UpdateAvaUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import okhttp3.MultipartBody
@@ -16,7 +18,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
-    private val userUseCase: UserUseCase,
+    private val getUserUseCase: GetUserUseCase,
+    private val updateAvaUseCase: UpdateAvaUseCase,
     private val pref: DataStoreManager
 ): ViewModel() {
 
@@ -24,8 +27,8 @@ class ProfileViewModel @Inject constructor(
         return pref.getToken().asLiveData()
     }
 
-    fun getUser(auth: String): LiveData<Resource<User>> =
-        userUseCase.getUser(auth).asLiveData()
+    suspend fun getUser(auth: String): LiveData<Resource<User>> =
+        getUserUseCase.invoke(auth).asLiveData()
 
     fun setId(id: Int){
         viewModelScope.launch {
@@ -39,6 +42,6 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
-    fun updateAva(auth: String, image: MultipartBody.Part): LiveData<Resource<UpdateAvaResponse>> =
-        userUseCase.updateAva(auth, image).asLiveData()
+    suspend fun updateAva(auth: String, image: MultipartBody.Part): LiveData<Resource<UpdateAvaResponse>> =
+        updateAvaUseCase.invoke(auth, image).asLiveData()
 }

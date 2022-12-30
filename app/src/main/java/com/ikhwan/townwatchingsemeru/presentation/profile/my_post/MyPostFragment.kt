@@ -25,7 +25,7 @@ class MyPostFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentMyPostBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -60,19 +60,24 @@ class MyPostFragment : Fragment() {
                     Log.d("MyPostFragment", "Loading")
                 }
                 is Resource.Success -> {
-                    result.data!!.let { posts ->
-                        binding.apply {
-                            val adapter = MyPostAdapter { item ->
-                                val mBundle = bundleOf(Constants.EXTRA_ID to item.id)
-                                Navigation.findNavController(requireView()).navigate(
-                                    R.id.action_profileFragment_to_detailPostFragment,
-                                    mBundle
-                                )
-                            }
-                            adapter.submitData(posts)
+                    result.data?.let { posts ->
+                        if (posts.isEmpty()){
+                            binding.tvAlertEmptyPost.visibility = View.VISIBLE
+                        }else{
+                            binding.apply {
+                                tvAlertEmptyPost.visibility = View.GONE
+                                val adapter = MyPostAdapter { item ->
+                                    val mBundle = bundleOf(Constants.EXTRA_ID to item.id)
+                                    Navigation.findNavController(requireView()).navigate(
+                                        R.id.action_profileFragment_to_detailPostFragment,
+                                        mBundle
+                                    )
+                                }
+                                adapter.submitData(posts)
 
-                            rvPost.adapter = adapter
-                            rvPost.layoutManager = GridLayoutManager(requireContext(), 3)
+                                rvPost.adapter = adapter
+                                rvPost.layoutManager = GridLayoutManager(requireContext(), 3)
+                            }
                         }
                     }
                 }

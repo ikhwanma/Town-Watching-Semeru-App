@@ -7,8 +7,9 @@ import com.ikhwan.townwatchingsemeru.common.Resource
 import com.ikhwan.townwatchingsemeru.data.local.DataStoreManager
 import com.ikhwan.townwatchingsemeru.domain.model.AddPostResponse
 import com.ikhwan.townwatchingsemeru.domain.model.Category
-import com.ikhwan.townwatchingsemeru.domain.use_case.post.PostUseCase
-import com.ikhwan.townwatchingsemeru.domain.use_case.user.UserUseCase
+import com.ikhwan.townwatchingsemeru.domain.use_case.post.AddPostUseCase
+import com.ikhwan.townwatchingsemeru.domain.use_case.post.GetAllCategoryUseCase
+import com.ikhwan.townwatchingsemeru.domain.use_case.post.GetAllPostsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -16,7 +17,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PostViewModel @Inject constructor(
-    private val postUseCase: PostUseCase,
+    private val getAllCategoryUseCase: GetAllCategoryUseCase,
+    private val addPostsUseCase: AddPostUseCase,
     private val pref: DataStoreManager
 ) : ViewModel() {
 
@@ -24,10 +26,10 @@ class PostViewModel @Inject constructor(
         return pref.getToken().asLiveData()
     }
 
-    fun getCategory(): LiveData<Resource<List<Category>>> =
-        postUseCase.getAllCategory().asLiveData()
+    suspend fun getCategory(): LiveData<Resource<List<Category>>> =
+        getAllCategoryUseCase.invoke().asLiveData()
 
-    fun addPost(
+    suspend fun addPost(
         auth: String,
         description: RequestBody,
         latitude: RequestBody,
@@ -37,6 +39,15 @@ class PostViewModel @Inject constructor(
         status: RequestBody,
         image: MultipartBody.Part
     ): LiveData<Resource<AddPostResponse>> =
-        postUseCase.addPost(auth, description, latitude, longitude, category, level, status, image)
+        addPostsUseCase.invoke(
+            auth = auth,
+            description = description,
+            latitude = latitude,
+            longitude = longitude,
+            category = category,
+            level = level,
+            status = status,
+            image = image
+        )
             .asLiveData()
 }

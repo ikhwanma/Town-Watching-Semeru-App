@@ -13,6 +13,7 @@ import androidx.navigation.Navigation
 import com.ikhwan.townwatchingsemeru.R
 import com.ikhwan.townwatchingsemeru.common.Constants
 import com.ikhwan.townwatchingsemeru.common.Resource
+import com.ikhwan.townwatchingsemeru.common.utils.ShowLoadingAlertDialog
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.editprofile.UpdateProfileBody
 import com.ikhwan.townwatchingsemeru.databinding.FragmentUpdateProfileBinding
 
@@ -30,6 +31,8 @@ class UpdateProfileFragment : Fragment(), View.OnClickListener {
 
     private val hashMap = HashMap<Int, String>()
 
+    private lateinit var dialog: ShowLoadingAlertDialog
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -40,7 +43,7 @@ class UpdateProfileFragment : Fragment(), View.OnClickListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        dialog = ShowLoadingAlertDialog(requireActivity())
         name = arguments?.getString(Constants.EXTRA_NAME)!!
         email = arguments?.getString(Constants.EXTRA_EMAIL)!!
         token = arguments?.getString(Constants.EXTRA_TOKEN)!!
@@ -117,9 +120,11 @@ class UpdateProfileFragment : Fragment(), View.OnClickListener {
         viewModel.updateProfile(token, updateProfileBody).observe(viewLifecycleOwner) { result ->
             when (result) {
                 is Resource.Error -> {
-                    Log.d("UpdateProfileFragment", result.message!!)
+                    dialog.dismissDialog()
+                    Toast.makeText(requireContext(), result.message!!, Toast.LENGTH_SHORT).show()
                 }
                 is Resource.Loading -> {
+                    dialog.startDialog()
                     Log.d("UpdateProfileFragment", "Loading Update")
                 }
                 is Resource.Success -> {

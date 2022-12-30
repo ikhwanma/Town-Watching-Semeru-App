@@ -11,4 +11,5 @@ object Constants {
     const val EXTRA_IMAGE = "extra_image"
     const val EXTRA_DESCRIPTION = "extra_description"
     const val EXTRA_STATUS = "extra_status"
+    const val EXTRA_FRAGMENT = "extra_fragment"
 }

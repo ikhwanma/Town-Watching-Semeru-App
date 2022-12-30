@@ -70,15 +70,24 @@ class HomeFragment : Fragment(), View.OnClickListener {
         viewModel.getAllPosts(categoryId, level, status).observe(viewLifecycleOwner) { result ->
             when (result) {
                 is Resource.Error -> {
-                    Log.d("HomeFragment", result.message!!)
+                    binding.progressCircular.visibility = View.GONE
+                    Toast.makeText(requireContext(), result.message!!, Toast.LENGTH_SHORT).show()
                 }
                 is Resource.Loading -> {
+                    binding.progressCircular.visibility = View.VISIBLE
                     Log.d("HomeFragment", "Loading Category listAllPost")
                     observeCategoryUser()
                 }
                 is Resource.Success -> {
-                    val data = result.data!!
-                    setAdapter(data)
+                    binding.progressCircular.visibility = View.GONE
+                    result.data?.let {
+                        if (result.data.isEmpty()){
+                            binding.tvAlertEmptyPost.visibility = View.VISIBLE
+                        }else{
+                            binding.tvAlertEmptyPost.visibility = View.GONE
+                            setAdapter(it)
+                        }
+                    }
                 }
             }
         }

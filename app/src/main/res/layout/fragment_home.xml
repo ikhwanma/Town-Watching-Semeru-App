@@ -146,10 +146,19 @@
         tools:listitem="@layout/item_post"
         />
 
+    <TextView
+        android:id="@+id/tv_alert_empty_post"
+        style="@style/TextViewSemeru"
+        android:text="@string/belum_ada_laporan"
+        android:layout_centerInParent="true"
+        android:visibility="gone"
+        android:textSize="20sp"
+        android:layout_margin="10dp"
+        android:textAlignment="center"/>
+
     <ProgressBar
         android:id="@+id/progress_circular"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="gone"
         android:layout_centerInParent="true"/>
 </RelativeLayout>

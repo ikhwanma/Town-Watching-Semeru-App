@@ -15,6 +15,7 @@ import com.bumptech.glide.Glide
 import com.ikhwan.townwatchingsemeru.R
 import com.ikhwan.townwatchingsemeru.common.Constants
 import com.ikhwan.townwatchingsemeru.common.Resource
+import com.ikhwan.townwatchingsemeru.common.utils.ShowLoadingAlertDialog
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.updatepost.UpdatePostBody
 import com.ikhwan.townwatchingsemeru.databinding.FragmentUpdatePostBinding
 import com.ikhwan.townwatchingsemeru.domain.model.Category
@@ -36,6 +37,8 @@ class UpdatePostFragment : Fragment(), View.OnClickListener {
 
     private val listCategories = mutableListOf<Category>()
 
+    private lateinit var dialog: ShowLoadingAlertDialog
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -46,7 +49,7 @@ class UpdatePostFragment : Fragment(), View.OnClickListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        dialog = ShowLoadingAlertDialog(requireActivity())
         idPost = arguments?.getInt(Constants.EXTRA_ID)!!
         categoryId = arguments?.getInt(Constants.EXTRA_CATEGORY)!!
         level = arguments?.getString(Constants.EXTRA_LEVEL)!!
@@ -146,8 +149,12 @@ class UpdatePostFragment : Fragment(), View.OnClickListener {
                         }
                     }
                     val level = autoCompleteLevel.text.toString()
-                    val txtStatus = autoCompleteLevel.text.toString()
-                    val status = txtStatus == "Aktif"
+                    val txtStatus = autoCompleteStatus.text.toString()
+                    val status = if(txtStatus == "Aktif"){
+                        1
+                    }else{
+                        0
+                    }
 
                     if (description.isEmpty()) {
                         Toast.makeText(
@@ -164,22 +171,21 @@ class UpdatePostFragment : Fragment(), View.OnClickListener {
         }
     }
 
-    private fun updatePost(description: String, category: Int, level: String, status: Boolean) {
-        val statusUpload = if (status){
-            1
-        }else{
-            0
-        }
-        val updatePostBody = UpdatePostBody(idPost, description, category, level, statusUpload)
+    private fun updatePost(description: String, category: Int, level: String, status: Int) {
+
+        val updatePostBody = UpdatePostBody(idPost, description, category, level, status)
         viewModel.updatePost(token, updatePostBody).observe(viewLifecycleOwner) { result ->
             when (result) {
                 is Resource.Error -> {
-                    Log.e("UpdatePostFragment", result.message!!)
+                    dialog.dismissDialog()
+                    Toast.makeText(requireContext(), result.message!!, Toast.LENGTH_SHORT).show()
                 }
                 is Resource.Loading -> {
+                    dialog.startDialog()
                     Log.d("UpdatePostFragment", "Loading Update Post")
                 }
                 is Resource.Success -> {
+                    dialog.dismissDialog()
                     Toast.makeText(requireContext(), result.data!!.message, Toast.LENGTH_SHORT)
                         .show()
                     val mBundle = bundleOf(

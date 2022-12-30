@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.ikhwan.townwatchingsemeru.R
 import com.ikhwan.townwatchingsemeru.common.Constants
 import com.ikhwan.townwatchingsemeru.common.Resource
+import com.ikhwan.townwatchingsemeru.common.utils.ShowLoadingAlertDialog
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.comment.CommentBody
 import com.ikhwan.townwatchingsemeru.databinding.FragmentCommentBinding
 
@@ -29,6 +30,9 @@ class CommentFragment : Fragment(), View.OnClickListener {
 
     private val viewModel: CommentViewModel by hiltNavGraphViewModels(R.id.nav_main)
 
+    private lateinit var dialog: ShowLoadingAlertDialog
+
+
     private fun observeGetComment(idPost: Int) {
         viewModel.getComment(idPost).observe(viewLifecycleOwner) { result ->
             when (result) {
@@ -39,13 +43,18 @@ class CommentFragment : Fragment(), View.OnClickListener {
                     Log.d("CommentFragment", "Loading Comment")
                 }
                 is Resource.Success -> {
-                    result.data.let { listComments ->
-                        val adapter = CommentAdapter()
-                        adapter.submitData(listComments)
+                    result.data?.let { listComments ->
+                        if (listComments.isEmpty()){
+                            binding.tvAlertEmptyCategory.visibility = View.VISIBLE
+                        }else{
+                            binding.tvAlertEmptyCategory.visibility = View.GONE
+                            val adapter = CommentAdapter()
+                            adapter.submitData(listComments)
 
-                        binding.apply {
-                            rvComment.adapter = adapter
-                            rvComment.layoutManager = LinearLayoutManager(requireContext())
+                            binding.apply {
+                                rvComment.adapter = adapter
+                                rvComment.layoutManager = LinearLayoutManager(requireContext())
+                            }
                         }
                     }
                 }
@@ -63,7 +72,7 @@ class CommentFragment : Fragment(), View.OnClickListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        dialog = ShowLoadingAlertDialog(requireActivity())
         idPost = arguments?.getInt(Constants.EXTRA_ID)!!
         token = arguments?.getString(Constants.EXTRA_TOKEN)!!
 
@@ -97,12 +106,15 @@ class CommentFragment : Fragment(), View.OnClickListener {
         viewModel.addComment(token, commentBody).observe(viewLifecycleOwner) { result ->
             when (result) {
                 is Resource.Error -> {
-                    Log.d("CommentFragment", result.message!!)
+                    dialog.dismissDialog()
+                    Toast.makeText(requireContext(), result.message!!, Toast.LENGTH_SHORT).show()
                 }
                 is Resource.Loading -> {
+                    dialog.startDialog()
                     Log.d("CommentFragment", "Loading Add Comment")
                 }
                 is Resource.Success -> {
+                    dialog.dismissDialog()
                     result.data?.message.let { responseMessage ->
                         Toast.makeText(requireContext(), responseMessage, Toast.LENGTH_SHORT).show()
                         observeGetComment(idPost)

@@ -10,4 +10,14 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
+    <TextView
+        android:id="@+id/tv_alert_empty_post"
+        style="@style/TextViewSemeru"
+        android:text="@string/belum_ada_laporan"
+        android:layout_gravity="center"
+        android:visibility="gone"
+        android:textSize="20sp"
+        android:layout_margin="10dp"
+        android:textAlignment="center"/>
+
 </FrameLayout>

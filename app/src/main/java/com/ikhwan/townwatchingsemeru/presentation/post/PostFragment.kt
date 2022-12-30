@@ -1,6 +1,7 @@
 package com.ikhwan.townwatchingsemeru.presentation.post
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
@@ -30,6 +31,7 @@ import com.ikhwan.townwatchingsemeru.R
 import com.ikhwan.townwatchingsemeru.common.Resource
 import com.ikhwan.townwatchingsemeru.common.utils.BitmapResize
 import com.ikhwan.townwatchingsemeru.common.utils.PermissionChecker
+import com.ikhwan.townwatchingsemeru.common.utils.ShowLoadingAlertDialog
 import com.ikhwan.townwatchingsemeru.common.utils.Validator
 import com.ikhwan.townwatchingsemeru.databinding.BottomSheetPostBinding
 import com.ikhwan.townwatchingsemeru.databinding.FragmentPostBinding
@@ -43,6 +45,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.*
 
 
+@Suppress("DEPRECATION")
 class PostFragment : Fragment(), View.OnClickListener {
 
     private var _binding: FragmentPostBinding? = null
@@ -57,6 +60,8 @@ class PostFragment : Fragment(), View.OnClickListener {
     private var currentLocation: LatLng? = null
 
     private val viewModel: PostViewModel by hiltNavGraphViewModels(R.id.nav_main)
+
+    private lateinit var dialog: ShowLoadingAlertDialog
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -113,18 +118,21 @@ class PostFragment : Fragment(), View.OnClickListener {
 
 
                 val file = File(requireContext().cacheDir, "semeru-")
-                file.delete()
-                file.createNewFile()
+                file.run {
+                    delete()
+                    createNewFile()
+                }
                 val fileOutputStream = file.outputStream()
                 val byteArrayOutputStream = ByteArrayOutputStream()
                 bitmap?.compress(Bitmap.CompressFormat.JPEG, 50, byteArrayOutputStream)
 
                 val bytearray = byteArrayOutputStream.toByteArray()
-                fileOutputStream.write(bytearray)
-                fileOutputStream.flush()
-                fileOutputStream.close()
-                byteArrayOutputStream.close()
-
+                byteArrayOutputStream.run {
+                    fileOutputStream.write(bytearray)
+                    fileOutputStream.flush()
+                    fileOutputStream.close()
+                    close()
+                }
                 val uriImage = file.toUri()
                 image = uriImage
 
@@ -180,6 +188,7 @@ class PostFragment : Fragment(), View.OnClickListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        dialog = ShowLoadingAlertDialog(requireActivity())
         viewModel.getToken().observe(viewLifecycleOwner) {
             if (it == "") {
                 goToLoginPage()
@@ -384,6 +393,7 @@ class PostFragment : Fragment(), View.OnClickListener {
         }
     }
 
+    @SuppressLint("Recycle")
     private fun addProduct(
         description: String,
         latitude: String,
@@ -438,12 +448,14 @@ class PostFragment : Fragment(), View.OnClickListener {
         ).observe(viewLifecycleOwner) { result ->
             when (result) {
                 is Resource.Error -> {
-
+                    dialog.dismissDialog()
+                    Toast.makeText(requireContext(), result.message!!, Toast.LENGTH_SHORT).show()
                 }
                 is Resource.Loading -> {
-
+                    dialog.startDialog()
                 }
                 is Resource.Success -> {
+                    dialog.dismissDialog()
                     Toast.makeText(
                         requireContext(),
                         "Berhasil Menambahkan Laporan",

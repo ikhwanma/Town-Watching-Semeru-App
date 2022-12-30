@@ -11,6 +11,7 @@ import android.view.animation.AnimationUtils
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.os.bundleOf
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
@@ -51,7 +52,17 @@ class DetailPostFragment : Fragment(), View.OnClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    Navigation.findNavController(requireView())
+                        .navigate(R.id.action_detailPostFragment_to_profileFragment)
+                }
+            })
+
         idPost = requireArguments().getInt(Constants.EXTRA_ID)
+        val checkFragment = requireArguments().getInt(Constants.EXTRA_FRAGMENT)
 
         viewModel.getId().observe(viewLifecycleOwner) { userId ->
             idUser = userId
@@ -60,6 +71,10 @@ class DetailPostFragment : Fragment(), View.OnClickListener {
 
         viewModel.getToken().observe(viewLifecycleOwner) { token ->
             this.token = token
+        }
+
+        if (checkFragment == 1){
+            binding.llButton.visibility = View.GONE
         }
 
         binding.apply {
@@ -74,7 +89,7 @@ class DetailPostFragment : Fragment(), View.OnClickListener {
         viewModel.getDetailPost(idPost).observe(viewLifecycleOwner) { result ->
             when (result) {
                 is Resource.Error -> {
-                    Log.e("DetailPostFragment", result.message!!)
+                    Toast.makeText(requireContext(), result.message!!, Toast.LENGTH_SHORT).show()
                 }
                 is Resource.Loading -> {
                     Log.d("DetailPostFragment", "Loading detailpost")

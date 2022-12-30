@@ -14,6 +14,7 @@ import androidx.navigation.Navigation
 import com.ikhwan.townwatchingsemeru.R
 import com.ikhwan.townwatchingsemeru.common.Constants
 import com.ikhwan.townwatchingsemeru.common.Resource
+import com.ikhwan.townwatchingsemeru.common.utils.ShowLoadingAlertDialog
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.editpassword.EditPasswordBody
 import com.ikhwan.townwatchingsemeru.databinding.FragmentEditPasswordBinding
 
@@ -28,6 +29,8 @@ class EditPasswordFragment : Fragment(), View.OnClickListener {
 
     private val viewModel: EditPasswordViewModel by hiltNavGraphViewModels(R.id.nav_main)
 
+    private lateinit var dialog: ShowLoadingAlertDialog
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -38,7 +41,7 @@ class EditPasswordFragment : Fragment(), View.OnClickListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        dialog = ShowLoadingAlertDialog(requireActivity())
         token = arguments?.getString(Constants.EXTRA_TOKEN)!!
 
         binding.apply {
@@ -122,12 +125,15 @@ class EditPasswordFragment : Fragment(), View.OnClickListener {
         viewModel.editPassword(token, editPasswordBody).observe(viewLifecycleOwner) { result ->
             when (result) {
                 is Resource.Error -> {
-                    Log.d("EditPasswordFragment", result.message!!)
+                    dialog.dismissDialog()
+                    Toast.makeText(requireContext(), result.message!!, Toast.LENGTH_SHORT).show()
                 }
                 is Resource.Loading -> {
+                    dialog.startDialog()
                     Log.d("EditPasswordFragment", "Loading")
                 }
                 is Resource.Success -> {
+                    dialog.dismissDialog()
                     result.data?.message.let { response ->
                         if (response!!.contains("salah")) {
                             Toast.makeText(requireContext(), response, Toast.LENGTH_SHORT).show()
