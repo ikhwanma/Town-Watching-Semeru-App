@@ -17,12 +17,12 @@ class UpdatePostViewModel @Inject constructor(
     private val updatePostUseCase: UpdatePostUseCase,
     private val getAllCategoryUseCase: GetAllCategoryUseCase
 ) : ViewModel() {
-    suspend fun updatePost(
+    fun updatePost(
         auth: String,
         updatePostBody: UpdatePostBody
     ): LiveData<Resource<UpdatePostResponse>> =
         updatePostUseCase.invoke(auth, updatePostBody).asLiveData()
 
-    suspend fun getCategory(): LiveData<Resource<List<Category>>> =
+    fun getCategory(): LiveData<Resource<List<Category>>> =
         getAllCategoryUseCase.invoke().asLiveData()
 }

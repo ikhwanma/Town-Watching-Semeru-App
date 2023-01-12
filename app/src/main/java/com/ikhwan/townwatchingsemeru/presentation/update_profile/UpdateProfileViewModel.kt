@@ -17,10 +17,10 @@ class UpdateProfileViewModel @Inject constructor(
     private val getCategoryUserUseCase: GetCategoryUserUseCase,
     private val updateProfileUseCase: UpdateProfileUseCase
 ) : ViewModel() {
-    suspend fun getCategoryUser(): LiveData<Resource<List<CategoryUser>>> =
+    fun getCategoryUser(): LiveData<Resource<List<CategoryUser>>> =
         getCategoryUserUseCase.invoke().asLiveData()
 
-    suspend fun updateProfile(
+    fun updateProfile(
         auth: String,
         updateProfileBody: UpdateProfileBody
     ): LiveData<Resource<UpdateProfileResponse>> =

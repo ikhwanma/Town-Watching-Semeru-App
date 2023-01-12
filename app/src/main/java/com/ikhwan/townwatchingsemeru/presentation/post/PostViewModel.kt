@@ -26,10 +26,10 @@ class PostViewModel @Inject constructor(
         return pref.getToken().asLiveData()
     }
 
-    suspend fun getCategory(): LiveData<Resource<List<Category>>> =
+    fun getCategory(): LiveData<Resource<List<Category>>> =
         getAllCategoryUseCase.invoke().asLiveData()
 
-    suspend fun addPost(
+    fun addPost(
         auth: String,
         description: RequestBody,
         latitude: RequestBody,

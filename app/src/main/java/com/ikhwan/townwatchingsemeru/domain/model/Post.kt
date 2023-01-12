@@ -16,6 +16,7 @@ data class Post(
     val like: List<LikeDto>,
     val longitude: String,
     val status: Boolean,
+    val updatedAt: String,
     val createdAt: String,
     val user: UserDto
 )

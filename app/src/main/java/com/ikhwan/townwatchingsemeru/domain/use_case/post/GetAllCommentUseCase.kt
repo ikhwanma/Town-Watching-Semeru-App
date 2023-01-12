@@ -13,7 +13,7 @@ import javax.inject.Inject
 class GetAllCommentUseCase @Inject constructor(
     private val repository: PostRepository
 ) {
-    suspend operator fun invoke(postId: Int): Flow<Resource<List<Comment>>> = flow {
+    operator fun invoke(postId: Int): Flow<Resource<List<Comment>>> = flow {
         try {
             emit(Resource.Loading())
             emit(Resource.Success(repository.getComment(postId).map { it.toComment() }))

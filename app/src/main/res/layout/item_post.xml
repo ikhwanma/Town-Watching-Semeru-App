@@ -264,10 +264,19 @@
                     android:id="@+id/tv_description"
                     style="@style/TextViewSemeru"
                     android:layout_width="match_parent"
-                    android:layout_marginBottom="15dp"
                     android:text="@string/description"
                     android:textAlignment="inherit"
                     android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/tv_updated"
+                    style="@style/TextViewSemeru"
+                    android:layout_width="match_parent"
+                    android:layout_marginBottom="15dp"
+                    android:text="@string/laporan_telah_diupdate"
+                    android:visibility="gone"
+                    android:textAlignment="inherit"
+                    android:textSize="12sp" />
             </LinearLayout>
         </RelativeLayout>
 

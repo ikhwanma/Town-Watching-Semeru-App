@@ -1,6 +1,7 @@
 package com.ikhwan.townwatchingsemeru.presentation.comments
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
@@ -12,10 +13,11 @@ import com.ikhwan.townwatchingsemeru.databinding.ItemCommentBinding
 import com.ikhwan.townwatchingsemeru.domain.model.Comment
 
 
-class CommentAdapter: RecyclerView.Adapter<CommentAdapter.ViewHolder>() {
-    inner class ViewHolder(private val binding: ItemCommentBinding):
+class CommentAdapter(private val idUser: Int, val btnDeleteSetOnClick: (Int) -> Unit) :
+    RecyclerView.Adapter<CommentAdapter.ViewHolder>() {
+    inner class ViewHolder(private val binding: ItemCommentBinding) :
         RecyclerView.ViewHolder(binding.root) {
-        fun bind(data: Comment){
+        fun bind(data: Comment) {
             binding.apply {
                 val imageUrl = Constants.BASE_URL + data.user.image
                 val date = Converter.convertDate(data.createdAt).split(" ")
@@ -25,6 +27,16 @@ class CommentAdapter: RecyclerView.Adapter<CommentAdapter.ViewHolder>() {
                 tvComment.text = data.comment
                 tvDate.text = txtDate
                 Glide.with(itemView).load(imageUrl).into(ivUser)
+
+                if (idUser == data.user.id) {
+                    btnDeleteComment.visibility = View.VISIBLE
+                } else {
+                    btnDeleteComment.visibility = View.INVISIBLE
+                }
+
+                btnDeleteComment.setOnClickListener {
+                    btnDeleteSetOnClick(data.id)
+                }
             }
         }
     }

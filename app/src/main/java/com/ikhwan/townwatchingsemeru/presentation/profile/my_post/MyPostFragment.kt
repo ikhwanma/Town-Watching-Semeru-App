@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.navigation.Navigation
@@ -32,13 +33,16 @@ class MyPostFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         init()
-
     }
 
     override fun onResume() {
         super.onResume()
+        init()
+    }
+
+    override fun onPause() {
+        super.onPause()
         init()
     }
 
@@ -54,20 +58,23 @@ class MyPostFragment : Fragment() {
         viewModel.getUserPost(auth).observe(viewLifecycleOwner) { result ->
             when (result) {
                 is Resource.Error -> {
-                    Log.d("MyPostFragment", result.message!!)
+                    Toast.makeText(requireContext(), result.message!!, Toast.LENGTH_SHORT).show()
                 }
                 is Resource.Loading -> {
                     Log.d("MyPostFragment", "Loading")
                 }
                 is Resource.Success -> {
                     result.data?.let { posts ->
-                        if (posts.isEmpty()){
+                        if (posts.isEmpty()) {
                             binding.tvAlertEmptyPost.visibility = View.VISIBLE
-                        }else{
+                        } else {
                             binding.apply {
                                 tvAlertEmptyPost.visibility = View.GONE
                                 val adapter = MyPostAdapter { item ->
-                                    val mBundle = bundleOf(Constants.EXTRA_ID to item.id)
+                                    val mBundle = bundleOf(
+                                        Constants.EXTRA_ID to item.id,
+                                        Constants.EXTRA_FRAGMENT to 0
+                                    )
                                     Navigation.findNavController(requireView()).navigate(
                                         R.id.action_profileFragment_to_detailPostFragment,
                                         mBundle

@@ -23,20 +23,20 @@ class HomeViewModel @Inject constructor(
     private val pref: DataStoreManager
 ) : ViewModel() {
 
-    suspend fun getAllPosts(
+    fun getAllPosts(
         categoryId: Int?,
         level: String?,
         status: Int?
     ): LiveData<Resource<List<Post>>> =
         getAllPostsUseCase.invoke(categoryId, level, status).asLiveData()
 
-    suspend fun getCategoryUser(): LiveData<Resource<List<CategoryUser>>> =
+    fun getCategoryUser(): LiveData<Resource<List<CategoryUser>>> =
         getCategoryUserUseCase.invoke().asLiveData()
 
-    suspend fun addLike(auth: String, postId: Int): LiveData<Resource<LikeResponse>> =
+    fun addLike(auth: String, postId: Int): LiveData<Resource<LikeResponse>> =
         addLikeUseCase.invoke(auth, postId).asLiveData()
 
-    suspend fun getCategory(): LiveData<Resource<List<Category>>> =
+    fun getCategory(): LiveData<Resource<List<Category>>> =
         getAllCategoryUseCase.invoke().asLiveData()
 
     fun getId(): LiveData<Int> {

@@ -40,9 +40,16 @@ class PostAdapter(
                 var cardStatusDrawable = cvStatus.background
                 val sBLike = StringBuilder(data.like.size.toString())
                 var textStatus = ""
-                val datePost = Converter.convertDate(data.createdAt).split(" ")
+                val datePost = Converter.convertDate(data.updatedAt).split(" ")
                 val txtCate = "${datePost[0]} ${datePost[1]} ${datePost[2]}"
                 val txtTime = "- ${datePost[3]} WIB"
+
+                if(data.updatedAt != data.createdAt){
+                    tvUpdated.visibility = View.VISIBLE
+                }else{
+                    tvUpdated.visibility = View.GONE
+                }
+
                 sBLike.append(" Menyukai")
                 val sLike = sBLike.toString()
 
@@ -157,9 +164,9 @@ class PostAdapter(
             }
         }else{
             val data = differ.currentList[itemCount - position - 1]
-            val dateFirst = data.createdAt.split(" ")
+            val dateFirst = data.updatedAt.split(" ")
             val dataNext = differ.currentList[itemCount - position]
-            val dateSecond = dataNext.createdAt.split(" ")
+            val dateSecond = dataNext.updatedAt.split(" ")
             val check = dateFirst[0] != dateSecond[0]
             data.let {
                 holder.bind(data, check)

@@ -16,7 +16,7 @@ class MyPostViewModel @Inject constructor(
     private val getUserPostUseCase: GetUserPostUseCase,
     private val pref: DataStoreManager
 ): ViewModel() {
-    suspend fun getUserPost(auth: String): LiveData<Resource<List<Post>>> =
+    fun getUserPost(auth: String): LiveData<Resource<List<Post>>> =
         getUserPostUseCase.invoke(auth).asLiveData()
 
     fun getToken(): LiveData<String> {

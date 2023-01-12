@@ -14,7 +14,7 @@ import javax.inject.Inject
 class UpdateAvaUseCase @Inject constructor(
     private val repository: UserRepository
 ) {
-    suspend operator fun invoke(
+    operator fun invoke(
         auth: String,
         image: MultipartBody.Part
     ): Flow<Resource<UpdateAvaResponse>> =

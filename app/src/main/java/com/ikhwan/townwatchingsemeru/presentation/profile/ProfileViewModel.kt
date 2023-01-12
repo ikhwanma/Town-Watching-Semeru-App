@@ -27,7 +27,7 @@ class ProfileViewModel @Inject constructor(
         return pref.getToken().asLiveData()
     }
 
-    suspend fun getUser(auth: String): LiveData<Resource<User>> =
+    fun getUser(auth: String): LiveData<Resource<User>> =
         getUserUseCase.invoke(auth).asLiveData()
 
     fun setId(id: Int){
@@ -42,6 +42,6 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
-    suspend fun updateAva(auth: String, image: MultipartBody.Part): LiveData<Resource<UpdateAvaResponse>> =
+    fun updateAva(auth: String, image: MultipartBody.Part): LiveData<Resource<UpdateAvaResponse>> =
         updateAvaUseCase.invoke(auth, image).asLiveData()
 }

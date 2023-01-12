@@ -13,7 +13,7 @@ import javax.inject.Inject
 class GetAllCategoryUseCase @Inject constructor(
     private val repository: PostRepository
 ) {
-    suspend operator fun invoke(): Flow<Resource<List<Category>>> = flow {
+    operator fun invoke(): Flow<Resource<List<Category>>> = flow {
         try {
             emit(Resource.Loading())
             emit(Resource.Success(repository.getAllCategory().map { it.toCategory() }))

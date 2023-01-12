@@ -1,6 +1,9 @@
 package com.ikhwan.townwatchingsemeru.presentation.detail_post
 
+import android.Manifest
+import android.graphics.Bitmap
 import android.graphics.Color
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -12,16 +15,30 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.graphics.drawable.DrawableCompat
+import androidx.core.graphics.scale
 import androidx.core.os.bundleOf
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.navigation.Navigation
 import com.bumptech.glide.Glide
+import com.bumptech.glide.request.target.CustomTarget
+import com.bumptech.glide.request.transition.Transition
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
 import com.ikhwan.townwatchingsemeru.R
 import com.ikhwan.townwatchingsemeru.common.Constants
 import com.ikhwan.townwatchingsemeru.common.Resource
 import com.ikhwan.townwatchingsemeru.common.utils.Converter
+import com.ikhwan.townwatchingsemeru.common.utils.PermissionChecker
 import com.ikhwan.townwatchingsemeru.common.utils.ShowActionAlertDialog
+import com.ikhwan.townwatchingsemeru.common.utils.ShowSnackbarPermission
 import com.ikhwan.townwatchingsemeru.databinding.FragmentDetailPostBinding
 import com.ikhwan.townwatchingsemeru.domain.model.Post
 
@@ -40,6 +57,21 @@ class DetailPostFragment : Fragment(), View.OnClickListener {
     private var idPost = 0
 
     private var post: Post? = null
+    private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
+
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) {
+        it.entries.forEach { map ->
+            if (!map.value) {
+                PermissionChecker.checkMapsPermission(requireContext(), requireActivity())
+                val checkSelfPermission = PermissionChecker.checkSelfPostPermission(requireContext())
+                if (!checkSelfPermission) {
+                    ShowSnackbarPermission().permissionDisabled(requireView(), requireActivity())
+                }
+            }
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -51,6 +83,8 @@ class DetailPostFragment : Fragment(), View.OnClickListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        fusedLocationProviderClient =
+            LocationServices.getFusedLocationProviderClient(requireContext())
 
         requireActivity().onBackPressedDispatcher.addCallback(
             viewLifecycleOwner,
@@ -73,9 +107,16 @@ class DetailPostFragment : Fragment(), View.OnClickListener {
             this.token = token
         }
 
-        if (checkFragment == 1){
-            binding.llButton.visibility = View.GONE
+        if (checkFragment == 1) {
+            binding.llButtonListPost.visibility = View.GONE
         }
+
+        requestPermissionLauncher.launch(
+            arrayOf(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            )
+        )
 
         binding.apply {
             btnDeleteLaporan.setOnClickListener(this@DetailPostFragment)
@@ -83,6 +124,64 @@ class DetailPostFragment : Fragment(), View.OnClickListener {
             btnLike.setOnClickListener(this@DetailPostFragment)
             btnComment.setOnClickListener(this@DetailPostFragment)
         }
+    }
+
+    private fun getCurrentLocation() {
+        val checkSelfPermission = PermissionChecker.checkSelfPostPermission(requireContext())
+
+        if (!checkSelfPermission) {
+            return
+        }
+
+        val task = fusedLocationProviderClient.lastLocation
+
+        task.addOnSuccessListener { location ->
+            if (location == null) {
+                ShowSnackbarPermission().locationDisabled(requireView(), requireActivity())
+            }
+        }
+
+        val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
+
+        mapFragment?.getMapAsync { googleMap ->
+            googleMap.isMyLocationEnabled = true
+
+            val location = LatLng(
+                post!!.latitude.toDouble(),
+                post!!.longitude.toDouble()
+            )
+
+            googleMap.animateCamera(
+                CameraUpdateFactory.newLatLngZoom(
+                    location, 15.0f
+                )
+            )
+            addMarkerMaps(googleMap, location, post!!.id, post!!.category.image)
+        }
+    }
+
+    private fun addMarkerMaps(googleMap: GoogleMap, loc: LatLng, id1: Int, image: String) {
+        val imageUrl = Constants.BASE_URL + image
+
+        Glide.with(requireContext()).asBitmap().load(imageUrl).into(object :
+            CustomTarget<Bitmap>() {
+            override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+                val bitmap = resource.scale(80, 80)
+                val markerMap = googleMap.addMarker(
+                    MarkerOptions().position(loc)
+                        .icon(
+                            BitmapDescriptorFactory.fromBitmap(bitmap)
+                        )
+                )
+                markerMap?.tag = id1
+            }
+
+            override fun onLoadCleared(placeholder: Drawable?) {
+
+            }
+
+
+        })
     }
 
     private fun setDetailPost(idPost: Int, userId: Int) {
@@ -103,10 +202,11 @@ class DetailPostFragment : Fragment(), View.OnClickListener {
                             var cardStatusDrawable = cvStatus.background
                             val status = post.status
                             var textStatus = ""
-                            val datePost = Converter.convertDate(post.createdAt).split(" ")
+                            val datePost = Converter.convertDate(post.updatedAt).split(" ")
                             val txtDate =
                                 "${datePost[0]} ${datePost[1]} ${datePost[2]} - ${datePost[3]} WIB"
 
+                            getCurrentLocation()
                             Glide.with(requireView()).load(imageUrl).into(ivPost)
                             setAddress(
                                 tvAddress,

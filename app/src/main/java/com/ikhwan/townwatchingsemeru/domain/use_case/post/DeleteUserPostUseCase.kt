@@ -13,7 +13,7 @@ import javax.inject.Inject
 class DeleteUserPostUseCase @Inject constructor(
     private val repository: PostRepository
 ) {
-    suspend operator fun invoke(auth: String, id: Int): Flow<Resource<DeletePostResponse>> = flow {
+    operator fun invoke(auth: String, id: Int): Flow<Resource<DeletePostResponse>> = flow {
         try {
             emit(Resource.Loading())
             emit(Resource.Success(repository.deletePostUser(auth, id).toDeletePostResponse()))

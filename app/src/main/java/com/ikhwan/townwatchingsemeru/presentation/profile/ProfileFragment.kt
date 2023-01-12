@@ -11,7 +11,6 @@ import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,18 +20,18 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
 import androidx.core.os.bundleOf
+import androidx.exifinterface.media.ExifInterface
+import androidx.fragment.app.Fragment
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.navigation.Navigation
+import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import com.bumptech.glide.Glide
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.tabs.TabLayoutMediator
 import com.ikhwan.townwatchingsemeru.R
 import com.ikhwan.townwatchingsemeru.common.Constants
 import com.ikhwan.townwatchingsemeru.common.Resource
-import com.ikhwan.townwatchingsemeru.common.utils.BitmapResize
-import com.ikhwan.townwatchingsemeru.common.utils.PermissionChecker
-import com.ikhwan.townwatchingsemeru.common.utils.ShowActionAlertDialog
-import com.ikhwan.townwatchingsemeru.common.utils.ShowLoadingAlertDialog
+import com.ikhwan.townwatchingsemeru.common.utils.*
 import com.ikhwan.townwatchingsemeru.databinding.BottomSheetPostBinding
 import com.ikhwan.townwatchingsemeru.databinding.BottomSheetProfileBinding
 import com.ikhwan.townwatchingsemeru.databinding.FragmentProfileBinding
@@ -44,6 +43,7 @@ import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.IOException
+
 
 class ProfileFragment : Fragment(), View.OnClickListener {
 
@@ -71,21 +71,46 @@ class ProfileFragment : Fragment(), View.OnClickListener {
         it.entries.forEach { permission ->
             if (!permission.value) {
                 PermissionChecker.checkPostPermission(requireContext(), requireActivity())
+                val checkSelfPermission =
+                    PermissionChecker.checkSelfPostPermission(requireContext())
+                if (!checkSelfPermission) {
+                    ShowSnackbarPermission().permissionDisabled(requireView(), requireActivity())
+                }
             }
         }
     }
 
     private val galleryResult =
         registerForActivityResult(ActivityResultContracts.GetContent()) { result ->
-            updateAva(result!!)
+            val bMap = MediaStore.Images.Media.getBitmap(requireActivity().contentResolver, result)
+
+            val bitmap = if (bMap.height >= bMap.width) {
+                BitmapResize.getResizedBitmap(
+                    bMap,
+                    1080,
+                    1920
+                )
+            } else {
+                BitmapResize.getResizedBitmap(
+                    bMap,
+                    1920,
+                    1080
+                )
+            }
+            val ei = ExifInterface(PathUtil.getPath(requireContext(), result!!)!!)
+            val orientation: Int = ei.getAttributeInt(
+                ExifInterface.TAG_ORIENTATION,
+                ExifInterface.ORIENTATION_UNDEFINED
+            )
+            val rotatedBitmap = BitmapRotator.getRotatedBitmap(orientation, bitmap!!)
+            setImage(rotatedBitmap)
         }
 
     private val cameraResult =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 val bMap = BitmapFactory.decodeFile(currentPhotoPath)
-
-                val bitmap = if (bMap.height > bMap.width) {
+                val bitmap = if (bMap.height >= bMap.width) {
                     BitmapResize.getResizedBitmap(
                         bMap,
                         1080,
@@ -99,35 +124,39 @@ class ProfileFragment : Fragment(), View.OnClickListener {
                     )
                 }
 
+                val ei = ExifInterface(currentPhotoPath)
+                val orientation: Int = ei.getAttributeInt(
+                    ExifInterface.TAG_ORIENTATION,
+                    ExifInterface.ORIENTATION_UNDEFINED
+                )
 
-                val file = File(requireContext().cacheDir, "semeru-")
-                file.run {
-                    delete()
-                    createNewFile()
-                }
-                val fileOutputStream = file.outputStream()
-                val byteArrayOutputStream = ByteArrayOutputStream()
-                bitmap?.compress(Bitmap.CompressFormat.JPEG, 50, byteArrayOutputStream)
+                val rotatedBitmap = BitmapRotator.getRotatedBitmap(orientation, bitmap!!)
 
-                val bytearray = byteArrayOutputStream.toByteArray()
-                fileOutputStream.run {
-                    write(bytearray)
-                    flush()
-                    close()
-                }
-                byteArrayOutputStream.run {
-                    fileOutputStream.run {
-                                write(bytearray)
-                                flush()
-                                close()
-                            }
-                    close()
-                }
-
-                val uriImage = file.toUri()
-                updateAva(uriImage)
+                setImage(rotatedBitmap)
             }
         }
+
+    private fun setImage(rotatedBitmap: Bitmap) {
+        val file = File(requireContext().cacheDir, "semeru-")
+        file.run {
+            delete()
+            createNewFile()
+        }
+        val fileOutputStream = file.outputStream()
+        val byteArrayOutputStream = ByteArrayOutputStream()
+        rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 50, byteArrayOutputStream)
+
+        val bytearray = byteArrayOutputStream.toByteArray()
+        byteArrayOutputStream.run {
+            fileOutputStream.write(bytearray)
+            fileOutputStream.flush()
+            fileOutputStream.close()
+            close()
+        }
+        val uriImage = file.toUri()
+
+        updateAva(uriImage)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -141,6 +170,14 @@ class ProfileFragment : Fragment(), View.OnClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         init()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        init()
+    }
+
+    private fun init() {
 
         binding.apply {
             viewPager2.adapter = ProfilePagerAdapter(requireParentFragment())
@@ -154,14 +191,6 @@ class ProfileFragment : Fragment(), View.OnClickListener {
             ivAddImage.setOnClickListener(this@ProfileFragment)
             imgUser.setOnClickListener(this@ProfileFragment)
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        init()
-    }
-
-    private fun init() {
 
         viewModel.getToken().observe(viewLifecycleOwner) {
             if (it != "") {
@@ -197,9 +226,14 @@ class ProfileFragment : Fragment(), View.OnClickListener {
 
                         val sBCategory = StringBuilder("(")
                         sBCategory.append("${user.categoryUser.categoryUser})")
+                        val circularProgressDrawable = CircularProgressDrawable(requireContext())
+                        circularProgressDrawable.strokeWidth = 5f
+                        circularProgressDrawable.centerRadius = 30f
+                        circularProgressDrawable.start()
 
                         binding.apply {
-                            Glide.with(requireView()).load(imageUrl).into(imgUser)
+                            Glide.with(requireView()).load(imageUrl)
+                                .placeholder(circularProgressDrawable).into(imgUser)
                             tvUser.text = user.name
                             tvCategory.text = sBCategory.toString()
                         }
@@ -216,7 +250,7 @@ class ProfileFragment : Fragment(), View.OnClickListener {
         val contentResolver = requireActivity().applicationContext.contentResolver
 
         val type = contentResolver.getType(image)
-        val tempFile = File.createTempFile("temp-", null, null)
+        val tempFile = File.createTempFile("temp-", ".jpg", null)
         val inputStream = contentResolver.openInputStream(image)
 
         tempFile.outputStream().use {

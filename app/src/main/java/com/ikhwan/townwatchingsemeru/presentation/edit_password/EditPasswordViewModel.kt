@@ -15,7 +15,7 @@ class EditPasswordViewModel @Inject constructor(
     private val editPasswordUseCase: EditPasswordUseCase
 ) : ViewModel() {
 
-    suspend fun editPassword(
+    fun editPassword(
         auth: String,
         editPassword: EditPasswordBody
     ): LiveData<Resource<UpdatePasswordResponse>> =

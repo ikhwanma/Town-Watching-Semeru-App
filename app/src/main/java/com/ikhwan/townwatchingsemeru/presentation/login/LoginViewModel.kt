@@ -20,7 +20,7 @@ class LoginViewModel @Inject constructor(
     private val pref: DataStoreManager
 ): ViewModel() {
 
-    suspend fun loginUser(user: LoginBody): LiveData<Resource<PostLoginResponse>> =
+    fun loginUser(user: LoginBody): LiveData<Resource<PostLoginResponse>> =
         loginUserUseCase.invoke(user).asLiveData()
 
     fun setToken(token : String){

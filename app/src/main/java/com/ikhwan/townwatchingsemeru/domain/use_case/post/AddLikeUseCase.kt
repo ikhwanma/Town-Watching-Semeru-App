@@ -13,7 +13,7 @@ import javax.inject.Inject
 class AddLikeUseCase @Inject constructor(
     private val repository: PostRepository
 ){
-    suspend operator fun invoke(auth: String, postId: Int): Flow<Resource<LikeResponse>> = flow {
+    operator fun invoke(auth: String, postId: Int): Flow<Resource<LikeResponse>> = flow {
         try {
             emit(Resource.Loading())
             emit(Resource.Success(repository.addLike(auth, postId).toLikeResponse()))

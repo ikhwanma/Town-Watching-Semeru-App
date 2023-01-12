@@ -8,6 +8,7 @@ import android.location.Location
 import android.net.Uri
 import androidx.fragment.app.Fragment
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -33,6 +34,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.android.material.snackbar.Snackbar
 import com.ikhwan.townwatchingsemeru.R
 import com.ikhwan.townwatchingsemeru.common.Constants
 import com.ikhwan.townwatchingsemeru.common.Resource
@@ -41,6 +43,7 @@ import com.ikhwan.townwatchingsemeru.databinding.BottomSheetMapsBinding
 import com.ikhwan.townwatchingsemeru.databinding.FragmentMapsBinding
 import com.ikhwan.townwatchingsemeru.domain.model.Post
 import com.ikhwan.townwatchingsemeru.common.utils.PermissionChecker
+import com.ikhwan.townwatchingsemeru.common.utils.ShowSnackbarPermission
 
 class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener {
 
@@ -58,10 +61,15 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener {
     ) {
         it.entries.forEach { map ->
             if (map.value) {
-
                 getCurrentLocation()
             } else {
                 PermissionChecker.checkMapsPermission(requireContext(), requireActivity())
+                val checkSelfPermission =
+                    PermissionChecker.checkSelfMapsPermission(requireContext())
+
+                if (!checkSelfPermission) {
+                    ShowSnackbarPermission().permissionDisabled(requireView(), requireActivity())
+                }
             }
         }
     }
@@ -123,9 +131,10 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener {
     }
 
     private fun getCurrentLocation() {
-        val checkSelfPermission = PermissionChecker.checkSelfPostPermission(requireContext())
+        val checkSelfPermission = PermissionChecker.checkSelfMapsPermission(requireContext())
 
         if (!checkSelfPermission) {
+            init()
             return
         }
 
@@ -136,6 +145,8 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener {
                 val currentLocation = LatLng(location.latitude, location.longitude)
 
                 this.currentLocation = currentLocation
+            } else {
+                ShowSnackbarPermission().locationDisabled(requireView(),requireActivity())
             }
         }
 
@@ -145,11 +156,13 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener {
 
         mapFragment?.getMapAsync { googleMap ->
             googleMap.isMyLocationEnabled = true
+            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(semeru, 12.2f))
 
             viewModel.getAllPosts().observe(viewLifecycleOwner) { result ->
                 when (result) {
                     is Resource.Error -> {
-                        Toast.makeText(requireContext(), result.message!!, Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), result.message!!, Toast.LENGTH_SHORT)
+                            .show()
                     }
                     is Resource.Loading -> {
                         Log.d("MapsFragment", "Loading Post")
@@ -160,29 +173,11 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener {
                         listPosts = data
 
                         var category = binding.autoCompleteBencana.text.toString()
-
+                        binding.textInputLayout.setStartIconDrawable(R.drawable.ic_round_grid_view_24)
                         binding.autoCompleteBencana.onItemClickListener =
                             AdapterView.OnItemClickListener { _, _, _, _ ->
                                 googleMap.clear()
                                 category = binding.autoCompleteBencana.text.toString()
-
-                                when (category) {
-                                    "Bencana Alam" -> {
-                                        binding.textInputLayout.setStartIconDrawable(R.drawable.ic_category_volcano)
-                                    }
-                                    "Infrastruktur Kurang Baik" -> {
-                                        binding.textInputLayout.setStartIconDrawable(R.drawable.ic_category_danger)
-                                    }
-                                    "Kekayaan Alam" -> {
-                                        binding.textInputLayout.setStartIconDrawable(R.drawable.ic_category_tree)
-                                    }
-                                    "Jalur Evakuasi" -> {
-                                        binding.textInputLayout.setStartIconDrawable(R.drawable.ic_category_evacuation)
-                                    }
-                                    else -> {
-                                        binding.textInputLayout.setStartIconDrawable(R.drawable.ic_round_grid_view_24)
-                                    }
-                                }
 
                                 for (d in data) {
                                     val loc = LatLng(
@@ -230,7 +225,6 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener {
                     }
                 }
             }
-            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(semeru, 12.2f))
         }
     }
 
@@ -239,8 +233,6 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener {
         val bindingSheet = BottomSheetMapsBinding.inflate(layoutInflater)
         bottomSheetDialog.setContentView(bindingSheet.root)
         bottomSheetDialog.show()
-
-        val nearestLatLng = getNearestPoint()
 
         val post = listPosts.single {
             it.id == marker.tag.toString().toInt()
@@ -252,7 +244,7 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener {
 
         bindingSheet.apply {
             tvDescription.text = post.description
-            tvDate.text = Converter.convertDate(post.createdAt)
+            tvDate.text = Converter.convertDate(post.updatedAt)
             tvUser.text = name
             tvCategory.text = post.category.category
             Glide.with(requireView()).load(imageUrl).into(ivPost)
@@ -267,6 +259,14 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener {
                 val txtBtn = "Rute ke tempat ini"
                 btnRoute.text = txtBtn
                 btnRoute.setOnClickListener {
+                    if (currentLocation == null) {
+                        Toast.makeText(
+                            requireContext(),
+                            "Aktifkan lokasi terlebih dahulu",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        return@setOnClickListener
+                    }
                     val gmmIntentUri =
                         Uri.parse("google.navigation:q=${post.latitude},${post.longitude}")
                     val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
@@ -278,6 +278,15 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener {
                 }
             } else {
                 btnRoute.setOnClickListener {
+                    if (currentLocation == null) {
+                        Toast.makeText(
+                            requireContext(),
+                            "Aktifkan lokasi terlebih dahulu",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        return@setOnClickListener
+                    }
+                    val nearestLatLng = getNearestPoint()
                     if (nearestLatLng != LatLng(0.0, 0.0)) {
                         val latitude = nearestLatLng.latitude.toString()
                         val longitude = nearestLatLng.longitude.toString()

@@ -13,7 +13,7 @@ import javax.inject.Inject
 class GetCategoryUserUseCase @Inject constructor(
     private val repository: UserRepository
 ) {
-    suspend operator fun invoke(): Flow<Resource<List<CategoryUser>>> = flow {
+    operator fun invoke(): Flow<Resource<List<CategoryUser>>> = flow {
         try {
             emit(Resource.Loading())
             val listCategoryUser = repository.getCategoryUser().map { it.toCategoryUser() }

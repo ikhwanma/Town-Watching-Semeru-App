@@ -13,7 +13,7 @@ import javax.inject.Inject
 class GetUserPostUseCase @Inject constructor(
     private val repository: PostRepository
 ) {
-    suspend operator fun invoke(auth: String): Flow<Resource<List<Post>>> = flow {
+    operator fun invoke(auth: String): Flow<Resource<List<Post>>> = flow {
         try {
             emit(Resource.Loading())
             emit(Resource.Success(repository.getUserPost(auth).map { it.toPost() }))

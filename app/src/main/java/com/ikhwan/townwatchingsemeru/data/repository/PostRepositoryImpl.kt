@@ -8,6 +8,7 @@ import com.ikhwan.townwatchingsemeru.data.remote.dto.post.PostDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.comment.AddCommentResponseDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.comment.CommentBody
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.comment.CommentDto
+import com.ikhwan.townwatchingsemeru.data.remote.dto.post.comment.DeleteCommentResponseDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.like.LikeDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.like.LikeResponseDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.updatepost.UpdatePostBody
@@ -80,6 +81,10 @@ class PostRepositoryImpl @Inject constructor(
 
     override suspend fun addComment(auth: String, comment: CommentBody): AddCommentResponseDto {
         return api.addComment(auth, comment)
+    }
+
+    override suspend fun deleteComment(auth: String, id: Int): DeleteCommentResponseDto {
+        return api.deleteComment(auth, id)
     }
 
     override suspend fun getUserLike(auth: String): List<LikeDto> {

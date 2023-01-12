@@ -86,6 +86,7 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <TextView
+            android:id="@+id/tv_pilih_level"
             style="@style/TextViewSemeru"
             android:layout_marginTop="8dp"
             android:text="@string/pilih_level"
@@ -93,6 +94,7 @@
             android:textColor="@color/black"
             />
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/textInputLevel"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

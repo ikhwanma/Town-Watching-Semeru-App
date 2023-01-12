@@ -49,6 +49,7 @@ fun PostDto.toPost(): Post {
         like = like,
         longitude = longitude,
         status = status,
+        updatedAt = updatedAt,
         createdAt = createdAt,
         user = user
     )

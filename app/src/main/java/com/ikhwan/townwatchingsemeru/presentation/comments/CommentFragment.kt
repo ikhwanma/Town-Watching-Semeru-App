@@ -7,14 +7,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.os.bundleOf
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
-import androidx.lifecycle.lifecycleScope
-import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.ikhwan.townwatchingsemeru.R
 import com.ikhwan.townwatchingsemeru.common.Constants
 import com.ikhwan.townwatchingsemeru.common.Resource
+import com.ikhwan.townwatchingsemeru.common.utils.ShowActionAlertDialog
 import com.ikhwan.townwatchingsemeru.common.utils.ShowLoadingAlertDialog
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.comment.CommentBody
 import com.ikhwan.townwatchingsemeru.databinding.FragmentCommentBinding
@@ -27,38 +25,15 @@ class CommentFragment : Fragment(), View.OnClickListener {
 
     private var idPost = 0
     private var token = ""
+    private var idUser = 0
 
     private val viewModel: CommentViewModel by hiltNavGraphViewModels(R.id.nav_main)
 
     private lateinit var dialog: ShowLoadingAlertDialog
 
-
-    private fun observeGetComment(idPost: Int) {
-        viewModel.getComment(idPost).observe(viewLifecycleOwner) { result ->
-            when (result) {
-                is Resource.Error -> {
-                    Log.d("CommentFragment", result.message!!)
-                }
-                is Resource.Loading -> {
-                    Log.d("CommentFragment", "Loading Comment")
-                }
-                is Resource.Success -> {
-                    result.data?.let { listComments ->
-                        if (listComments.isEmpty()){
-                            binding.tvAlertEmptyCategory.visibility = View.VISIBLE
-                        }else{
-                            binding.tvAlertEmptyCategory.visibility = View.GONE
-                            val adapter = CommentAdapter()
-                            adapter.submitData(listComments)
-
-                            binding.apply {
-                                rvComment.adapter = adapter
-                                rvComment.layoutManager = LinearLayoutManager(requireContext())
-                            }
-                        }
-                    }
-                }
-            }
+    private fun observeId() {
+        viewModel.getId().observe(viewLifecycleOwner) {
+            idUser = it
         }
     }
 
@@ -76,9 +51,71 @@ class CommentFragment : Fragment(), View.OnClickListener {
         idPost = arguments?.getInt(Constants.EXTRA_ID)!!
         token = arguments?.getString(Constants.EXTRA_TOKEN)!!
 
+        observeId()
         observeGetComment(idPost)
 
         binding.btnComment.setOnClickListener(this)
+    }
+
+    private fun observeGetComment(idPost: Int) {
+        viewModel.getComment(idPost).observe(viewLifecycleOwner) { result ->
+            when (result) {
+                is Resource.Error -> {
+                    Log.d("CommentFragment", result.message!!)
+                }
+                is Resource.Loading -> {
+                    Log.d("CommentFragment", "Loading Comment")
+                }
+                is Resource.Success -> {
+                    result.data?.let { listComments ->
+                        val adapter = CommentAdapter(idUser = idUser,
+                            btnDeleteSetOnClick = { idPost ->
+                                ShowActionAlertDialog(
+                                    context = requireContext(),
+                                    title = "Hapus Komentar?",
+                                    message = "Anda yakin ingin menghapus komentar?",
+                                    positiveButtonAction = {
+                                        deleteComment(idPost)
+                                    }
+                                ).invoke()
+                            })
+                        if (listComments.isEmpty()) {
+                            binding.tvAlertEmptyCategory.visibility = View.VISIBLE
+                            adapter.submitData(emptyList())
+                        } else {
+                            binding.tvAlertEmptyCategory.visibility = View.GONE
+
+                            adapter.submitData(listComments)
+
+                            binding.apply {
+                                rvComment.adapter = adapter
+                                rvComment.layoutManager = LinearLayoutManager(requireContext())
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun deleteComment(idPost: Int) {
+        viewModel.deleteComment(token, idPost)
+            .observe(viewLifecycleOwner) { result ->
+                when(result){
+                    is Resource.Error -> {
+                        dialog.dismissDialog()
+                        Toast.makeText(requireContext(), result.message!!, Toast.LENGTH_SHORT).show()
+                    }
+                    is Resource.Loading -> {
+                        dialog.startDialog()
+                    }
+                    is Resource.Success -> {
+                        dialog.dismissDialog()
+                        Toast.makeText(requireContext(), "Komentar dihapus", Toast.LENGTH_SHORT).show()
+                        observeGetComment(idPost)
+                    }
+                }
+            }
     }
 
     override fun onClick(p0: View?) {

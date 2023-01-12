@@ -22,20 +22,20 @@ class DetailPostViewModel @Inject constructor(
     private val pref: DataStoreManager
 ):ViewModel() {
 
-    suspend fun getDetailPost(id: Int): LiveData<Resource<Post>> =
+    fun getDetailPost(id: Int): LiveData<Resource<Post>> =
         getDetailPostUseCase.invoke(id).asLiveData()
 
     fun getId() : LiveData<Int> {
         return pref.getId().asLiveData()
     }
 
-    suspend fun addLike(auth: String, postId: Int): LiveData<Resource<LikeResponse>> =
+    fun addLike(auth: String, postId: Int): LiveData<Resource<LikeResponse>> =
         addLikeUseCase.invoke(auth, postId).asLiveData()
 
     fun getToken() : LiveData<String> {
         return pref.getToken().asLiveData()
     }
 
-    suspend fun deletePostUser(auth: String, id: Int): LiveData<Resource<DeletePostResponse>> =
+    fun deletePostUser(auth: String, id: Int): LiveData<Resource<DeletePostResponse>> =
         deleteUserPostUseCase.invoke(auth, id).asLiveData()
 }

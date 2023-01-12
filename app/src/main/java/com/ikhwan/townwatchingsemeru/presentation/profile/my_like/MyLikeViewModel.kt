@@ -20,6 +20,6 @@ class MyLikeViewModel @Inject constructor(
         return pref.getToken().asLiveData()
     }
 
-    suspend fun getUserLike(auth: String): LiveData<Resource<List<Like>>> =
+    fun getUserLike(auth: String): LiveData<Resource<List<Like>>> =
         getUserLikeUseCase.invoke(auth).asLiveData()
 }

@@ -14,7 +14,7 @@ import javax.inject.Inject
 class UpdatePostUseCase @Inject constructor(
     private val repository: PostRepository
 ) {
-    suspend operator fun invoke(
+    operator fun invoke(
         auth: String,
         updatePostBody: UpdatePostBody
     ): Flow<Resource<UpdatePostResponse>> = flow {

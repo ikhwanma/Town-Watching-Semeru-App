@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".presentation.post.PostFragment">
 
     <LinearLayout
@@ -11,61 +12,121 @@
         android:orientation="vertical"
         android:padding="10dp">
 
-        <ImageView
-            android:id="@+id/iv_post"
+        <androidx.cardview.widget.CardView
+            app:cardCornerRadius="12dp"
             android:layout_width="match_parent"
-            android:layout_height="300dp"
-            android:contentDescription="@string/image"
-            android:scaleType="fitXY"
-            android:src="@drawable/ic_baseline_add_photo_alternate_24" />
+            android:layout_height="230dp"
+            android:translationZ="5dp"
+            >
+            <ImageView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:contentDescription="@string/image"
+                android:layout_gravity="center"
+                android:scaleType="fitXY"
+                android:src="@drawable/ic_baseline_add_photo_alternate_24" />
+            <ImageView
+                android:id="@+id/iv_post"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:contentDescription="@string/image"
+                android:layout_gravity="center"
+                android:scaleType="fitXY"
+                />
+        </androidx.cardview.widget.CardView>
+
+        <TextView
+            style="@style/TextViewSemeru"
+            android:layout_marginTop="8dp"
+            android:text="@string/pilih_kategori"
+            android:textSize="16sp"
+            android:textColor="@color/black"
+            />
 
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1">
+            app:boxCornerRadiusBottomStart="20dp"
+            app:boxCornerRadiusTopEnd="20dp"
+            app:boxCornerRadiusTopStart="20dp"
+            app:boxCornerRadiusBottomEnd="20dp"
+            app:boxStrokeWidth="0dp"
+            app:boxStrokeWidthFocused="0dp"
+            android:background="@drawable/style_box_rounded"
+            android:layout_weight="1"
+            android:layout_marginTop="10dp">
 
             <AutoCompleteTextView
                 android:id="@+id/autoCompleteBencana"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:fontFamily="@font/roboto_medium"
+                android:textStyle="bold"
+                android:background="@null"
+                android:ellipsize="end"
                 android:inputType="none"
+                android:paddingStart="25dp"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:maxLines="1"
+                android:textColor="@color/black"
+                android:singleLine="true"
                 android:text="@string/pilih_kategori"
-                tools:ignore="LabelFor" />
+                tools:ignore="LabelFor,RtlSymmetry"
+                />
         </com.google.android.material.textfield.TextInputLayout>
 
+        <TextView
+            android:id="@+id/tv_pilih_level"
+            style="@style/TextViewSemeru"
+            android:layout_marginTop="8dp"
+            android:text="@string/pilih_level"
+            android:textSize="16sp"
+            android:textColor="@color/black"
+            />
+
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/textInputLevel"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1">
+            app:boxCornerRadiusBottomStart="20dp"
+            app:boxCornerRadiusTopEnd="20dp"
+            app:boxCornerRadiusTopStart="20dp"
+            app:boxCornerRadiusBottomEnd="20dp"
+            app:boxStrokeWidth="0dp"
+            app:boxStrokeWidthFocused="0dp"
+            android:background="@drawable/style_box_rounded"
+            android:layout_weight="1"
+            android:layout_marginTop="10dp">
 
             <AutoCompleteTextView
                 android:id="@+id/autoCompleteLevel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:fontFamily="@font/roboto_medium"
+                android:textStyle="bold"
+                android:background="@null"
+                android:ellipsize="end"
                 android:inputType="none"
+                android:paddingStart="25dp"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:maxLines="1"
+                android:textColor="@color/black"
+                android:singleLine="true"
                 android:text="@string/level"
-                tools:ignore="LabelFor" />
+                tools:ignore="LabelFor,RtlSymmetry" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1">
-
-            <AutoCompleteTextView
-                android:id="@+id/autoCompleteStatus"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:inputType="none"
-                android:text="@string/status"
-                tools:ignore="LabelFor" />
-        </com.google.android.material.textfield.TextInputLayout>
+        <TextView
+            style="@style/TextViewSemeru"
+            android:layout_marginTop="8dp"
+            android:text="@string/tulis_deskripsi"
+            android:textSize="16sp"
+            android:textColor="@color/black"
+            />
 
         <EditText
             android:id="@+id/et_description"

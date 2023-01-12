@@ -8,6 +8,7 @@ import com.ikhwan.townwatchingsemeru.data.remote.dto.post.PostDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.comment.AddCommentResponseDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.comment.CommentBody
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.comment.CommentDto
+import com.ikhwan.townwatchingsemeru.data.remote.dto.post.comment.DeleteCommentResponseDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.like.LikeDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.like.LikeResponseDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.updatepost.UpdatePostBody
@@ -59,6 +60,8 @@ interface PostRepository {
     suspend fun getComment(postId : Int): List<CommentDto>
 
     suspend fun addComment(auth : String, comment: CommentBody): AddCommentResponseDto
+
+    suspend fun deleteComment(auth: String, id: Int): DeleteCommentResponseDto
 
     suspend fun getUserLike(auth: String): List<LikeDto>
 }

@@ -14,12 +14,14 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
+import androidx.exifinterface.media.ExifInterface
 import androidx.fragment.app.Fragment
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.navigation.Navigation
@@ -29,10 +31,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.ikhwan.townwatchingsemeru.R
 import com.ikhwan.townwatchingsemeru.common.Resource
-import com.ikhwan.townwatchingsemeru.common.utils.BitmapResize
-import com.ikhwan.townwatchingsemeru.common.utils.PermissionChecker
-import com.ikhwan.townwatchingsemeru.common.utils.ShowLoadingAlertDialog
-import com.ikhwan.townwatchingsemeru.common.utils.Validator
+import com.ikhwan.townwatchingsemeru.common.utils.*
 import com.ikhwan.townwatchingsemeru.databinding.BottomSheetPostBinding
 import com.ikhwan.townwatchingsemeru.databinding.FragmentPostBinding
 import com.ikhwan.townwatchingsemeru.domain.model.Category
@@ -58,6 +57,7 @@ class PostFragment : Fragment(), View.OnClickListener {
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private var currentPhotoPath: String = ""
     private var currentLocation: LatLng? = null
+    private var level = ""
 
     private val viewModel: PostViewModel by hiltNavGraphViewModels(R.id.nav_main)
 
@@ -71,6 +71,11 @@ class PostFragment : Fragment(), View.OnClickListener {
                 getCurrentLocation()
             } else {
                 PermissionChecker.checkPostPermission(requireContext(), requireActivity())
+
+                val checkSelfPermission = PermissionChecker.checkSelfPostPermission(requireContext())
+                if (!checkSelfPermission) {
+                    ShowSnackbarPermission().permissionDisabled(requireView(), requireActivity())
+                }
             }
         }
     }
@@ -79,36 +84,40 @@ class PostFragment : Fragment(), View.OnClickListener {
         registerForActivityResult(ActivityResultContracts.GetContent()) { result ->
             val bMap = MediaStore.Images.Media.getBitmap(requireActivity().contentResolver, result)
 
-            val bitmap = if (bMap.height > bMap.width){
+            val bitmap = if (bMap.height >= bMap.width) {
                 BitmapResize.getResizedBitmap(
                     bMap,
                     1080,
                     1920
                 )
-            }else{
+            } else {
                 BitmapResize.getResizedBitmap(
                     bMap,
                     1920,
                     1080
                 )
             }
-            image = result!!
-
-            binding.ivPost.setImageBitmap(bitmap)
+            val ei = ExifInterface(PathUtil.getPath(requireContext(), result!!)!!)
+            val orientation: Int = ei.getAttributeInt(
+                ExifInterface.TAG_ORIENTATION,
+                ExifInterface.ORIENTATION_UNDEFINED
+            )
+            val rotatedBitmap = BitmapRotator.getRotatedBitmap(orientation, bitmap!!)
+            binding.ivPost.setImageBitmap(rotatedBitmap)
+            setImage(rotatedBitmap)
         }
 
     private val cameraResult =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 val bMap = BitmapFactory.decodeFile(currentPhotoPath)
-
-                val bitmap = if (bMap.height > bMap.width){
+                val bitmap = if (bMap.height >= bMap.width) {
                     BitmapResize.getResizedBitmap(
                         bMap,
                         1080,
                         1920
                     )
-                }else{
+                } else {
                     BitmapResize.getResizedBitmap(
                         bMap,
                         1920,
@@ -116,30 +125,40 @@ class PostFragment : Fragment(), View.OnClickListener {
                     )
                 }
 
+                val ei = ExifInterface(currentPhotoPath)
+                val orientation: Int = ei.getAttributeInt(
+                    ExifInterface.TAG_ORIENTATION,
+                    ExifInterface.ORIENTATION_UNDEFINED
+                )
 
-                val file = File(requireContext().cacheDir, "semeru-")
-                file.run {
-                    delete()
-                    createNewFile()
-                }
-                val fileOutputStream = file.outputStream()
-                val byteArrayOutputStream = ByteArrayOutputStream()
-                bitmap?.compress(Bitmap.CompressFormat.JPEG, 50, byteArrayOutputStream)
+                val rotatedBitmap = BitmapRotator.getRotatedBitmap(orientation, bitmap!!)
 
-                val bytearray = byteArrayOutputStream.toByteArray()
-                byteArrayOutputStream.run {
-                    fileOutputStream.write(bytearray)
-                    fileOutputStream.flush()
-                    fileOutputStream.close()
-                    close()
-                }
-                val uriImage = file.toUri()
-                image = uriImage
-
-                binding.ivPost.setImageURI(uriImage)
-
+                binding.ivPost.setImageBitmap(rotatedBitmap)
+                setImage(rotatedBitmap)
             }
         }
+
+    private fun setImage(rotatedBitmap: Bitmap) {
+        val file = File(requireContext().cacheDir, "semeru-")
+        file.run {
+            delete()
+            createNewFile()
+        }
+        val fileOutputStream = file.outputStream()
+        val byteArrayOutputStream = ByteArrayOutputStream()
+        rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 50, byteArrayOutputStream)
+
+        val bytearray = byteArrayOutputStream.toByteArray()
+        byteArrayOutputStream.run {
+            fileOutputStream.write(bytearray)
+            fileOutputStream.flush()
+            fileOutputStream.close()
+            close()
+        }
+        val uriImage = file.toUri()
+
+        image = uriImage
+    }
 
     private fun observeCategory() {
         viewModel.getCategory().observe(viewLifecycleOwner) { result ->
@@ -170,7 +189,7 @@ class PostFragment : Fragment(), View.OnClickListener {
 
     override fun onViewStateRestored(savedInstanceState: Bundle?) {
         super.onViewStateRestored(savedInstanceState)
-        if (!savedInstanceState?.getString("ImagePath").isNullOrEmpty()){
+        if (!savedInstanceState?.getString("ImagePath").isNullOrEmpty()) {
             this.currentPhotoPath = savedInstanceState?.getString("ImagePath")!!
         }
         image = savedInstanceState?.getParcelable("UriImage")
@@ -228,18 +247,30 @@ class PostFragment : Fragment(), View.OnClickListener {
 
     private fun initAdapter() {
         val listLevel = mutableListOf("Ringan", "Sedang", "Berat")
-        val listStatus = mutableListOf("Aktif", "Tidak Aktif")
 
         val adapterLevel = ArrayAdapter(requireContext(), R.layout.dropdown_bencana, listLevel)
-        val adapterStatus = ArrayAdapter(requireContext(), R.layout.dropdown_bencana, listStatus)
         val adapterCategory =
             ArrayAdapter(requireContext(), R.layout.dropdown_bencana, listCategoryName)
 
         binding.apply {
             autoCompleteLevel.setAdapter(adapterLevel)
-            autoCompleteStatus.setAdapter(adapterStatus)
             autoCompleteBencana.setAdapter(adapterCategory)
+            autoCompleteBencana.onItemClickListener =
+                AdapterView.OnItemClickListener { _, _, _, _ ->
+                    val category = autoCompleteBencana.text.toString()
+                    if (category == listCategory[2].category || category == listCategory[3].category){
+                        textInputLevel.visibility = View.GONE
+                        tvPilihLevel.visibility = View.GONE
+                        level = "Ringan"
+                    }else{
+                        textInputLevel.visibility = View.VISIBLE
+                        tvPilihLevel.visibility = View.VISIBLE
+                        level = autoCompleteLevel.text.toString()
+                    }
+                }
         }
+
+
     }
 
     private fun goToLoginPage() {
@@ -263,6 +294,8 @@ class PostFragment : Fragment(), View.OnClickListener {
                 val currentLocation = LatLng(location.latitude, location.longitude)
 
                 this.currentLocation = currentLocation
+            }else {
+                ShowSnackbarPermission().locationDisabled(requireView(),requireActivity())
             }
         }
     }
@@ -293,7 +326,7 @@ class PostFragment : Fragment(), View.OnClickListener {
                     bindingSheet.apply {
                         btnCamera.setOnClickListener {
 
-                            if(image != null){
+                            if (image != null) {
                                 image = null
                                 currentPhotoPath = ""
                             }
@@ -313,8 +346,6 @@ class PostFragment : Fragment(), View.OnClickListener {
                                     "com.ikhwan.townwatchingsemeru",
                                     imageFile
                                 )
-
-
 
                                 val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
                                 intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri)
@@ -349,26 +380,33 @@ class PostFragment : Fragment(), View.OnClickListener {
                     )
                 } else {
                     binding.apply {
+                        if (currentLocation == null) {
+                            Toast.makeText(
+                                requireContext(),
+                                "Aktifkan lokasi terlebih dahulu",
+                                Toast.LENGTH_SHORT
+                            )
+                                .show()
+                            return
+                        }
+
                         val description = etDescription.text.toString()
                         val latitude = currentLocation!!.latitude.toString()
                         val longitude = currentLocation!!.longitude.toString()
                         var category = ""
+
                         for (d in listCategory) {
                             if (d.category == autoCompleteBencana.text.toString()) {
                                 category = d.id.toString()
                             }
                         }
-                        val level = autoCompleteLevel.text.toString()
-                        val txtStatus = autoCompleteLevel.text.toString()
-                        val status = txtStatus == "Aktif"
 
                         val postValidator =
                             Validator.postValidator(
                                 description = description,
                                 image = image,
                                 category = category,
-                                level = level,
-                                txtStatus = txtStatus
+                                level = level
                             )
 
                         if (postValidator) {
@@ -383,8 +421,7 @@ class PostFragment : Fragment(), View.OnClickListener {
                                 latitude = latitude,
                                 longitude = longitude,
                                 category = category,
-                                level = level,
-                                status = status
+                                level = level
                             )
                         }
                     }
@@ -399,8 +436,7 @@ class PostFragment : Fragment(), View.OnClickListener {
         latitude: String,
         longitude: String,
         category: String,
-        level: String,
-        status: Boolean
+        level: String
     ) {
         val contentResolver = requireActivity().applicationContext.contentResolver
 
@@ -430,11 +466,7 @@ class PostFragment : Fragment(), View.OnClickListener {
             description.toRequestBody("multipart/form-data".toMediaTypeOrNull())
         val categoryUpload = category.toRequestBody("multipart/form-data".toMediaTypeOrNull())
         val levelUpload = level.toRequestBody("multipart/form-data".toMediaTypeOrNull())
-        val statusUpload = if (status) {
-            "1".toRequestBody("multipart/form-data".toMediaTypeOrNull())
-        } else {
-            "0".toRequestBody("multipart/form-data".toMediaTypeOrNull())
-        }
+        val statusUpload = "1".toRequestBody("multipart/form-data".toMediaTypeOrNull())
 
         viewModel.addPost(
             auth = token,

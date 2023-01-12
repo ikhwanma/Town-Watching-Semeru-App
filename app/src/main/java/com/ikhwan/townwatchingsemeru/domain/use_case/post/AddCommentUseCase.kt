@@ -14,7 +14,7 @@ import javax.inject.Inject
 class AddCommentUseCase @Inject constructor(
     private val repository: PostRepository
 ) {
-    suspend operator fun invoke(
+    operator fun invoke(
         auth: String,
         comment: CommentBody
     ): Flow<Resource<AddCommentResponse>> = flow {

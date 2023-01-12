@@ -14,7 +14,7 @@ import javax.inject.Inject
 class EditPasswordUseCase @Inject constructor(
     private val repository: UserRepository
 ) {
-    suspend operator fun invoke(
+    operator fun invoke(
         auth: String,
         editPassword: EditPasswordBody
     ): Flow<Resource<UpdatePasswordResponse>> = flow {

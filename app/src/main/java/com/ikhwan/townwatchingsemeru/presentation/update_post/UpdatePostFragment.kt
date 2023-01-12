@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.core.os.bundleOf
@@ -123,9 +124,33 @@ class UpdatePostFragment : Fragment(), View.OnClickListener {
             autoCompleteStatus.setText(adapterStatus.getItem(positionStatus))
             autoCompleteBencana.setText(adapterCategory.getItem(positionCategory))
 
+            val categoryBencana = autoCompleteBencana.text.toString()
+            if (categoryBencana == listCategory[2].category || categoryBencana == listCategory[3].category) {
+                textInputLevel.visibility = View.GONE
+                tvPilihLevel.visibility = View.GONE
+                level = "Ringan"
+            } else {
+                textInputLevel.visibility = View.VISIBLE
+                tvPilihLevel.visibility = View.VISIBLE
+                level = autoCompleteLevel.text.toString()
+            }
+
             autoCompleteLevel.setAdapter(adapterLevel)
             autoCompleteStatus.setAdapter(adapterStatus)
             autoCompleteBencana.setAdapter(adapterCategory)
+            autoCompleteBencana.onItemClickListener =
+                AdapterView.OnItemClickListener { _, _, _, _ ->
+                    val category = autoCompleteBencana.text.toString()
+                    if (category == listCategory[2].category || category == listCategory[3].category) {
+                        textInputLevel.visibility = View.GONE
+                        tvPilihLevel.visibility = View.GONE
+                        level = "Ringan"
+                    } else {
+                        textInputLevel.visibility = View.VISIBLE
+                        tvPilihLevel.visibility = View.VISIBLE
+                        level = autoCompleteLevel.text.toString()
+                    }
+                }
         }
     }
 
@@ -150,9 +175,9 @@ class UpdatePostFragment : Fragment(), View.OnClickListener {
                     }
                     val level = autoCompleteLevel.text.toString()
                     val txtStatus = autoCompleteStatus.text.toString()
-                    val status = if(txtStatus == "Aktif"){
+                    val status = if (txtStatus == "Aktif") {
                         1
-                    }else{
+                    } else {
                         0
                     }
 

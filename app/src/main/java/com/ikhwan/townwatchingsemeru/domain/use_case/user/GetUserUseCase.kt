@@ -13,7 +13,7 @@ import javax.inject.Inject
 class GetUserUseCase @Inject constructor(
     private val repository: UserRepository
 ){
-    suspend operator fun invoke(auth: String): Flow<Resource<User>> = flow {
+    operator fun invoke(auth: String): Flow<Resource<User>> = flow {
         try {
             emit(Resource.Loading())
             emit(Resource.Success(repository.getUser(auth).toUser()))

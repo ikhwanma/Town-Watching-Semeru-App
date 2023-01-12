@@ -14,7 +14,7 @@ import javax.inject.Inject
 class LoginUserUseCase @Inject constructor(
     private val repository: UserRepository
 ) {
-    suspend operator fun invoke(user: LoginBody): Flow<Resource<PostLoginResponse>> = flow {
+    operator fun invoke(user: LoginBody): Flow<Resource<PostLoginResponse>> = flow {
         try {
             emit(Resource.Loading())
             emit(Resource.Success(repository.loginUser(user).toPostLoginResponse()))

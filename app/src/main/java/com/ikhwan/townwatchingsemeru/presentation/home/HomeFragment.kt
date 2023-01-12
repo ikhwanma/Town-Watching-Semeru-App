@@ -50,15 +50,18 @@ class HomeFragment : Fragment(), View.OnClickListener {
         viewModel.getId().observe(viewLifecycleOwner) { id ->
             if(id != 0){
                 userId = id
+
             }
         }
     }
 
     private fun observeGetToken(){
+
         viewModel.getToken().observe(viewLifecycleOwner) {
             if (it != ""){
                 token = it
             }
+
         }
     }
 
@@ -83,6 +86,7 @@ class HomeFragment : Fragment(), View.OnClickListener {
                     result.data?.let {
                         if (result.data.isEmpty()){
                             binding.tvAlertEmptyPost.visibility = View.VISIBLE
+                            setAdapter(emptyList())
                         }else{
                             binding.tvAlertEmptyPost.visibility = View.GONE
                             setAdapter(it)

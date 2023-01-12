@@ -7,6 +7,7 @@ import com.ikhwan.townwatchingsemeru.data.remote.dto.post.PostDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.comment.AddCommentResponseDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.comment.CommentBody
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.comment.CommentDto
+import com.ikhwan.townwatchingsemeru.data.remote.dto.post.comment.DeleteCommentResponseDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.like.LikeDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.like.LikeResponseDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.updatepost.UpdatePostBody
@@ -78,6 +79,12 @@ interface PostApi {
         @Header("Authorization") auth : String,
         @Body comment: CommentBody
     ): AddCommentResponseDto
+
+    @DELETE("post/comment/{id}")
+    suspend fun deleteComment(
+        @Header("Authorization") auth : String,
+        @Path("id")id: Int
+    ): DeleteCommentResponseDto
 
     @GET("post/like")
     suspend fun getUserLike(

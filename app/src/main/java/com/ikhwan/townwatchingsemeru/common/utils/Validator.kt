@@ -9,14 +9,12 @@ object Validator {
         description: String,
         image: Uri?,
         category: String,
-        level: String,
-        txtStatus: String
+        level: String
     ): Boolean {
         return (description.isEmpty() ||
                 image == null ||
                 category.isEmpty() ||
-                level.isEmpty() ||
-                txtStatus.isEmpty() )
+                level == "Level" )
     }
 
     fun nameValidator(name: String): String{

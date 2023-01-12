@@ -1,8 +1,8 @@
 package com.ikhwan.townwatchingsemeru.domain.use_case.post
 
 import com.ikhwan.townwatchingsemeru.common.Resource
-import com.ikhwan.townwatchingsemeru.data.remote.dto.post.toPost
-import com.ikhwan.townwatchingsemeru.domain.model.Post
+import com.ikhwan.townwatchingsemeru.data.remote.dto.post.comment.toDeleteCommentResponse
+import com.ikhwan.townwatchingsemeru.domain.model.DeleteCommentResponse
 import com.ikhwan.townwatchingsemeru.domain.repository.PostRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -10,20 +10,13 @@ import retrofit2.HttpException
 import java.io.IOException
 import javax.inject.Inject
 
-class GetAllPostsUseCase @Inject constructor(
-    private val repository: PostRepository
+class DeleteCommentUseCase @Inject constructor(
+    val repository: PostRepository
 ) {
-    operator fun invoke(
-        categoryId: Int?,
-        level: String?,
-        status: Int?
-    ): Flow<Resource<List<Post>>> = flow {
+    operator fun invoke(auth: String, id: Int): Flow<Resource<DeleteCommentResponse>> = flow {
         try {
             emit(Resource.Loading())
-            emit(
-                Resource.Success(
-                    repository.getAllPost(categoryId, level, status).map { it.toPost() })
-            )
+            emit(Resource.Success(repository.deleteComment(auth, id).toDeleteCommentResponse()))
         } catch (e: HttpException) {
             emit(Resource.Error(e.localizedMessage ?: "An unexpected error occured"))
         } catch (e: IOException) {

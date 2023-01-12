@@ -13,7 +13,7 @@ import javax.inject.Inject
 class GetDetailPostUseCase @Inject constructor(
     private val repository: PostRepository
 ) {
-    suspend operator fun invoke(id: Int): Flow<Resource<Post>> = flow {
+    operator fun invoke(id: Int): Flow<Resource<Post>> = flow {
         try {
             emit(Resource.Loading())
             emit(Resource.Success(repository.getDetailPost(id).toPost()))

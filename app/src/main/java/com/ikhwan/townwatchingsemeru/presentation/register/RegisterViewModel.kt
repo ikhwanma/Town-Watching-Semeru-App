@@ -18,9 +18,9 @@ class RegisterViewModel @Inject constructor(
     private val registerUserUseCase: RegisterUserUseCase
 ): ViewModel(){
 
-    suspend fun getCategoryUser(): LiveData<Resource<List<CategoryUser>>> =
+    fun getCategoryUser(): LiveData<Resource<List<CategoryUser>>> =
         getCategoryUserUseCase.invoke().asLiveData()
 
-    suspend fun registerUser(registerBody: RegisterBody): LiveData<Resource<RegisterResponse>> =
+    fun registerUser(registerBody: RegisterBody): LiveData<Resource<RegisterResponse>> =
         registerUserUseCase.invoke(registerBody).asLiveData()
 }
