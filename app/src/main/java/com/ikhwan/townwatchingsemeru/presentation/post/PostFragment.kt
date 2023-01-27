@@ -58,6 +58,7 @@ class PostFragment : Fragment(), View.OnClickListener {
     private var currentPhotoPath: String = ""
     private var currentLocation: LatLng? = null
     private var level = ""
+    private var cekBencana = false
 
     private val viewModel: PostViewModel by hiltNavGraphViewModels(R.id.nav_main)
 
@@ -261,11 +262,10 @@ class PostFragment : Fragment(), View.OnClickListener {
                     if (category == listCategory[2].category || category == listCategory[3].category){
                         textInputLevel.visibility = View.GONE
                         tvPilihLevel.visibility = View.GONE
-                        level = "Ringan"
                     }else{
                         textInputLevel.visibility = View.VISIBLE
                         tvPilihLevel.visibility = View.VISIBLE
-                        level = autoCompleteLevel.text.toString()
+                        cekBencana = true
                     }
                 }
         }
@@ -393,6 +393,11 @@ class PostFragment : Fragment(), View.OnClickListener {
                         val description = etDescription.text.toString()
                         val latitude = currentLocation!!.latitude.toString()
                         val longitude = currentLocation!!.longitude.toString()
+                        val level = if(cekBencana){
+                            autoCompleteLevel.text.toString()
+                        }else{
+                            "Ringan"
+                        }
                         var category = ""
 
                         for (d in listCategory) {
