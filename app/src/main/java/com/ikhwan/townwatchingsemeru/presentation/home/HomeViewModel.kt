@@ -3,13 +3,11 @@ package com.ikhwan.townwatchingsemeru.presentation.home
 import androidx.lifecycle.*
 import com.ikhwan.townwatchingsemeru.common.Resource
 import com.ikhwan.townwatchingsemeru.data.local.DataStoreManager
-import com.ikhwan.townwatchingsemeru.domain.model.Category
-import com.ikhwan.townwatchingsemeru.domain.model.CategoryUser
-import com.ikhwan.townwatchingsemeru.domain.model.LikeResponse
-import com.ikhwan.townwatchingsemeru.domain.model.Post
+import com.ikhwan.townwatchingsemeru.domain.model.*
 import com.ikhwan.townwatchingsemeru.domain.use_case.post.AddLikeUseCase
 import com.ikhwan.townwatchingsemeru.domain.use_case.post.GetAllCategoryUseCase
 import com.ikhwan.townwatchingsemeru.domain.use_case.post.GetAllPostsUseCase
+import com.ikhwan.townwatchingsemeru.domain.use_case.post.GetPostLikeUseCase
 import com.ikhwan.townwatchingsemeru.domain.use_case.user.GetCategoryUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -20,6 +18,7 @@ class HomeViewModel @Inject constructor(
     private val addLikeUseCase: AddLikeUseCase,
     private val getAllCategoryUseCase: GetAllCategoryUseCase,
     private val getCategoryUserUseCase: GetCategoryUserUseCase,
+    private val getLikePostsUseCase: GetPostLikeUseCase,
     private val pref: DataStoreManager
 ) : ViewModel() {
 
@@ -38,6 +37,10 @@ class HomeViewModel @Inject constructor(
 
     fun getCategory(): LiveData<Resource<List<Category>>> =
         getAllCategoryUseCase.invoke().asLiveData()
+
+    fun getPostLike(id: Int): LiveData<Resource<List<GetLikeResponse>>> =
+        getLikePostsUseCase.invoke(id).asLiveData()
+
 
     fun getId(): LiveData<Int> {
         return pref.getId().asLiveData()

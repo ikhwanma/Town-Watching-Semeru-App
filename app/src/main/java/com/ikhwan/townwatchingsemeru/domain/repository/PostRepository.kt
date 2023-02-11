@@ -13,10 +13,7 @@ import com.ikhwan.townwatchingsemeru.data.remote.dto.post.like.LikeDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.like.LikeResponseDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.updatepost.UpdatePostBody
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.updatepost.UpdatePostResponseDto
-import com.ikhwan.townwatchingsemeru.domain.model.Like
-import com.ikhwan.townwatchingsemeru.domain.model.LikeResponse
-import com.ikhwan.townwatchingsemeru.domain.model.Post
-import com.ikhwan.townwatchingsemeru.domain.model.UpdatePostResponse
+import com.ikhwan.townwatchingsemeru.domain.model.*
 import kotlinx.coroutines.flow.Flow
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -64,4 +61,6 @@ interface PostRepository {
     suspend fun deleteComment(auth: String, id: Int): DeleteCommentResponseDto
 
     suspend fun getUserLike(auth: String): List<LikeDto>
+
+    suspend fun getPostLike(id: Int): List<GetLikeResponse>
 }

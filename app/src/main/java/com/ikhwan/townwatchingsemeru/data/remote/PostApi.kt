@@ -12,6 +12,7 @@ import com.ikhwan.townwatchingsemeru.data.remote.dto.post.like.LikeDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.like.LikeResponseDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.updatepost.UpdatePostBody
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.updatepost.UpdatePostResponseDto
+import com.ikhwan.townwatchingsemeru.domain.model.GetLikeResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.http.*
@@ -90,4 +91,9 @@ interface PostApi {
     suspend fun getUserLike(
         @Header("Authorization") auth : String
     ): List<LikeDto>
+
+    @GET("post/like/{id}")
+    suspend fun getPostLike(
+        @Path("id")id: Int
+    ): List<GetLikeResponse>
 }

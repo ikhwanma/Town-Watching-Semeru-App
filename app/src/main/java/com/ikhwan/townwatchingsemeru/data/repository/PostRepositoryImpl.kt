@@ -13,6 +13,7 @@ import com.ikhwan.townwatchingsemeru.data.remote.dto.post.like.LikeDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.like.LikeResponseDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.updatepost.UpdatePostBody
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.updatepost.UpdatePostResponseDto
+import com.ikhwan.townwatchingsemeru.domain.model.GetLikeResponse
 import com.ikhwan.townwatchingsemeru.domain.model.Like
 import com.ikhwan.townwatchingsemeru.domain.model.Post
 import com.ikhwan.townwatchingsemeru.domain.repository.PostRepository
@@ -89,5 +90,9 @@ class PostRepositoryImpl @Inject constructor(
 
     override suspend fun getUserLike(auth: String): List<LikeDto> {
         return api.getUserLike(auth)
+    }
+
+    override suspend fun getPostLike(id: Int): List<GetLikeResponse> {
+        return api.getPostLike(id)
     }
 }

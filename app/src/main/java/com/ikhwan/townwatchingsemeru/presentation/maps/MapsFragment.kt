@@ -1,6 +1,7 @@
 package com.ikhwan.townwatchingsemeru.presentation.maps
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
@@ -64,12 +65,6 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener {
                 getCurrentLocation()
             } else {
                 PermissionChecker.checkMapsPermission(requireContext(), requireActivity())
-                val checkSelfPermission =
-                    PermissionChecker.checkSelfMapsPermission(requireContext())
-
-                if (!checkSelfPermission) {
-                    ShowSnackbarPermission().permissionDisabled(requireView(), requireActivity())
-                }
             }
         }
     }
@@ -109,6 +104,8 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        fusedLocationProviderClient =
+            LocationServices.getFusedLocationProviderClient(requireContext())
         observeCategory()
         init()
     }
@@ -118,10 +115,18 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener {
         binding.autoCompleteBencana.text = null
     }
 
+    override fun onResume() {
+        super.onResume()
+        val checkSelfPermission = PermissionChecker.checkSelfMapsPermission(requireContext())
+
+        if (!checkSelfPermission) {
+            ShowSnackbarPermission().permissionDisabled(requireView(), requireActivity())
+        }else{
+            getCurrentLocation()
+        }
+    }
 
     private fun init() {
-        fusedLocationProviderClient =
-            LocationServices.getFusedLocationProviderClient(requireContext())
         requestPermissionLauncher.launch(
             arrayOf(
                 Manifest.permission.ACCESS_FINE_LOCATION,

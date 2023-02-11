@@ -50,7 +50,6 @@ class HomeFragment : Fragment(), View.OnClickListener {
         viewModel.getId().observe(viewLifecycleOwner) { id ->
             if(id != 0){
                 userId = id
-
             }
         }
     }
@@ -215,6 +214,28 @@ class HomeFragment : Fragment(), View.OnClickListener {
             .show()
     }
 
+    private fun getLike(id: Int, tvLike: TextView){
+        viewModel.getPostLike(id).observe(viewLifecycleOwner){result ->
+            when(result){
+                is Resource.Error -> {
+                    Log.d("HomeFragment", result.message!!)
+                }
+                is Resource.Loading -> {
+                    Log.d("HomeFragment", "Loading Get Like")
+                }
+                is Resource.Success -> {
+                    result.data.let {like ->
+                        val sBLike =
+                            StringBuilder(like!!.size.toString())
+
+                        sBLike.append(" Menyukai")
+                        tvLike.text = sBLike.toString()
+                    }
+                }
+            }
+        }
+    }
+
     private fun likeChecker(
         post: Post,
         btnLike: ImageView,
@@ -233,31 +254,17 @@ class HomeFragment : Fragment(), View.OnClickListener {
                     Log.d("HomeFragment", result.message!!)
                 }
                 is Resource.Loading -> {
-                    Log.d("HomeFragment", "Loading Category UserDto")
+                    Log.d("HomeFragment", "Loading Add Like")
                 }
                 is Resource.Success -> {
                     val message = result.data!!.message
 
+                    getLike(post.id, tvLike)
+
                     if (message == "Berhasil menghapus like") {
-                        likeSum--
-                        val sBLike =
-                            StringBuilder(likeSum.toString())
-
-                        sBLike.append(" Menyukai")
-                        tvLike.text = sBLike.toString()
                         btnLike.setBackgroundResource(R.drawable.ic_baseline_favorite_border_24)
-
                     } else {
-                        likeSum++
-
-                        val sBLike =
-                            StringBuilder(likeSum.toString())
-
-                        sBLike.append(" Menyukai")
-                        tvLike.text = sBLike.toString()
-
                         btnLike.setBackgroundResource(R.drawable.ic_red_favorite_24)
-
                     }
 
                     Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()

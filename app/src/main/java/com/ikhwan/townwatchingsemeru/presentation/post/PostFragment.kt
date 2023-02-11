@@ -83,29 +83,31 @@ class PostFragment : Fragment(), View.OnClickListener {
 
     private val galleryResult =
         registerForActivityResult(ActivityResultContracts.GetContent()) { result ->
-            val bMap = MediaStore.Images.Media.getBitmap(requireActivity().contentResolver, result)
+            if (result != null){
+                val bMap = MediaStore.Images.Media.getBitmap(requireActivity().contentResolver, result)
 
-            val bitmap = if (bMap.height >= bMap.width) {
-                BitmapResize.getResizedBitmap(
-                    bMap,
-                    1080,
-                    1920
+                val bitmap = if (bMap.height >= bMap.width) {
+                    BitmapResize.getResizedBitmap(
+                        bMap,
+                        1080,
+                        1920
+                    )
+                } else {
+                    BitmapResize.getResizedBitmap(
+                        bMap,
+                        1920,
+                        1080
+                    )
+                }
+                val ei = ExifInterface(PathUtil.getPath(requireContext(), result!!)!!)
+                val orientation: Int = ei.getAttributeInt(
+                    ExifInterface.TAG_ORIENTATION,
+                    ExifInterface.ORIENTATION_UNDEFINED
                 )
-            } else {
-                BitmapResize.getResizedBitmap(
-                    bMap,
-                    1920,
-                    1080
-                )
+                val rotatedBitmap = BitmapRotator.getRotatedBitmap(orientation, bitmap!!)
+                binding.ivPost.setImageBitmap(rotatedBitmap)
+                setImage(rotatedBitmap)
             }
-            val ei = ExifInterface(PathUtil.getPath(requireContext(), result!!)!!)
-            val orientation: Int = ei.getAttributeInt(
-                ExifInterface.TAG_ORIENTATION,
-                ExifInterface.ORIENTATION_UNDEFINED
-            )
-            val rotatedBitmap = BitmapRotator.getRotatedBitmap(orientation, bitmap!!)
-            binding.ivPost.setImageBitmap(rotatedBitmap)
-            setImage(rotatedBitmap)
         }
 
     private val cameraResult =
@@ -224,6 +226,16 @@ class PostFragment : Fragment(), View.OnClickListener {
 
         initAdapter()
 
+        requestPermission()
+
+        binding.apply {
+            ivPost.setOnClickListener(this@PostFragment)
+            btnPost.setOnClickListener(this@PostFragment)
+        }
+
+    }
+
+    private fun requestPermission(){
         requestPermissionLauncher.launch(
             arrayOf(
                 Manifest.permission.ACCESS_FINE_LOCATION,
@@ -233,17 +245,18 @@ class PostFragment : Fragment(), View.OnClickListener {
                 Manifest.permission.CAMERA
             )
         )
-
-        binding.apply {
-            ivPost.setOnClickListener(this@PostFragment)
-            btnPost.setOnClickListener(this@PostFragment)
-        }
-
     }
 
     override fun onResume() {
         super.onResume()
         initAdapter()
+        val checkSelfPermission = PermissionChecker.checkSelfPostPermission(requireContext())
+
+        if (!checkSelfPermission) {
+            ShowSnackbarPermission().permissionDisabled(requireView(), requireActivity())
+        }else{
+            getCurrentLocation()
+        }
     }
 
     private fun initAdapter() {
@@ -272,6 +285,7 @@ class PostFragment : Fragment(), View.OnClickListener {
 
 
     }
+
 
     private fun goToLoginPage() {
         Navigation.findNavController(requireView())
@@ -372,6 +386,8 @@ class PostFragment : Fragment(), View.OnClickListener {
                     ActivityCompat.requestPermissions(
                         requireActivity(),
                         arrayOf(
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION,
                             Manifest.permission.READ_EXTERNAL_STORAGE,
                             Manifest.permission.WRITE_EXTERNAL_STORAGE,
                             Manifest.permission.CAMERA
@@ -381,12 +397,7 @@ class PostFragment : Fragment(), View.OnClickListener {
                 } else {
                     binding.apply {
                         if (currentLocation == null) {
-                            Toast.makeText(
-                                requireContext(),
-                                "Aktifkan lokasi terlebih dahulu",
-                                Toast.LENGTH_SHORT
-                            )
-                                .show()
+                            ShowSnackbarPermission().locationDisabled(requireView(),requireActivity())
                             return
                         }
 

@@ -42,10 +42,19 @@
             android:id="@+id/et_nama"
             style="@style/FormSemeru"
             android:hint="@string/nama_register"
-            android:inputType="textEmailAddress"
+            android:inputType="text"
             android:paddingHorizontal="25dp"
             android:layout_marginTop="5dp"
             android:autofillHints="emailAddress" />
+
+        <TextView
+            android:id="@+id/tv_alert_name"
+            style="@style/TextViewSemeru"
+            android:text="@string/password_minimal_6_karakter"
+            android:textSize="14sp"
+            android:textColor="@color/red"
+            android:visibility="gone"
+            />
 
         <TextView
             style="@style/TextViewSemeru"

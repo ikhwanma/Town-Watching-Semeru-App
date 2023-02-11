@@ -82,28 +82,30 @@ class ProfileFragment : Fragment(), View.OnClickListener {
 
     private val galleryResult =
         registerForActivityResult(ActivityResultContracts.GetContent()) { result ->
-            val bMap = MediaStore.Images.Media.getBitmap(requireActivity().contentResolver, result)
+            if (result != null){
+                val bMap = MediaStore.Images.Media.getBitmap(requireActivity().contentResolver, result)
 
-            val bitmap = if (bMap.height >= bMap.width) {
-                BitmapResize.getResizedBitmap(
-                    bMap,
-                    1080,
-                    1920
+                val bitmap = if (bMap.height >= bMap.width) {
+                    BitmapResize.getResizedBitmap(
+                        bMap,
+                        1080,
+                        1920
+                    )
+                } else {
+                    BitmapResize.getResizedBitmap(
+                        bMap,
+                        1920,
+                        1080
+                    )
+                }
+                val ei = ExifInterface(PathUtil.getPath(requireContext(), result!!)!!)
+                val orientation: Int = ei.getAttributeInt(
+                    ExifInterface.TAG_ORIENTATION,
+                    ExifInterface.ORIENTATION_UNDEFINED
                 )
-            } else {
-                BitmapResize.getResizedBitmap(
-                    bMap,
-                    1920,
-                    1080
-                )
+                val rotatedBitmap = BitmapRotator.getRotatedBitmap(orientation, bitmap!!)
+                setImage(rotatedBitmap)
             }
-            val ei = ExifInterface(PathUtil.getPath(requireContext(), result!!)!!)
-            val orientation: Int = ei.getAttributeInt(
-                ExifInterface.TAG_ORIENTATION,
-                ExifInterface.ORIENTATION_UNDEFINED
-            )
-            val rotatedBitmap = BitmapRotator.getRotatedBitmap(orientation, bitmap!!)
-            setImage(rotatedBitmap)
         }
 
     private val cameraResult =
@@ -170,17 +172,8 @@ class ProfileFragment : Fragment(), View.OnClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         init()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        init()
-    }
-
-    private fun init() {
-
         binding.apply {
-            viewPager2.adapter = ProfilePagerAdapter(requireParentFragment())
+            viewPager2.adapter = ProfilePagerAdapter(this@ProfileFragment)
 
             TabLayoutMediator(tabLayout, viewPager2) { tab, position ->
                 tab.setIcon(imageIcon[position])
@@ -191,7 +184,22 @@ class ProfileFragment : Fragment(), View.OnClickListener {
             ivAddImage.setOnClickListener(this@ProfileFragment)
             imgUser.setOnClickListener(this@ProfileFragment)
         }
+        requestPermissionLauncher.launch(
+            arrayOf(
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.CAMERA
+            )
+        )
+    }
 
+    override fun onResume() {
+        super.onResume()
+        init()
+    }
+
+
+    private fun init() {
         viewModel.getToken().observe(viewLifecycleOwner) {
             if (it != "") {
                 token = it
@@ -201,14 +209,6 @@ class ProfileFragment : Fragment(), View.OnClickListener {
                     .navigate(R.id.action_profileFragment2_to_loginFragment)
             }
         }
-
-        requestPermissionLauncher.launch(
-            arrayOf(
-                Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                Manifest.permission.CAMERA
-            )
-        )
     }
 
     private fun getData(token: String) {

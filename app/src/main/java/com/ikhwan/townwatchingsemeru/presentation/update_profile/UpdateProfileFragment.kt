@@ -1,6 +1,8 @@
 package com.ikhwan.townwatchingsemeru.presentation.update_profile
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -14,6 +16,7 @@ import com.ikhwan.townwatchingsemeru.R
 import com.ikhwan.townwatchingsemeru.common.Constants
 import com.ikhwan.townwatchingsemeru.common.Resource
 import com.ikhwan.townwatchingsemeru.common.utils.ShowLoadingAlertDialog
+import com.ikhwan.townwatchingsemeru.common.utils.Validator
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.editprofile.UpdateProfileBody
 import com.ikhwan.townwatchingsemeru.databinding.FragmentUpdateProfileBinding
 
@@ -27,6 +30,7 @@ class UpdateProfileFragment : Fragment(), View.OnClickListener {
     private var name = ""
     private var email = ""
     private var token = ""
+    private var checkName = false
     private var categoryUserId = 0
 
     private val hashMap = HashMap<Int, String>()
@@ -56,6 +60,31 @@ class UpdateProfileFragment : Fragment(), View.OnClickListener {
             etEmail.isEnabled = false
             etEmail.hint = email
             btnUpdateProfile.setOnClickListener(this@UpdateProfileFragment)
+
+            etNama.addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                    tvAlertName.visibility = View.GONE
+                    checkName = false
+                }
+
+                override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                    val validateName = Validator.nameValidator(p0.toString())
+
+                    if (validateName.isEmpty()) {
+                        checkName = true
+                        tvAlertName.visibility = View.GONE
+                    } else {
+                        checkName = false
+                        tvAlertName.visibility = View.VISIBLE
+                        tvAlertName.text = validateName
+                    }
+                }
+
+                override fun afterTextChanged(p0: Editable?) {
+
+                }
+
+            })
         }
     }
 
@@ -102,12 +131,16 @@ class UpdateProfileFragment : Fragment(), View.OnClickListener {
                             break
                         }
                     }
-                    if (name.isNotEmpty() ||
-                        categoryUser.isNotEmpty()
+                    if (name.isNotEmpty() &&
+                        categoryUser.isNotEmpty() && checkName
                     ) {
                         updateProfile(name, categoryUserId)
                     } else {
-                        Toast.makeText(requireContext(), "Isi semua field", Toast.LENGTH_SHORT)
+                        Toast.makeText(
+                            requireContext(),
+                            "Isi semua field dengan benar",
+                            Toast.LENGTH_SHORT
+                        )
                             .show()
                     }
                 }
@@ -128,6 +161,7 @@ class UpdateProfileFragment : Fragment(), View.OnClickListener {
                     Log.d("UpdateProfileFragment", "Loading Update")
                 }
                 is Resource.Success -> {
+                    dialog.dismissDialog()
                     result.data?.message.let {
                         Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
                         Navigation.findNavController(requireView())

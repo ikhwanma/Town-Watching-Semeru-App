@@ -52,12 +52,12 @@ class CommentFragment : Fragment(), View.OnClickListener {
         token = arguments?.getString(Constants.EXTRA_TOKEN)!!
 
         observeId()
-        observeGetComment(idPost)
+        observeGetComment()
 
         binding.btnComment.setOnClickListener(this)
     }
 
-    private fun observeGetComment(idPost: Int) {
+    private fun observeGetComment() {
         viewModel.getComment(idPost).observe(viewLifecycleOwner) { result ->
             when (result) {
                 is Resource.Error -> {
@@ -69,37 +69,42 @@ class CommentFragment : Fragment(), View.OnClickListener {
                 is Resource.Success -> {
                     result.data?.let { listComments ->
                         val adapter = CommentAdapter(idUser = idUser,
-                            btnDeleteSetOnClick = { idPost ->
+                            btnDeleteSetOnClick = { idComment ->
                                 ShowActionAlertDialog(
                                     context = requireContext(),
                                     title = "Hapus Komentar?",
                                     message = "Anda yakin ingin menghapus komentar?",
                                     positiveButtonAction = {
-                                        deleteComment(idPost)
+                                        deleteComment(idComment)
                                     }
                                 ).invoke()
                             })
                         if (listComments.isEmpty()) {
                             binding.tvAlertEmptyCategory.visibility = View.VISIBLE
                             adapter.submitData(emptyList())
+                            binding.apply {
+                                rvComment.adapter = adapter
+                                rvComment.layoutManager = LinearLayoutManager(requireContext())
+                            }
+
                         } else {
                             binding.tvAlertEmptyCategory.visibility = View.GONE
 
                             adapter.submitData(listComments)
-
                             binding.apply {
                                 rvComment.adapter = adapter
                                 rvComment.layoutManager = LinearLayoutManager(requireContext())
                             }
                         }
+
                     }
                 }
             }
         }
     }
 
-    private fun deleteComment(idPost: Int) {
-        viewModel.deleteComment(token, idPost)
+    private fun deleteComment(idComment: Int) {
+        viewModel.deleteComment(token, idComment)
             .observe(viewLifecycleOwner) { result ->
                 when(result){
                     is Resource.Error -> {
@@ -111,8 +116,8 @@ class CommentFragment : Fragment(), View.OnClickListener {
                     }
                     is Resource.Success -> {
                         dialog.dismissDialog()
+                        observeGetComment()
                         Toast.makeText(requireContext(), "Komentar dihapus", Toast.LENGTH_SHORT).show()
-                        observeGetComment(idPost)
                     }
                 }
             }
@@ -154,7 +159,7 @@ class CommentFragment : Fragment(), View.OnClickListener {
                     dialog.dismissDialog()
                     result.data?.message.let { responseMessage ->
                         Toast.makeText(requireContext(), responseMessage, Toast.LENGTH_SHORT).show()
-                        observeGetComment(idPost)
+                        observeGetComment()
                         binding.etComment.setText("")
                     }
                 }

@@ -195,8 +195,14 @@ class RegisterFragment : Fragment(), View.OnClickListener {
         viewModel.registerUser(registerBody).observe(viewLifecycleOwner) { result ->
             when (result) {
                 is Resource.Error -> {
+                    val message = result.message!!
                     dialog.dismissDialog()
-                    Log.d("RegisterFragment", result.message!!)
+                    if (message.contains("409")){
+                        Toast.makeText(requireContext(), "Email telah terdaftar", Toast.LENGTH_SHORT).show()
+                    }else{
+                        Log.d("RegisterFragment", message)
+                    }
+
                 }
                 is Resource.Loading -> {
                     dialog.startDialog()
