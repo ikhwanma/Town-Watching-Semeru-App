@@ -29,13 +29,15 @@ class PostRepositoryImpl @Inject constructor(
         description: RequestBody,
         latitude: RequestBody,
         longitude: RequestBody,
+        address: RequestBody,
         category: RequestBody,
         level: RequestBody,
         status: RequestBody,
+        detailCategory: RequestBody,
         image: MultipartBody.Part
     ): AddPostResponseDto {
         return api.addPost(
-            auth, description, latitude, longitude, category, level, status, image
+            auth, description, latitude, longitude,address, category, level, status, detailCategory, image
         )
     }
 

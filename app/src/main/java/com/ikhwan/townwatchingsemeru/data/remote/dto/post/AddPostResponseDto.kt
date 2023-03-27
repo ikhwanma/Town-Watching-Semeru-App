@@ -19,6 +19,8 @@ data class AddPostResponseDto(
     val latitude: String,
     @SerializedName("level")
     val level: String,
+    @SerializedName("detailCategory")
+    val detailCategory: String,
     @SerializedName("longitude")
     val longitude: String,
     @SerializedName("status")
@@ -38,6 +40,7 @@ fun AddPostResponseDto.toAddPostResponse(): AddPostResponse{
         image = image,
         latitude = latitude,
         level = level,
+        detailCategory = detailCategory,
         longitude = longitude,
         status = status,
         updatedAt = updatedAt,

@@ -21,8 +21,6 @@ import com.ikhwan.townwatchingsemeru.domain.model.Post
 class PostAdapter(
     val idUser: Int,
     val context: Context,
-    val setAddress: (TextView, Double, Double) -> Unit,
-    val setCategoryUser: (TextView, Int, String) -> Unit,
     val onCommentClick: (Int) -> Unit,
     val onLikeClick: (Post, ImageView, TextView) -> Unit
 ) : RecyclerView.Adapter<PostAdapter.ViewHolder>() {
@@ -50,11 +48,12 @@ class PostAdapter(
                     tvUpdated.visibility = View.GONE
                 }
 
-                sBLike.append(" Menyukai")
+                sBLike.append(" Menyimpan")
                 val sLike = sBLike.toString()
 
-                setAddress(tvAddress, data.latitude.toDouble(), data.longitude.toDouble())
-                setCategoryUser(tvUser, data.user.categoryUserId, data.user.name)
+                tvAddress.text = data.address
+                val txtName = "${data.user.name}(${data.user.categoryUser.categoryUser})"
+                tvUser.text = txtName
 
                 if (check){
                     tvDate.visibility = View.VISIBLE
@@ -98,11 +97,17 @@ class PostAdapter(
                     textStatus ="Tidak Aktif"
                     DrawableCompat.setTint(cardStatusDrawable, Color.parseColor("#FF0000"))
                 }
-                btnLike.setBackgroundResource(R.drawable.ic_baseline_favorite_border_24)
+
+                if (data.category.id == 1){
+                    cvDetailBencana.visibility = View.VISIBLE
+                    tvDetailBencana.text = data.detailCategory
+                }
+
+                btnLike.setBackgroundResource(R.drawable.baseline_bookmark_border_24)
 
                 for (d in data.like) {
                     if (d.userId == idUser) {
-                        btnLike.setBackgroundResource(R.drawable.ic_red_favorite_24)
+                        btnLike.setBackgroundResource(R.drawable.baseline_bookmark_24)
                         break
                     }
                 }

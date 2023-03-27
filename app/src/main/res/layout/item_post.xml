@@ -125,12 +125,36 @@
                 <TextView
                     android:id="@+id/tv_status"
                     style="@style/TextViewSemeru"
-                    tools:ignore="SmallSp"
+                    android:layout_height="match_parent"
                     android:layout_marginHorizontal="5dp"
                     android:padding="3dp"
                     android:text="@string/status"
                     android:textColor="@color/white"
-                    android:textSize="12sp" />
+                    android:textSize="12sp"
+                    tools:ignore="SmallSp" />
+
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cv_detail_bencana"
+                app:cardCornerRadius="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:visibility="gone"
+                android:backgroundTint="@color/blue_stw"
+                android:layout_toEndOf="@id/cv_status">
+
+                <TextView
+                    android:id="@+id/tv_detail_bencana"
+                    style="@style/TextViewSemeru"
+                    android:layout_height="match_parent"
+                    android:layout_marginHorizontal="5dp"
+                    android:padding="3dp"
+                    android:text="@string/status"
+                    android:textColor="@color/white"
+                    android:textSize="12sp"
+                    tools:ignore="SmallSp" />
 
             </androidx.cardview.widget.CardView>
 
@@ -141,6 +165,7 @@
                 android:orientation="vertical"
                 android:layout_below="@id/cv_bencana"
                 android:layout_marginTop="5dp"
+                android:paddingBottom="15dp"
                 android:layout_marginHorizontal="3dp"
                 android:layout_toEndOf="@id/cv_icon_white">
 
@@ -216,10 +241,9 @@
                         android:id="@+id/tv_like"
                         style="@style/TextViewSemeru"
                         android:layout_centerVertical="true"
-                        android:text="@string/menyukai"
+                        android:text="@string/menyimpan"
                         android:textColor="@color/black"
                         android:textSize="16sp" />
-
 
                     <LinearLayout
                         android:layout_width="wrap_content"
@@ -256,7 +280,7 @@
                             android:layout_width="30dp"
                             android:layout_height="30dp"
                             android:contentDescription="@string/icon"
-                            android:src="@drawable/ic_baseline_favorite_border_24" />
+                            android:src="@drawable/baseline_bookmark_border_24" />
                     </LinearLayout>
                 </RelativeLayout>
 
@@ -272,7 +296,6 @@
                     android:id="@+id/tv_updated"
                     style="@style/TextViewSemeru"
                     android:layout_width="match_parent"
-                    android:layout_marginBottom="15dp"
                     android:text="@string/laporan_telah_diupdate"
                     android:visibility="gone"
                     android:textAlignment="inherit"

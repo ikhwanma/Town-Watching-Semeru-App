@@ -29,7 +29,12 @@ class MainActivity : AppCompatActivity() {
         binding.navView.setupWithNavController(navController)
         navController.addOnDestinationChangedListener { _, destination, _ ->
             binding.apply {
-                if (destination.id == R.id.homeFragment || destination.id == R.id.profileFragment || destination.id == R.id.mapsFragment || destination.id == R.id.postFragment) {
+                if (destination.id == R.id.homeFragment ||
+                    destination.id == R.id.profileFragment ||
+                    destination.id == R.id.mapsFragment ||
+                    destination.id == R.id.postFragment ||
+                    destination.id == R.id.bukuSakuFragment
+                ) {
                     navView.visibility = View.VISIBLE
                 } else {
                     navView.visibility = View.GONE

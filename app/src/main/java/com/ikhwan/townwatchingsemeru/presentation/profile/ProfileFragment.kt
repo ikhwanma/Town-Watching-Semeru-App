@@ -53,9 +53,9 @@ class ProfileFragment : Fragment(), View.OnClickListener {
     private val viewModel: ProfileViewModel by hiltNavGraphViewModels(R.id.nav_main)
 
     private val imageIcon =
-        mutableListOf(R.drawable.ic_round_grid_view_24, R.drawable.ic_red_favorite_24)
+        mutableListOf(R.drawable.ic_round_grid_view_24, R.drawable.baseline_bookmark_24)
     private val textAdapter =
-        mutableListOf("Laporan Saya", "Laporan Disukai")
+        mutableListOf("Laporan Saya", "Laporan Disimpan")
 
     private var token = ""
 
@@ -70,9 +70,9 @@ class ProfileFragment : Fragment(), View.OnClickListener {
     ) {
         it.entries.forEach { permission ->
             if (!permission.value) {
-                PermissionChecker.checkPostPermission(requireContext(), requireActivity())
+                PermissionChecker.checkProfilePermission(requireContext(), requireActivity())
                 val checkSelfPermission =
-                    PermissionChecker.checkSelfPostPermission(requireContext())
+                    PermissionChecker.checkSelfProfilePermission(requireContext())
                 if (!checkSelfPermission) {
                     ShowSnackbarPermission().permissionDisabled(requireView(), requireActivity())
                 }
@@ -184,13 +184,6 @@ class ProfileFragment : Fragment(), View.OnClickListener {
             ivAddImage.setOnClickListener(this@ProfileFragment)
             imgUser.setOnClickListener(this@ProfileFragment)
         }
-        requestPermissionLauncher.launch(
-            arrayOf(
-                Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                Manifest.permission.CAMERA
-            )
-        )
     }
 
     override fun onResume() {
@@ -347,18 +340,41 @@ class ProfileFragment : Fragment(), View.OnClickListener {
 
     private fun showBottomSheet() {
         val checkSelfPermission =
-            PermissionChecker.checkSelfPostPermission(requireContext())
+            PermissionChecker.checkSelfProfilePermission(requireContext())
+
+        val permissionExternal = ActivityCompat.shouldShowRequestPermissionRationale(
+            requireActivity(),
+            Manifest.permission.READ_EXTERNAL_STORAGE
+        )
+
+        val permissionInternal = ActivityCompat.shouldShowRequestPermissionRationale(
+            requireActivity(),
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+        )
+
+        val permissionCamera = ActivityCompat.shouldShowRequestPermissionRationale(
+            requireActivity(),
+            Manifest.permission.CAMERA
+        )
 
         if (!checkSelfPermission) {
-            ActivityCompat.requestPermissions(
-                requireActivity(),
-                arrayOf(
-                    Manifest.permission.READ_EXTERNAL_STORAGE,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                    Manifest.permission.CAMERA
-                ),
-                101
-            )
+            if (permissionCamera && permissionExternal && permissionInternal) {
+                ShowSnackbarPermission().permissionDisabled(
+                    requireView(),
+                    requireActivity()
+                )
+            } else {
+                ActivityCompat.requestPermissions(
+                    requireActivity(),
+                    arrayOf(
+                        Manifest.permission.READ_EXTERNAL_STORAGE,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                        Manifest.permission.CAMERA
+                    ),
+                    101
+                )
+
+            }
         } else {
             val bottomSheetDialog = BottomSheetDialog(requireContext())
             val bindingSheet = BottomSheetPostBinding.inflate(layoutInflater)

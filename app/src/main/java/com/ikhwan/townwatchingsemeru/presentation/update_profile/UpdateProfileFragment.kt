@@ -30,7 +30,7 @@ class UpdateProfileFragment : Fragment(), View.OnClickListener {
     private var name = ""
     private var email = ""
     private var token = ""
-    private var checkName = false
+    private var checkName = true
     private var categoryUserId = 0
 
     private val hashMap = HashMap<Int, String>()

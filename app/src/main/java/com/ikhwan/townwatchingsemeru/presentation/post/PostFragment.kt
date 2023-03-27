@@ -3,13 +3,22 @@ package com.ikhwan.townwatchingsemeru.presentation.post
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.location.Geocoder
+import android.location.Location
+import android.location.LocationListener
+import android.location.LocationManager
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
+import android.os.Handler
+import android.os.Looper
 import android.provider.MediaStore
+import android.provider.Settings
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -25,11 +34,13 @@ import androidx.exifinterface.media.ExifInterface
 import androidx.fragment.app.Fragment
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.navigation.Navigation
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.*
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.ikhwan.townwatchingsemeru.R
+import com.ikhwan.townwatchingsemeru.common.Constants
 import com.ikhwan.townwatchingsemeru.common.Resource
 import com.ikhwan.townwatchingsemeru.common.utils.*
 import com.ikhwan.townwatchingsemeru.databinding.BottomSheetPostBinding
@@ -42,6 +53,8 @@ import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.*
+import java.util.*
+import java.util.concurrent.TimeUnit
 
 
 @Suppress("DEPRECATION")
@@ -53,38 +66,24 @@ class PostFragment : Fragment(), View.OnClickListener {
     private var image: Uri? = null
     private val listCategory = mutableListOf<Category>()
     private val listCategoryName = mutableListOf<String>()
-    private var token = ""
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
+    private var token = ""
     private var currentPhotoPath: String = ""
     private var currentLocation: LatLng? = null
-    private var level = ""
     private var cekBencana = false
+    private var address = ""
+    private var latitude = ""
+    private var longitude = ""
 
     private val viewModel: PostViewModel by hiltNavGraphViewModels(R.id.nav_main)
 
     private lateinit var dialog: ShowLoadingAlertDialog
 
-    private val requestPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()
-    ) {
-        it.entries.forEach { permission ->
-            if (permission.value) {
-                getCurrentLocation()
-            } else {
-                PermissionChecker.checkPostPermission(requireContext(), requireActivity())
-
-                val checkSelfPermission = PermissionChecker.checkSelfPostPermission(requireContext())
-                if (!checkSelfPermission) {
-                    ShowSnackbarPermission().permissionDisabled(requireView(), requireActivity())
-                }
-            }
-        }
-    }
-
     private val galleryResult =
         registerForActivityResult(ActivityResultContracts.GetContent()) { result ->
-            if (result != null){
-                val bMap = MediaStore.Images.Media.getBitmap(requireActivity().contentResolver, result)
+            if (result != null) {
+                val bMap =
+                    MediaStore.Images.Media.getBitmap(requireActivity().contentResolver, result)
 
                 val bitmap = if (bMap.height >= bMap.width) {
                     BitmapResize.getResizedBitmap(
@@ -99,7 +98,8 @@ class PostFragment : Fragment(), View.OnClickListener {
                         1080
                     )
                 }
-                val ei = ExifInterface(PathUtil.getPath(requireContext(), result!!)!!)
+
+                val ei = ExifInterface(PathUtil.getPath(requireContext(), result)!!)
                 val orientation: Int = ei.getAttributeInt(
                     ExifInterface.TAG_ORIENTATION,
                     ExifInterface.ORIENTATION_UNDEFINED
@@ -108,6 +108,16 @@ class PostFragment : Fragment(), View.OnClickListener {
                 binding.ivPost.setImageBitmap(rotatedBitmap)
                 setImage(rotatedBitmap)
             }
+        }
+
+    private val locationResult =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            val handler = Handler()
+            dialog.startDialog()
+            handler.postDelayed({
+                Navigation.findNavController(requireView()).navigate(R.id.action_postFragment_self)
+                dialog.dismissDialog()
+            }, 5000)
         }
 
     private val cameraResult =
@@ -210,6 +220,8 @@ class PostFragment : Fragment(), View.OnClickListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        fusedLocationProviderClient =
+            LocationServices.getFusedLocationProviderClient(requireContext())
         dialog = ShowLoadingAlertDialog(requireActivity())
         viewModel.getToken().observe(viewLifecycleOwner) {
             if (it == "") {
@@ -218,15 +230,13 @@ class PostFragment : Fragment(), View.OnClickListener {
                 this.token = it
             }
         }
-
-        fusedLocationProviderClient =
-            LocationServices.getFusedLocationProviderClient(requireContext())
+        if (!isLocationEnable()) Log.d("PostFragment", "Disable")
 
         observeCategory()
 
         initAdapter()
 
-        requestPermission()
+        getCurrentLocation()
 
         binding.apply {
             ivPost.setOnClickListener(this@PostFragment)
@@ -235,57 +245,48 @@ class PostFragment : Fragment(), View.OnClickListener {
 
     }
 
-    private fun requestPermission(){
-        requestPermissionLauncher.launch(
-            arrayOf(
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                Manifest.permission.CAMERA
-            )
-        )
-    }
-
     override fun onResume() {
         super.onResume()
+        fusedLocationProviderClient =
+            LocationServices.getFusedLocationProviderClient(requireContext())
         initAdapter()
-        val checkSelfPermission = PermissionChecker.checkSelfPostPermission(requireContext())
-
-        if (!checkSelfPermission) {
-            ShowSnackbarPermission().permissionDisabled(requireView(), requireActivity())
-        }else{
-            getCurrentLocation()
-        }
+        getCurrentLocation()
     }
 
     private fun initAdapter() {
-        val listLevel = mutableListOf("Ringan", "Sedang", "Berat")
 
-        val adapterLevel = ArrayAdapter(requireContext(), R.layout.dropdown_bencana, listLevel)
+        val adapterLevel =
+            ArrayAdapter(requireContext(), R.layout.dropdown_bencana, Constants.listLevel)
         val adapterCategory =
             ArrayAdapter(requireContext(), R.layout.dropdown_bencana, listCategoryName)
+        val adapterDetailBencana =
+            ArrayAdapter(requireContext(), R.layout.dropdown_bencana, Constants.listDetailBencana)
 
         binding.apply {
             autoCompleteLevel.setAdapter(adapterLevel)
             autoCompleteBencana.setAdapter(adapterCategory)
+            autoCompleteDetailBencana.setAdapter(adapterDetailBencana)
             autoCompleteBencana.onItemClickListener =
                 AdapterView.OnItemClickListener { _, _, _, _ ->
                     val category = autoCompleteBencana.text.toString()
-                    if (category == listCategory[2].category || category == listCategory[3].category){
+                    if (category == listCategory[2].category || category == listCategory[3].category) {
                         textInputLevel.visibility = View.GONE
                         tvPilihLevel.visibility = View.GONE
-                    }else{
+                    } else {
                         textInputLevel.visibility = View.VISIBLE
                         tvPilihLevel.visibility = View.VISIBLE
                         cekBencana = true
                     }
+                    if (category == listCategory[0].category) {
+                        tvDetailBencana.visibility = View.VISIBLE
+                        textInputDetailBencana.visibility = View.VISIBLE
+                    } else {
+                        tvDetailBencana.visibility = View.GONE
+                        textInputDetailBencana.visibility = View.GONE
+                    }
                 }
         }
-
-
     }
-
 
     private fun goToLoginPage() {
         Navigation.findNavController(requireView())
@@ -295,22 +296,73 @@ class PostFragment : Fragment(), View.OnClickListener {
     }
 
     private fun getCurrentLocation() {
-        val checkSelfPermission = PermissionChecker.checkSelfPostPermission(requireContext())
+
+        val checkSelfPermission = PermissionChecker.checkSelfMapsPermission(requireContext())
+
+        val permissionCoarse = ActivityCompat.shouldShowRequestPermissionRationale(
+            requireActivity(),
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        )
+
+        val permissionFine = ActivityCompat.shouldShowRequestPermissionRationale(
+            requireActivity(),
+            Manifest.permission.ACCESS_FINE_LOCATION
+        )
 
         if (!checkSelfPermission) {
-            return
-        }
-
-        val task = fusedLocationProviderClient.lastLocation
-
-        task.addOnSuccessListener { location ->
-            if (location != null) {
-                val currentLocation = LatLng(location.latitude, location.longitude)
-
-                this.currentLocation = currentLocation
-            }else {
-                ShowSnackbarPermission().locationDisabled(requireView(),requireActivity())
+            if (permissionCoarse && permissionFine) {
+                ShowSnackbarPermission().permissionDisabled(requireView(), requireActivity())
+            } else {
+                ActivityCompat.requestPermissions(
+                    requireActivity(),
+                    arrayOf(
+                        Manifest.permission.ACCESS_COARSE_LOCATION,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    ),
+                    101
+                )
             }
+        } else {
+            val task = fusedLocationProviderClient.lastLocation
+
+            task.addOnSuccessListener { location ->
+                if (location != null) {
+                    val currentLocation = LatLng(location.latitude, location.longitude)
+
+                    this.currentLocation = currentLocation
+                    this.latitude = location.latitude.toString()
+                    this.longitude = location.longitude.toString()
+
+                    getAddress(currentLocation.latitude, currentLocation.longitude)
+                }
+            }
+            val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
+
+            mapFragment?.getMapAsync { googleMap ->
+                googleMap.isMyLocationEnabled = true
+                if (latitude != "") {
+                    val myLocation = LatLng(latitude.toDouble(), longitude.toDouble())
+                    googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 12.2f))
+                }
+
+            }
+
+        }
+    }
+
+    private fun getAddress(latitude: Double, longitude: Double) {
+        try {
+            val geocoder = Geocoder(requireContext(), Locale.getDefault())
+            val addresses = geocoder.getFromLocation(
+                latitude,
+                longitude,
+                1
+            )
+            address = addresses!![0].getAddressLine(0)
+            binding.tvAddress.visibility = View.VISIBLE
+            binding.tvAddress.text = address
+        } catch (e: Exception) {
+            e.printStackTrace();
         }
     }
 
@@ -318,18 +370,42 @@ class PostFragment : Fragment(), View.OnClickListener {
         when (p0?.id) {
             R.id.iv_post -> {
                 val checkSelfPermission =
-                    PermissionChecker.checkSelfPostPermission(requireContext())
+                    PermissionChecker.checkSelfProfilePermission(requireContext())
+
+                val permissionExternal = ActivityCompat.shouldShowRequestPermissionRationale(
+                    requireActivity(),
+                    Manifest.permission.READ_EXTERNAL_STORAGE
+                )
+
+                val permissionInternal = ActivityCompat.shouldShowRequestPermissionRationale(
+                    requireActivity(),
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                )
+
+                val permissionCamera = ActivityCompat.shouldShowRequestPermissionRationale(
+                    requireActivity(),
+                    Manifest.permission.CAMERA
+                )
 
                 if (!checkSelfPermission) {
-                    ActivityCompat.requestPermissions(
-                        requireActivity(),
-                        arrayOf(
-                            Manifest.permission.READ_EXTERNAL_STORAGE,
-                            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                            Manifest.permission.CAMERA
-                        ),
-                        101
-                    )
+                    if (permissionCamera && permissionExternal && permissionInternal) {
+                        ShowSnackbarPermission().permissionDisabled(
+                            requireView(),
+                            requireActivity()
+                        )
+                    } else {
+                        ActivityCompat.requestPermissions(
+                            requireActivity(),
+                            arrayOf(
+                                Manifest.permission.READ_EXTERNAL_STORAGE,
+                                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                                Manifest.permission.CAMERA
+                            ),
+                            101
+                        )
+
+                    }
+
                 } else {
                     val bottomSheetDialog = BottomSheetDialog(requireContext())
                     val bindingSheet = BottomSheetPostBinding.inflate(layoutInflater)
@@ -380,37 +456,45 @@ class PostFragment : Fragment(), View.OnClickListener {
             }
             R.id.btn_post -> {
                 val checkSelfPermission =
-                    PermissionChecker.checkSelfPostPermission(requireContext())
+                    PermissionChecker.checkSelfMapsPermission(requireContext())
+
+                val permissionCoarse = ActivityCompat.shouldShowRequestPermissionRationale(
+                    requireActivity(),
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                )
+
+                val permissionFine = ActivityCompat.shouldShowRequestPermissionRationale(
+                    requireActivity(),
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                )
 
                 if (!checkSelfPermission) {
-                    ActivityCompat.requestPermissions(
-                        requireActivity(),
-                        arrayOf(
-                            Manifest.permission.ACCESS_FINE_LOCATION,
-                            Manifest.permission.ACCESS_COARSE_LOCATION,
-                            Manifest.permission.READ_EXTERNAL_STORAGE,
-                            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                            Manifest.permission.CAMERA
-                        ),
-                        101
-                    )
+                    if (permissionCoarse && permissionFine) {
+                        ShowSnackbarPermission().permissionDisabled(
+                            requireView(),
+                            requireActivity()
+                        )
+                    } else {
+                        ActivityCompat.requestPermissions(
+                            requireActivity(),
+                            arrayOf(
+                                Manifest.permission.ACCESS_COARSE_LOCATION,
+                                Manifest.permission.ACCESS_FINE_LOCATION
+                            ),
+                            101
+                        )
+                    }
                 } else {
                     binding.apply {
-                        if (currentLocation == null) {
-                            ShowSnackbarPermission().locationDisabled(requireView(),requireActivity())
-                            return
-                        }
+                        if (!isLocationEnable()) return@apply
 
                         val description = etDescription.text.toString()
-                        val latitude = currentLocation!!.latitude.toString()
-                        val longitude = currentLocation!!.longitude.toString()
-                        val level = if(cekBencana){
+                        val level = if (cekBencana) {
                             autoCompleteLevel.text.toString()
-                        }else{
+                        } else {
                             "Ringan"
                         }
                         var category = ""
-
                         for (d in listCategory) {
                             if (d.category == autoCompleteBencana.text.toString()) {
                                 category = d.id.toString()
@@ -425,19 +509,39 @@ class PostFragment : Fragment(), View.OnClickListener {
                                 level = level
                             )
 
-                        if (postValidator) {
+                        if (postValidator && address == "") {
                             Toast.makeText(
                                 requireContext(),
                                 "Field tidak boleh kosong",
                                 Toast.LENGTH_SHORT
                             ).show()
                         } else {
-                            addProduct(
+                            if (currentLocation == null) {
+                                Toast.makeText(
+                                    requireContext(),
+                                    "Lokasi belum ditemukan, coba beberapa saat lagi",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                Navigation.findNavController(requireView())
+                                    .navigate(R.id.action_postFragment_self)
+                                return@apply
+                            }
+                            val latitude = currentLocation!!.latitude.toString()
+                            val longitude = currentLocation!!.longitude.toString()
+                            val detailCategory = if (category == "1") {
+                                autoCompleteDetailBencana.text.toString()
+                            } else {
+                                ""
+                            }
+
+                            createFileForUpload(
                                 description = description,
                                 latitude = latitude,
                                 longitude = longitude,
+                                address = address,
                                 category = category,
-                                level = level
+                                level = level,
+                                detailCategory = detailCategory
                             )
                         }
                     }
@@ -446,18 +550,41 @@ class PostFragment : Fragment(), View.OnClickListener {
         }
     }
 
-    @SuppressLint("Recycle")
-    private fun addProduct(
+    private fun isLocationEnable(): Boolean {
+        val locationManager =
+            requireActivity().getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        val providerEnable = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+        if (!providerEnable) {
+            ShowActionAlertDialog(
+                context = requireContext(),
+                title = "Lokasi Tidak Diaktifkan",
+                message = "Aplikasi membutuhkan akses Lokasi, buka setting untuk mengaktifkan lokasi sekarang?",
+                positiveButtonText = "Buka Setting",
+                negativeButtonText = "Nanti",
+                positiveButtonAction = {
+                    val i = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                    locationResult.launch(i)
+                }
+            ).invoke()
+            return false
+        }
+        return true
+    }
+
+    private fun createFileForUpload(
         description: String,
         latitude: String,
         longitude: String,
+        address: String,
         category: String,
-        level: String
+        level: String,
+        detailCategory: String
     ) {
+
         val contentResolver = requireActivity().applicationContext.contentResolver
 
         val type = contentResolver.getType(image!!)
-        val tempFile = File.createTempFile("temp-", null, null)
+        val tempFile = File.createTempFile("post-", ".jpg", null)
         val inputStream = contentResolver.openInputStream(image!!)
 
         tempFile.outputStream().use {
@@ -478,20 +605,51 @@ class PostFragment : Fragment(), View.OnClickListener {
             latitude.toRequestBody("multipart/form-data".toMediaTypeOrNull())
         val longitudeUpload =
             longitude.toRequestBody("multipart/form-data".toMediaTypeOrNull())
+        val addressUpload = address.toRequestBody("multipart/form-data".toMediaTypeOrNull())
         val descriptionUpload =
             description.toRequestBody("multipart/form-data".toMediaTypeOrNull())
         val categoryUpload = category.toRequestBody("multipart/form-data".toMediaTypeOrNull())
         val levelUpload = level.toRequestBody("multipart/form-data".toMediaTypeOrNull())
         val statusUpload = "1".toRequestBody("multipart/form-data".toMediaTypeOrNull())
+        val detailCategoryUpload =
+            detailCategory.toRequestBody("multipart/form-data".toMediaTypeOrNull())
 
+        addPost(
+            imageUpload,
+            latitudeUpload,
+            longitudeUpload,
+            addressUpload,
+            descriptionUpload,
+            categoryUpload,
+            levelUpload,
+            statusUpload,
+            detailCategoryUpload
+        )
+
+    }
+
+    @SuppressLint("Recycle")
+    private fun addPost(
+        imageUpload: MultipartBody.Part,
+        latitudeUpload: RequestBody,
+        longitudeUpload: RequestBody,
+        addressUpload: RequestBody,
+        descriptionUpload: RequestBody,
+        categoryUpload: RequestBody,
+        levelUpload: RequestBody,
+        statusUpload: RequestBody,
+        detailCategoryUpload: RequestBody
+    ) {
         viewModel.addPost(
             auth = token,
             description = descriptionUpload,
             latitude = latitudeUpload,
             longitude = longitudeUpload,
+            address = addressUpload,
             category = categoryUpload,
             level = levelUpload,
             status = statusUpload,
+            detailCategory = detailCategoryUpload,
             image = imageUpload
         ).observe(viewLifecycleOwner) { result ->
             when (result) {

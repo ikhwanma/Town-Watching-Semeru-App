@@ -34,9 +34,11 @@ class PostViewModel @Inject constructor(
         description: RequestBody,
         latitude: RequestBody,
         longitude: RequestBody,
+        address: RequestBody,
         category: RequestBody,
         level: RequestBody,
         status: RequestBody,
+        detailCategory: RequestBody,
         image: MultipartBody.Part
     ): LiveData<Resource<AddPostResponse>> =
         addPostsUseCase.invoke(
@@ -44,9 +46,11 @@ class PostViewModel @Inject constructor(
             description = description,
             latitude = latitude,
             longitude = longitude,
+            address = address,
             category = category,
             level = level,
             status = status,
+            detailCategory = detailCategory,
             image = image
         )
             .asLiveData()

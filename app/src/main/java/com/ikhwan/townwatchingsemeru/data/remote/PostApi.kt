@@ -25,9 +25,11 @@ interface PostApi {
         @Part("description") description : RequestBody,
         @Part("latitude") latitude : RequestBody,
         @Part("longitude") longitude : RequestBody,
+        @Part("address") address : RequestBody,
         @Part("categoryId") category : RequestBody,
         @Part("level") level : RequestBody,
         @Part("status") status : RequestBody,
+        @Part("detailCategory") detailCategory : RequestBody,
         @Part image : MultipartBody.Part?
     ): AddPostResponseDto
 

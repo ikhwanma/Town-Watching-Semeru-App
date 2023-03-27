@@ -20,11 +20,9 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.ikhwan.townwatchingsemeru.R
 import com.ikhwan.townwatchingsemeru.common.Constants
 import com.ikhwan.townwatchingsemeru.common.Resource
-import com.ikhwan.townwatchingsemeru.common.utils.Converter
 import com.ikhwan.townwatchingsemeru.databinding.BottomSheetHomeCategoryBinding
 import com.ikhwan.townwatchingsemeru.databinding.FragmentHomeBinding
 import com.ikhwan.townwatchingsemeru.domain.model.Category
-import com.ikhwan.townwatchingsemeru.domain.model.CategoryUser
 import com.ikhwan.townwatchingsemeru.domain.model.Post
 import kotlinx.coroutines.*
 
@@ -37,7 +35,6 @@ class HomeFragment : Fragment(), View.OnClickListener {
 
     private var userId: Int = 0
     private var token: String = ""
-    private var categoryUser: List<CategoryUser> = emptyList()
     private var listCategoryName = mutableListOf<String>()
     private var listCategory = mutableListOf<Category>()
 
@@ -46,18 +43,18 @@ class HomeFragment : Fragment(), View.OnClickListener {
     private var level: String? = null
     private var status: Int? = null
 
-    private fun observeGetId(){
+    private fun observeGetId() {
         viewModel.getId().observe(viewLifecycleOwner) { id ->
-            if(id != 0){
+            if (id != 0) {
                 userId = id
             }
         }
     }
 
-    private fun observeGetToken(){
+    private fun observeGetToken() {
 
         viewModel.getToken().observe(viewLifecycleOwner) {
-            if (it != ""){
+            if (it != "") {
                 token = it
             }
 
@@ -68,7 +65,7 @@ class HomeFragment : Fragment(), View.OnClickListener {
         categoryId: Int? = null,
         level: String? = null,
         status: Int? = null
-    ){
+    ) {
         viewModel.getAllPosts(categoryId, level, status).observe(viewLifecycleOwner) { result ->
             when (result) {
                 is Resource.Error -> {
@@ -77,36 +74,18 @@ class HomeFragment : Fragment(), View.OnClickListener {
                 }
                 is Resource.Loading -> {
                     binding.progressCircular.visibility = View.VISIBLE
-                    Log.d("HomeFragment", "Loading Category listAllPost")
-                    observeCategoryUser()
                 }
                 is Resource.Success -> {
                     binding.progressCircular.visibility = View.GONE
                     result.data?.let {
-                        if (result.data.isEmpty()){
+                        if (result.data.isEmpty()) {
                             binding.tvAlertEmptyPost.visibility = View.VISIBLE
                             setAdapter(emptyList())
-                        }else{
+                        } else {
                             binding.tvAlertEmptyPost.visibility = View.GONE
                             setAdapter(it)
                         }
                     }
-                }
-            }
-        }
-    }
-
-    private fun observeCategoryUser(){
-        viewModel.getCategoryUser().observe(viewLifecycleOwner) { result ->
-            when (result) {
-                is Resource.Error -> {
-                    Log.d("HomeFragment", result.message!!)
-                }
-                is Resource.Loading -> {
-                    Log.d("HomeFragment", "Loading Category UserDto")
-                }
-                is Resource.Success -> {
-                    categoryUser = result.data!!
                 }
             }
         }
@@ -164,17 +143,7 @@ class HomeFragment : Fragment(), View.OnClickListener {
             progressCircular.visibility = View.GONE
             rvPost.visibility = View.VISIBLE
 
-            val adapter = PostAdapter(userId, requireContext(), { tvAddress, lat, lng ->
-                setAddress(tvAddress, lat, lng)
-            }, { tvUser, idCategoryUser, name ->
-                if (categoryUser.isNotEmpty()) {
-                    val categoryUserFiltered = categoryUser.filter {
-                        it.id == idCategoryUser
-                    }
-                    val txtName = "$name (${categoryUserFiltered[0].categoryUser})"
-                    tvUser.text = txtName
-                }
-            }, { id ->
+            val adapter = PostAdapter(userId, requireContext(), { id ->
                 if (userId == 0) {
                     goToLoginPage()
                 } else {
@@ -197,26 +166,16 @@ class HomeFragment : Fragment(), View.OnClickListener {
         }
     }
 
-    private fun setAddress(tvAddress: TextView, lat: Double, lng: Double) {
-        Thread(Runnable {
-            val address =
-                Converter.convertAddress(requireContext(), lat, lng)
-            tvAddress.post(Runnable {
-                tvAddress.text = address
-            })
-        }).start()
-    }
-
-    private fun goToLoginPage(){
+    private fun goToLoginPage() {
         Navigation.findNavController(requireView())
             .navigate(R.id.action_homeFragment_to_loginFragment)
         Toast.makeText(requireContext(), "Login terlebih dahulu", Toast.LENGTH_SHORT)
             .show()
     }
 
-    private fun getLike(id: Int, tvLike: TextView){
-        viewModel.getPostLike(id).observe(viewLifecycleOwner){result ->
-            when(result){
+    private fun getLike(id: Int, tvLike: TextView) {
+        viewModel.getPostLike(id).observe(viewLifecycleOwner) { result ->
+            when (result) {
                 is Resource.Error -> {
                     Log.d("HomeFragment", result.message!!)
                 }
@@ -224,7 +183,7 @@ class HomeFragment : Fragment(), View.OnClickListener {
                     Log.d("HomeFragment", "Loading Get Like")
                 }
                 is Resource.Success -> {
-                    result.data.let {like ->
+                    result.data.let { like ->
                         val sBLike =
                             StringBuilder(like!!.size.toString())
 
@@ -246,8 +205,6 @@ class HomeFragment : Fragment(), View.OnClickListener {
 
         btnLike.startAnimation(animation)
 
-        var likeSum = post.like.size
-
         viewModel.addLike(token, post.id).observe(viewLifecycleOwner) { result ->
             when (result) {
                 is Resource.Error -> {
@@ -262,12 +219,22 @@ class HomeFragment : Fragment(), View.OnClickListener {
                     getLike(post.id, tvLike)
 
                     if (message == "Berhasil menghapus like") {
-                        btnLike.setBackgroundResource(R.drawable.ic_baseline_favorite_border_24)
+                        btnLike.setBackgroundResource(R.drawable.baseline_bookmark_border_24)
+                        Toast.makeText(
+                            requireContext(),
+                            "Berhasil membatalkan simpan laporan",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     } else {
-                        btnLike.setBackgroundResource(R.drawable.ic_red_favorite_24)
+                        btnLike.setBackgroundResource(R.drawable.baseline_bookmark_24)
+                        Toast.makeText(
+                            requireContext(),
+                            "Berhasil menyimpan laporan",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
 
-                    Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+
                 }
             }
         }
@@ -290,7 +257,7 @@ class HomeFragment : Fragment(), View.OnClickListener {
                 }
                 val listImage = mutableListOf<String>()
 
-                for(d in listCategory){
+                for (d in listCategory) {
                     listImage.add(d.image)
                 }
 

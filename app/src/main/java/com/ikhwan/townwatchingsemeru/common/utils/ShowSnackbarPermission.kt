@@ -18,15 +18,4 @@ class ShowSnackbarPermission {
             activity.startActivity(i)
         }.show()
     }
-
-    fun locationDisabled(view: View, activity: Activity){
-        Snackbar.make(
-            view,
-            "Lokasi tidak diaktifkan, Aktifkan Lokasi?",
-            Snackbar.LENGTH_INDEFINITE
-        ).setAction("Buka Pengaturan"){
-            val i = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
-            activity.startActivity(i)
-        }.show()
-    }
 }

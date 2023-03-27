@@ -10,9 +10,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import androidx.core.os.bundleOf
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.navigation.Navigation
 import com.ikhwan.townwatchingsemeru.R
+import com.ikhwan.townwatchingsemeru.common.Constants
 import com.ikhwan.townwatchingsemeru.common.Resource
 import com.ikhwan.townwatchingsemeru.common.utils.ShowLoadingAlertDialog
 import com.ikhwan.townwatchingsemeru.common.utils.Validator
@@ -47,7 +49,7 @@ class RegisterFragment : Fragment(), View.OnClickListener {
         dialog = ShowLoadingAlertDialog(requireActivity())
         setAdapterDropdown()
 
-        binding.etEmail.addTextChangedListener(object : TextWatcher{
+        binding.etEmail.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
                 binding.tvAlertEmail.visibility = View.GONE
                 checkEmail = false
@@ -57,11 +59,11 @@ class RegisterFragment : Fragment(), View.OnClickListener {
                 val validateEmail = Validator.emailValidator(p0.toString())
                 val txtValidator = "Email tidak sesuai format"
 
-                if (!validateEmail){
+                if (!validateEmail) {
                     checkEmail = false
                     binding.tvAlertEmail.visibility = View.VISIBLE
                     binding.tvAlertEmail.text = txtValidator
-                }else{
+                } else {
                     checkEmail = true
                     binding.tvAlertEmail.visibility = View.GONE
                 }
@@ -74,7 +76,7 @@ class RegisterFragment : Fragment(), View.OnClickListener {
 
         })
 
-        binding.etNama.addTextChangedListener(object : TextWatcher{
+        binding.etNama.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
                 binding.tvAlertName.visibility = View.GONE
                 checkName = false
@@ -83,10 +85,10 @@ class RegisterFragment : Fragment(), View.OnClickListener {
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
                 val validateName = Validator.nameValidator(p0.toString())
 
-                if (validateName.isEmpty()){
+                if (validateName.isEmpty()) {
                     checkName = true
                     binding.tvAlertName.visibility = View.GONE
-                }else{
+                } else {
                     checkName = false
                     binding.tvAlertName.visibility = View.VISIBLE
                     binding.tvAlertName.text = validateName
@@ -99,7 +101,7 @@ class RegisterFragment : Fragment(), View.OnClickListener {
 
         })
 
-        binding.etPassword.addTextChangedListener(object : TextWatcher{
+        binding.etPassword.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
                 binding.tvAlertPassword.visibility = View.GONE
                 checkPassword = false
@@ -108,10 +110,10 @@ class RegisterFragment : Fragment(), View.OnClickListener {
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
                 val validatePassword = Validator.passwordValidator(p0.toString())
 
-                if (validatePassword.isEmpty()){
+                if (validatePassword.isEmpty()) {
                     checkPassword = true
                     binding.tvAlertPassword.visibility = View.GONE
-                }else{
+                } else {
                     checkPassword = false
                     binding.tvAlertPassword.visibility = View.VISIBLE
                     binding.tvAlertPassword.text = validatePassword
@@ -125,6 +127,7 @@ class RegisterFragment : Fragment(), View.OnClickListener {
         })
 
         binding.btnRegister.setOnClickListener(this)
+        binding.btnLogin.setOnClickListener(this)
     }
 
     private fun setAdapterDropdown() {
@@ -175,12 +178,16 @@ class RegisterFragment : Fragment(), View.OnClickListener {
                         checkPassword
                     ) {
                         registerUser(name, email, password, categoryUserId)
-                    } else if(
+                    } else if (
                         name.isEmpty() || email.isEmpty() || password.isEmpty()
-                    ){
-                        Toast.makeText(requireContext(), "Isi semua field", Toast.LENGTH_SHORT).show()
+                    ) {
+                        Toast.makeText(requireContext(), "Isi semua field", Toast.LENGTH_SHORT)
+                            .show()
                     }
                 }
+            }
+            R.id.btn_login -> {
+                Navigation.findNavController(requireView()).navigate(R.id.action_registerFragment_to_loginFragment)
             }
         }
     }
@@ -197,10 +204,14 @@ class RegisterFragment : Fragment(), View.OnClickListener {
                 is Resource.Error -> {
                     val message = result.message!!
                     dialog.dismissDialog()
-                    if (message.contains("409")){
-                        Toast.makeText(requireContext(), "Email telah terdaftar", Toast.LENGTH_SHORT).show()
-                    }else{
-                        Log.d("RegisterFragment", message)
+                    if (message.contains("409")) {
+                        Toast.makeText(
+                            requireContext(),
+                            "Email telah terdaftar",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else {
+                        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
                     }
 
                 }
@@ -210,9 +221,14 @@ class RegisterFragment : Fragment(), View.OnClickListener {
                 }
                 is Resource.Success -> {
                     dialog.dismissDialog()
-                    Toast.makeText(requireContext(), "Akun didaftarkan", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        requireContext(),
+                        "Verifikasi akun terlebih dahulu",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    val mBundle = bundleOf(Constants.EXTRA_EMAIL to email)
                     Navigation.findNavController(requireView())
-                        .navigate(R.id.action_registerFragment_to_loginFragment)
+                        .navigate(R.id.action_registerFragment_to_registerVerifyFragment, mBundle)
                 }
             }
         }

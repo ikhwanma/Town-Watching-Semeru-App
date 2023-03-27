@@ -4,6 +4,9 @@ buildscript {
         classpath 'com.google.dagger:hilt-android-gradle-plugin:2.42'
         classpath 'com.android.tools.build:gradle:3.4.0'
     }
+    repositories {
+        jcenter()
+    }
 }
 
 plugins {

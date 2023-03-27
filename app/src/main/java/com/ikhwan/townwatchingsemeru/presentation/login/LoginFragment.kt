@@ -11,9 +11,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.core.os.bundleOf
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.navigation.Navigation
 import com.ikhwan.townwatchingsemeru.R
+import com.ikhwan.townwatchingsemeru.common.Constants
 import com.ikhwan.townwatchingsemeru.common.Resource
 import com.ikhwan.townwatchingsemeru.common.utils.ShowLoadingAlertDialog
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.login.LoginBody
@@ -28,6 +30,8 @@ class LoginFragment : Fragment(), View.OnClickListener {
     private val viewModel: LoginViewModel by hiltNavGraphViewModels(R.id.nav_main)
 
     private lateinit var dialog: ShowLoadingAlertDialog
+
+    private var email = ""
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -52,6 +56,7 @@ class LoginFragment : Fragment(), View.OnClickListener {
         binding.apply {
             btnLogin.setOnClickListener(this@LoginFragment)
             btnRegister.setOnClickListener(this@LoginFragment)
+            btnLupaPassword.setOnClickListener(this@LoginFragment)
         }
     }
 
@@ -59,14 +64,19 @@ class LoginFragment : Fragment(), View.OnClickListener {
         when (p0?.id) {
             R.id.btn_login -> {
                 binding.apply {
-                    val email = etEmail.text.toString()
+                    email = etEmail.text.toString()
                     val password = etPassword.text.toString()
 
                     login(LoginBody(email, password))
                 }
             }
             R.id.btn_register -> {
-                Navigation.findNavController(requireView()).navigate(R.id.action_loginFragment_to_registerFragment)
+                Navigation.findNavController(requireView())
+                    .navigate(R.id.action_loginFragment_to_registerFragment)
+            }
+            R.id.btn_lupa_password -> {
+                Navigation.findNavController(requireView())
+                    .navigate(R.id.action_loginFragment_to_forgotPasswordFragment)
             }
         }
     }
@@ -76,7 +86,10 @@ class LoginFragment : Fragment(), View.OnClickListener {
             when (result) {
                 is Resource.Error -> {
                     dialog.dismissDialog()
-                    Toast.makeText(requireContext(), result.message!!, Toast.LENGTH_SHORT).show()
+                    Log.d("LoginErrorRes", result.toString())
+                    Log.d("LoginErrorDat", result.data.toString())
+                    Log.d("LoginErrorMes", result.message.toString())
+                    Toast.makeText(requireContext(), result.message, Toast.LENGTH_SHORT).show()
                 }
                 is Resource.Loading -> {
                     dialog.startDialog()
@@ -85,15 +98,24 @@ class LoginFragment : Fragment(), View.OnClickListener {
                 is Resource.Success -> {
                     dialog.dismissDialog()
                     result.data!!.let { response ->
-                        if (response.token.isNotEmpty()) {
+                        if (response.message.contains("successful")) {
                             viewModel.setId(response.id)
                             viewModel.setToken(response.token)
                             Toast.makeText(requireContext(), "Berhasil Login", Toast.LENGTH_SHORT)
                                 .show()
                             Navigation.findNavController(requireView())
                                 .navigate(R.id.action_loginFragment_to_homeFragment)
+                        } else if (response.message.contains("Verifikasi")) {
+                            val mBundle = bundleOf(Constants.EXTRA_EMAIL to email)
+                            Navigation.findNavController(requireView())
+                                .navigate(
+                                    R.id.action_loginFragment_to_registerVerifyFragment,
+                                    mBundle
+                                )
+                            Toast.makeText(requireContext(), response.message, Toast.LENGTH_SHORT)
+                                .show()
                         } else {
-                            Toast.makeText(requireContext(), response?.message, Toast.LENGTH_SHORT)
+                            Toast.makeText(requireContext(), response.message, Toast.LENGTH_SHORT)
                                 .show()
                         }
                     }

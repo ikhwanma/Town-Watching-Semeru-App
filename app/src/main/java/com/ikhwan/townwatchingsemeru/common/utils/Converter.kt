@@ -21,11 +21,14 @@ object Converter {
     }
 
     fun convertAddress(context: Context, lat: Double, lng: Double): String {
-
-        val geocoder = Geocoder(context, Locale.getDefault())
-        val addresses = geocoder.getFromLocation(lat, lng, 1)
-
-        return addresses!![0].getAddressLine(0)
+        try {
+            val geocoder = Geocoder(context, Locale.getDefault())
+            val addresses = geocoder.getFromLocation(lat, lng, 2)
+            return addresses!![0].getAddressLine(0)
+        }catch (e: Exception){
+            e.printStackTrace();  //Latitude: 9.524. Longitude: 77.855 --> Mepco
+        }
+        return ""
     }
 
     private fun convertMonth(month: String): String {

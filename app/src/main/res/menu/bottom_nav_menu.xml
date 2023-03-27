@@ -17,6 +17,11 @@
         android:title="@string/buat_laporan" />
 
     <item
+        android:id="@+id/bukuSakuFragment"
+        android:icon="@drawable/baseline_menu_book_24"
+        android:title="@string/buku_saku" />
+
+    <item
         android:id="@+id/profileFragment"
         android:icon="@drawable/ic_baseline_person_24"
         android:title="@string/profil" />

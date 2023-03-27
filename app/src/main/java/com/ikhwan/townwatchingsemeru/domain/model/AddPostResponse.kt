@@ -8,6 +8,7 @@ data class AddPostResponse(
     val image: String,
     val latitude: String,
     val level: String,
+    val detailCategory: String,
     val longitude: String,
     val status: String,
     val updatedAt: String,

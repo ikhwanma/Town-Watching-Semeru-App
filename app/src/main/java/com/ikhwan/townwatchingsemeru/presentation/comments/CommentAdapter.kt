@@ -22,8 +22,9 @@ class CommentAdapter(private val idUser: Int, val btnDeleteSetOnClick: (Int) -> 
                 val imageUrl = Constants.BASE_URL + data.user.image
                 val date = Converter.convertDate(data.createdAt).split(" ")
                 val txtDate = "${date[0]} ${date[1]} ${date[2]} - ${date[3]} WIB"
+                val txtName = "${data.user.name} (${data.user.categoryUser.categoryUser})"
 
-                tvName.text = data.user.name
+                tvName.text = txtName
                 tvComment.text = data.comment
                 tvDate.text = txtDate
                 Glide.with(itemView).load(imageUrl).into(ivUser)

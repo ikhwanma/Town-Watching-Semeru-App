@@ -10,6 +10,7 @@ import com.ikhwan.townwatchingsemeru.domain.use_case.post.GetAllPostsUseCase
 import com.ikhwan.townwatchingsemeru.domain.use_case.post.GetPostLikeUseCase
 import com.ikhwan.townwatchingsemeru.domain.use_case.user.GetCategoryUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel

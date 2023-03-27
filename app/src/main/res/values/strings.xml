@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Town Watch Semeru</string>
+    <string name="app_name">Semeru Town Watch</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="maps">Maps</string>
     <string name="home">Home</string>
@@ -81,6 +81,30 @@
     <string name="harap_tunggu_sebentar">Harap Tunggu Sebentar...</string>
     <string name="jadilah_yang_pertama_mengomentari_laporan_ini">Jadilah yang pertama mengomentari laporan ini.</string>
     <string name="belum_ada_laporan">Belum ada laporan...</string>
-    <string name="belum_ada_laporan_yang_disukai">Belum ada laporan yang disukai...</string>
+    <string name="belum_ada_laporan_yang_disukai">Belum ada laporan yang disimpan...</string>
     <string name="laporan_telah_diupdate">Laporan telah diupdate</string>
+    <string name="send_code_register">Kami telah mengirimkan 4 digit kode verifikasi ke email anda, masukkan kode tersebut ke kolom yang tersedia di bawah ini</string>
+    <string name="verifikasi_akun">Verifikasi Akun</string>
+    <string name="kirim_ulang_kode">Kirim ulang kode</string>
+    <string name="belum_mendapatkan_kode">Belum mendapatkan kode?</string>
+    <string name="lupa_password_anda">Lupa password Anda?</string>
+    <string name="lupa_password">Lupa Password</string>
+    <string name="cari_akun_anda">Cari Akun Anda</string>
+    <string name="masukkan_email_yang_didaftarkan_ke_akun_anda">Masukkan email yang didaftarkan ke akun anda</string>
+    <string name="selanjutnya">Selanjutnya</string>
+    <string name="reset_password">Reset Password</string>
+    <string name="pilih_detail_bencana">Pilih Detail Bencana</string>
+    <string name="erupsi">Erupsi</string>
+    <string name="deskripsi">Deskripsi :</string>
+    <string name="lokasi">Lokasi :</string>
+    <string name="menyimpan">Menyimpan</string>
+    <string name="info">info simbol</string>
+    <string name="informasi_simbol_pada_peta">Informasi Simbol Pada Peta</string>
+    <string name="navigasi_ke_titik_kumpul">Navigasi ke Titik Kumpul</string>
+    <string name="buku_saku">Buku Saku</string>
+    <string name="erupsi_gunung_api">Erupsi Gunung Api</string>
+    <string name="klik_untuk_erupsi">Klik untuk menampilkan informasi siap siaga terhadap bencana erupsi gunung api</string>
+    <string name="gempa_bumi">Gempa Bumi</string>
+    <string name="klik_untuk_bencana">Klik untuk menampilkan informasi siap siaga terhadap bencana gempa bumi</string>
+    <string name="isi_data_dengan_benar">Isi data dengan benar</string>
 </resources>

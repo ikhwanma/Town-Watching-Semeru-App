@@ -20,6 +20,8 @@ data class UserDto(
     val image: String,
     @SerializedName("name")
     val name: String,
+    @SerializedName("verified")
+    val verified: Boolean,
     @SerializedName("password")
     val password: String,
     @SerializedName("updatedAt")
@@ -32,6 +34,7 @@ fun UserDto.toUser(): User {
         id = id,
         image = image,
         name = name,
-        email = email
+        email = email,
+        verified = verified
     )
 }

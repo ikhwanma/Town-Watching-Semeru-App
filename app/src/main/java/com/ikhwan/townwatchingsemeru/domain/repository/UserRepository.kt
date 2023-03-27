@@ -11,7 +11,9 @@ import com.ikhwan.townwatchingsemeru.data.remote.dto.user.login.LoginBody
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.login.PostLoginResponseDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.register.RegisterBody
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.register.RegisterResponseDto
-import com.ikhwan.townwatchingsemeru.domain.model.UpdateProfileResponse
+import com.ikhwan.townwatchingsemeru.data.remote.dto.user.register.ResendCodeBody
+import com.ikhwan.townwatchingsemeru.data.remote.dto.user.register.VerifyCodeBody
+import com.ikhwan.townwatchingsemeru.data.remote.dto.user.resetpassword.ResetPasswordBody
 import okhttp3.MultipartBody
 
 interface UserRepository {
@@ -26,6 +28,18 @@ interface UserRepository {
     suspend fun registerUser(
         registerBody: RegisterBody
     ): RegisterResponseDto
+
+    suspend fun verifyCode(
+        verifyCodeBody: VerifyCodeBody
+    ): RegisterResponseDto
+
+    suspend fun resendRegisterCode(
+        resendCodeBody: ResendCodeBody
+    ): RegisterResponseDto
+
+    suspend fun resetPassword(
+        resetPasswordBody: ResetPasswordBody
+    ): UpdatePasswordResponseDto
 
     suspend fun getUser(
          auth : String

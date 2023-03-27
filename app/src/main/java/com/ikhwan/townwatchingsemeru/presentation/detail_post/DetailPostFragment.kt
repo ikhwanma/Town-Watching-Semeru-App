@@ -1,10 +1,14 @@
 package com.ikhwan.townwatchingsemeru.presentation.detail_post
 
 import android.Manifest
+import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.drawable.Drawable
+import android.location.LocationManager
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -35,10 +39,7 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.ikhwan.townwatchingsemeru.R
 import com.ikhwan.townwatchingsemeru.common.Constants
 import com.ikhwan.townwatchingsemeru.common.Resource
-import com.ikhwan.townwatchingsemeru.common.utils.Converter
-import com.ikhwan.townwatchingsemeru.common.utils.PermissionChecker
-import com.ikhwan.townwatchingsemeru.common.utils.ShowActionAlertDialog
-import com.ikhwan.townwatchingsemeru.common.utils.ShowSnackbarPermission
+import com.ikhwan.townwatchingsemeru.common.utils.*
 import com.ikhwan.townwatchingsemeru.databinding.FragmentDetailPostBinding
 import com.ikhwan.townwatchingsemeru.domain.model.Post
 
@@ -59,19 +60,7 @@ class DetailPostFragment : Fragment(), View.OnClickListener {
     private var post: Post? = null
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
 
-    private val requestPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()
-    ) {
-        it.entries.forEach { map ->
-            if (!map.value) {
-                PermissionChecker.checkMapsPermission(requireContext(), requireActivity())
-                val checkSelfPermission = PermissionChecker.checkSelfPostPermission(requireContext())
-                if (!checkSelfPermission) {
-                    ShowSnackbarPermission().permissionDisabled(requireView(), requireActivity())
-                }
-            }
-        }
-    }
+    private lateinit var dialog: ShowLoadingAlertDialog
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -95,6 +84,7 @@ class DetailPostFragment : Fragment(), View.OnClickListener {
                 }
             })
 
+        dialog = ShowLoadingAlertDialog(requireActivity())
         idPost = requireArguments().getInt(Constants.EXTRA_ID)
         val checkFragment = requireArguments().getInt(Constants.EXTRA_FRAGMENT)
 
@@ -111,13 +101,6 @@ class DetailPostFragment : Fragment(), View.OnClickListener {
             binding.llButtonListPost.visibility = View.GONE
         }
 
-        requestPermissionLauncher.launch(
-            arrayOf(
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            )
-        )
-
         binding.apply {
             btnDeleteLaporan.setOnClickListener(this@DetailPostFragment)
             btnEditLaporan.setOnClickListener(this@DetailPostFragment)
@@ -126,19 +109,11 @@ class DetailPostFragment : Fragment(), View.OnClickListener {
         }
     }
 
-    private fun getCurrentLocation() {
+    private fun getCurrentLocation(detailCategory: String) {
         val checkSelfPermission = PermissionChecker.checkSelfPostPermission(requireContext())
 
         if (!checkSelfPermission) {
             return
-        }
-
-        val task = fusedLocationProviderClient.lastLocation
-
-        task.addOnSuccessListener { location ->
-            if (location == null) {
-                ShowSnackbarPermission().locationDisabled(requireView(), requireActivity())
-            }
         }
 
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
@@ -153,16 +128,46 @@ class DetailPostFragment : Fragment(), View.OnClickListener {
 
             googleMap.animateCamera(
                 CameraUpdateFactory.newLatLngZoom(
-                    location, 15.0f
+                    location, 10.0f
                 )
             )
-            addMarkerMaps(googleMap, location, post!!.id, post!!.category.image)
+
+            addMarkerMaps(googleMap, location, post!!.id, post!!.category.image, detailCategory)
         }
     }
 
-    private fun addMarkerMaps(googleMap: GoogleMap, loc: LatLng, id1: Int, image: String) {
+    private fun addMarkerMaps(
+        googleMap: GoogleMap,
+        loc: LatLng,
+        id1: Int,
+        image: String,
+        detailCategory: String
+    ) {
         val imageUrl = Constants.BASE_URL + image
+        if (post!!.category.id != 1) {
+            addMarkerUrl(imageUrl, googleMap, loc, id1)
+        } else {
+            when(detailCategory){
+                Constants.listDetailBencana[0] -> {
+                    addMarkerImage(googleMap, loc, Constants.listImageCategory[0], id1)
+                }
+                Constants.listDetailBencana[1] -> {
+                    addMarkerImage(googleMap, loc, Constants.listImageCategory[1], id1)
+                }
+                Constants.listDetailBencana[2] -> {
+                    addMarkerImage(googleMap, loc, Constants.listImageCategory[2], id1)
+                }
+                Constants.listDetailBencana[3] -> {
+                    addMarkerImage(googleMap, loc, Constants.listImageCategory[3], id1)
+                }
+                else -> {
+                    addMarkerUrl(imageUrl, googleMap, loc, id1)
+                }
+            }
+        }
+    }
 
+    private fun addMarkerUrl(imageUrl: String, googleMap: GoogleMap, loc: LatLng, id1: Int) {
         Glide.with(requireContext()).asBitmap().load(imageUrl).into(object :
             CustomTarget<Bitmap>() {
             override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
@@ -182,6 +187,19 @@ class DetailPostFragment : Fragment(), View.OnClickListener {
 
 
         })
+    }
+
+    private fun addMarkerImage(googleMap: GoogleMap, loc: LatLng, i: Int, id1: Int) {
+        val markerMap = googleMap.addMarker(
+            MarkerOptions().position(loc)
+                .icon(
+                    BitmapDescriptor.bitmapDescriptorFromVector(
+                        requireContext(),
+                        i
+                    )
+                )
+        )
+        markerMap?.tag = id1
     }
 
     private fun setDetailPost(idPost: Int, userId: Int) {
@@ -206,16 +224,13 @@ class DetailPostFragment : Fragment(), View.OnClickListener {
                             val txtDate =
                                 "${datePost[0]} ${datePost[1]} ${datePost[2]} - ${datePost[3]} WIB"
 
-                            getCurrentLocation()
+                            getCurrentLocation(post.detailCategory)
                             Glide.with(requireView()).load(imageUrl).into(ivPost)
-                            setAddress(
-                                tvAddress,
-                                post.latitude.toDouble(),
-                                post.longitude.toDouble()
-                            )
+                            tvAddress.text = post.address
                             tvDescription.text = post.description
                             Glide.with(requireView()).load(imageUserUrl).into(ivUser)
-                            tvUser.text = post.user.name
+                            val nameCat = "${post.user.name} (${post.user.categoryUser.categoryUser})"
+                            tvUser.text = nameCat
 
                             if (post.category.id == 3 || post.category.id == 4) {
                                 tvLevel.visibility = View.GONE
@@ -272,6 +287,11 @@ class DetailPostFragment : Fragment(), View.OnClickListener {
                                 )
                             }
 
+                            if (post.category.id == 1){
+                                cvDetailBencana.visibility = View.VISIBLE
+                                tvDetailBencana.text = post.detailCategory
+                            }
+
                             tvBencana.text = post.category.category
                             tvStatus.text = textStatus
                             cvStatus.background = cardStatusDrawable
@@ -302,21 +322,11 @@ class DetailPostFragment : Fragment(), View.OnClickListener {
 
         for (d in post.like) {
             if (d.userId == userId) {
-                btnLike.setBackgroundResource(R.drawable.ic_red_favorite_24)
+                btnLike.setBackgroundResource(R.drawable.baseline_bookmark_24)
                 likeCheck = true
                 break
             }
         }
-    }
-
-    private fun setAddress(tvAddress: TextView, lat: Double, lng: Double) {
-        Thread(kotlinx.coroutines.Runnable {
-            val address =
-                Converter.convertAddress(requireContext(), lat, lng)
-            tvAddress.post(kotlinx.coroutines.Runnable {
-                tvAddress.text = address
-            })
-        }).start()
     }
 
     override fun onClick(p0: View?) {
@@ -329,7 +339,8 @@ class DetailPostFragment : Fragment(), View.OnClickListener {
                     Constants.EXTRA_TOKEN to token,
                     Constants.EXTRA_IMAGE to post!!.image,
                     Constants.EXTRA_DESCRIPTION to post!!.description,
-                    Constants.EXTRA_STATUS to post!!.status
+                    Constants.EXTRA_STATUS to post!!.status,
+                    Constants.EXTRA_DETAIL_BENCANA to post!!.detailCategory
                 )
                 Navigation.findNavController(requireView())
                     .navigate(R.id.action_detailPostFragment_to_updatePostFragment, mBundle)
@@ -359,21 +370,14 @@ class DetailPostFragment : Fragment(), View.OnClickListener {
         viewModel.deletePostUser(token, idPost).observe(viewLifecycleOwner) { result ->
             when (result) {
                 is Resource.Error -> {
-                    result.message.let { message ->
-                        if (message!!.contains("500")) {
-                            Toast.makeText(requireContext(), "Berhasil dihapus", Toast.LENGTH_SHORT)
-                                .show()
-                            Navigation.findNavController(requireView())
-                                .navigate(R.id.action_detailPostFragment_to_profileFragment)
-                        } else {
-                            Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
-                        }
-                    }
+                    dialog.dismissDialog()
+                    Toast.makeText(requireContext(), result.message!!, Toast.LENGTH_SHORT).show()
                 }
                 is Resource.Loading -> {
-                    Log.d("DetailPostFragment", "Loading Delete")
+                    dialog.startDialog()
                 }
                 is Resource.Success -> {
+                    dialog.dismissDialog()
                     result.data!!.message.let { message ->
                         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
                         Navigation.findNavController(requireView())
@@ -401,28 +405,37 @@ class DetailPostFragment : Fragment(), View.OnClickListener {
                 is Resource.Success -> {
                     val message = result.data!!.message
 
+                    getLike()
+
                     if (message == "Berhasil menghapus like") {
-                        likeSum--
-                        val sBLike =
-                            StringBuilder(likeSum.toString())
-
-                        sBLike.append(" Menyukai")
-                        binding.tvLike.text = sBLike.toString()
-                        binding.btnLike.setBackgroundResource(R.drawable.ic_baseline_favorite_border_24)
-
+                        binding.btnLike.setBackgroundResource(R.drawable.baseline_bookmark_border_24)
+                        Toast.makeText(requireContext(), "Berhasil membatalkan simpan laporan", Toast.LENGTH_SHORT).show()
                     } else {
-                        likeSum++
+                        binding.btnLike.setBackgroundResource(R.drawable.baseline_bookmark_24)
+                        Toast.makeText(requireContext(), "Berhasil menyimpan laporan", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        }
+    }
 
+    private fun getLike(){
+        viewModel.getPostLike(idPost).observe(viewLifecycleOwner){result ->
+            when(result){
+                is Resource.Error -> {
+                    Log.d("HomeFragment", result.message!!)
+                }
+                is Resource.Loading -> {
+                    Log.d("HomeFragment", "Loading Get Like")
+                }
+                is Resource.Success -> {
+                    result.data.let {like ->
                         val sBLike =
-                            StringBuilder(likeSum.toString())
+                            StringBuilder(like!!.size.toString())
 
                         sBLike.append(" Menyukai")
                         binding.tvLike.text = sBLike.toString()
-
-                        binding.btnLike.setBackgroundResource(R.drawable.ic_red_favorite_24)
                     }
-
-                    Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
                 }
             }
         }

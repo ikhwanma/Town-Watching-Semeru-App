@@ -12,7 +12,9 @@ import com.ikhwan.townwatchingsemeru.data.remote.dto.user.login.LoginBody
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.login.PostLoginResponseDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.register.RegisterBody
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.register.RegisterResponseDto
-import com.ikhwan.townwatchingsemeru.domain.model.CategoryUser
+import com.ikhwan.townwatchingsemeru.data.remote.dto.user.register.ResendCodeBody
+import com.ikhwan.townwatchingsemeru.data.remote.dto.user.register.VerifyCodeBody
+import com.ikhwan.townwatchingsemeru.data.remote.dto.user.resetpassword.ResetPasswordBody
 import com.ikhwan.townwatchingsemeru.domain.repository.UserRepository
 import okhttp3.MultipartBody
 import javax.inject.Inject
@@ -31,6 +33,18 @@ class UserRepositoryImpl @Inject constructor(
 
     override suspend fun registerUser(registerBody: RegisterBody): RegisterResponseDto {
         return api.registerUser(registerBody)
+    }
+
+    override suspend fun verifyCode(verifyCodeBody: VerifyCodeBody): RegisterResponseDto {
+        return api.verifyCode(verifyCodeBody)
+    }
+
+    override suspend fun resendRegisterCode(resendCodeBody: ResendCodeBody): RegisterResponseDto {
+        return api.resendRegisterCode(resendCodeBody)
+    }
+
+    override suspend fun resetPassword(resetPasswordBody: ResetPasswordBody): UpdatePasswordResponseDto {
+        return api.resetPassword(resetPasswordBody)
     }
 
     override suspend fun getUser(auth: String): UserDto {

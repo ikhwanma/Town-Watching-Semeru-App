@@ -6,11 +6,13 @@ import androidx.lifecycle.asLiveData
 import com.ikhwan.townwatchingsemeru.common.Resource
 import com.ikhwan.townwatchingsemeru.data.local.DataStoreManager
 import com.ikhwan.townwatchingsemeru.domain.model.DeletePostResponse
+import com.ikhwan.townwatchingsemeru.domain.model.GetLikeResponse
 import com.ikhwan.townwatchingsemeru.domain.model.LikeResponse
 import com.ikhwan.townwatchingsemeru.domain.model.Post
 import com.ikhwan.townwatchingsemeru.domain.use_case.post.AddLikeUseCase
 import com.ikhwan.townwatchingsemeru.domain.use_case.post.DeleteUserPostUseCase
 import com.ikhwan.townwatchingsemeru.domain.use_case.post.GetDetailPostUseCase
+import com.ikhwan.townwatchingsemeru.domain.use_case.post.GetPostLikeUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
@@ -19,6 +21,7 @@ class DetailPostViewModel @Inject constructor(
     private val getDetailPostUseCase: GetDetailPostUseCase,
     private val addLikeUseCase: AddLikeUseCase,
     private val deleteUserPostUseCase: DeleteUserPostUseCase,
+    private val getLikePostsUseCase: GetPostLikeUseCase,
     private val pref: DataStoreManager
 ):ViewModel() {
 
@@ -38,4 +41,7 @@ class DetailPostViewModel @Inject constructor(
 
     fun deletePostUser(auth: String, id: Int): LiveData<Resource<DeletePostResponse>> =
         deleteUserPostUseCase.invoke(auth, id).asLiveData()
+
+    fun getPostLike(id: Int): LiveData<Resource<List<GetLikeResponse>>> =
+        getLikePostsUseCase.invoke(id).asLiveData()
 }

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@drawable/style_bottom_sheet"
+    android:paddingHorizontal="12dp"
+    android:orientation="vertical">
+
+    <View
+        android:layout_width="50dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="20dp"
+        android:background="@drawable/style_button_rounded" />
+
+    <TextView
+        style="@style/TextViewSemeru.bold"
+        android:text="@string/informasi_simbol_pada_peta"
+        android:layout_gravity="center"
+        android:textSize="20sp"
+        android:textColor="@color/blue_stw"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_category"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:itemCount="4"
+        tools:listitem="@layout/item_category"
+        android:layout_marginBottom="10dp"
+        />
+
+</LinearLayout>

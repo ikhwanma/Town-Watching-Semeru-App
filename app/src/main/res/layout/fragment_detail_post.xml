@@ -75,6 +75,29 @@
 
             </androidx.cardview.widget.CardView>
 
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cv_detail_bencana"
+                app:cardCornerRadius="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:visibility="gone"
+                android:backgroundTint="@color/blue_stw"
+                android:layout_toEndOf="@id/cv_status">
+
+                <TextView
+                    android:id="@+id/tv_detail_bencana"
+                    style="@style/TextViewSemeru"
+                    android:layout_height="match_parent"
+                    android:layout_marginHorizontal="5dp"
+                    android:padding="3dp"
+                    android:text="@string/status"
+                    android:textColor="@color/white"
+                    android:textSize="12sp"
+                    tools:ignore="SmallSp" />
+
+            </androidx.cardview.widget.CardView>
+
             <LinearLayout
                 android:id="@+id/ll_user"
                 android:layout_width="match_parent"
@@ -98,16 +121,6 @@
 
                 <TextView
                     android:id="@+id/tv_user"
-                    style="@style/TextViewSemeru"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginStart="5dp"
-                    android:text="@string/name"
-                    android:textColor="@color/black"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/tv_time"
                     style="@style/TextViewSemeru"
                     android:layout_gravity="center_vertical"
                     android:layout_marginStart="5dp"
@@ -166,7 +179,7 @@
                     android:id="@+id/tv_like"
                     style="@style/TextViewSemeru"
                     android:layout_centerVertical="true"
-                    android:text="@string/menyukai"
+                    android:text="@string/menyimpan"
                     android:textColor="@color/black"
                     android:textSize="16sp" />
 
@@ -206,7 +219,7 @@
                         android:layout_width="30dp"
                         android:layout_height="30dp"
                         android:contentDescription="@string/icon"
-                        android:src="@drawable/ic_baseline_favorite_border_24" />
+                        android:src="@drawable/baseline_bookmark_border_24" />
                 </LinearLayout>
             </RelativeLayout>
 

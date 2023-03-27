@@ -11,6 +11,9 @@ import com.ikhwan.townwatchingsemeru.data.remote.dto.user.login.LoginBody
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.login.PostLoginResponseDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.register.RegisterBody
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.register.RegisterResponseDto
+import com.ikhwan.townwatchingsemeru.data.remote.dto.user.register.ResendCodeBody
+import com.ikhwan.townwatchingsemeru.data.remote.dto.user.register.VerifyCodeBody
+import com.ikhwan.townwatchingsemeru.data.remote.dto.user.resetpassword.ResetPasswordBody
 import okhttp3.MultipartBody
 import retrofit2.http.*
 
@@ -29,6 +32,21 @@ interface UserApi {
     suspend fun registerUser(
         @Body registerBody: RegisterBody
     ): RegisterResponseDto
+
+    @POST("user/verify-code")
+    suspend fun verifyCode(
+        @Body verifyCodeBody: VerifyCodeBody
+    ): RegisterResponseDto
+
+    @POST("user/resend-code")
+    suspend fun resendRegisterCode(
+        @Body resendCodeBody: ResendCodeBody
+    ): RegisterResponseDto
+
+    @PUT("user/reset-password")
+    suspend fun resetPassword(
+        @Body resetPasswordBody: ResetPasswordBody,
+    ): UpdatePasswordResponseDto
 
     @GET("user")
     suspend fun getUser(

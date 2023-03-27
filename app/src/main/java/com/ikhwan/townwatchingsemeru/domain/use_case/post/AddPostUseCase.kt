@@ -20,9 +20,11 @@ class AddPostUseCase @Inject constructor(
         description: RequestBody,
         latitude: RequestBody,
         longitude: RequestBody,
+        address: RequestBody,
         category: RequestBody,
         level: RequestBody,
         status: RequestBody,
+        detailCategory: RequestBody,
         image: MultipartBody.Part,
     ): Flow<Resource<AddPostResponse>> = flow {
         try {
@@ -34,9 +36,11 @@ class AddPostUseCase @Inject constructor(
                         description,
                         latitude,
                         longitude,
+                        address,
                         category,
                         level,
                         status,
+                        detailCategory,
                         image
                     ).toAddPostResponse()
                 )

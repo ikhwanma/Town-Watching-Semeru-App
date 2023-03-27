@@ -4,8 +4,10 @@ import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.location.Location
+import android.location.LocationManager
 import android.net.Uri
 import androidx.fragment.app.Fragment
 import android.os.Bundle
@@ -16,12 +18,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.ActivityCompat
+import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.graphics.scale
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
@@ -35,18 +39,17 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.google.android.material.snackbar.Snackbar
 import com.ikhwan.townwatchingsemeru.R
 import com.ikhwan.townwatchingsemeru.common.Constants
 import com.ikhwan.townwatchingsemeru.common.Resource
-import com.ikhwan.townwatchingsemeru.common.utils.Converter
+import com.ikhwan.townwatchingsemeru.common.utils.*
 import com.ikhwan.townwatchingsemeru.databinding.BottomSheetMapsBinding
 import com.ikhwan.townwatchingsemeru.databinding.FragmentMapsBinding
 import com.ikhwan.townwatchingsemeru.domain.model.Post
-import com.ikhwan.townwatchingsemeru.common.utils.PermissionChecker
-import com.ikhwan.townwatchingsemeru.common.utils.ShowSnackbarPermission
+import com.ikhwan.townwatchingsemeru.databinding.BottomSheetInfoMapsBinding
+import com.ikhwan.townwatchingsemeru.domain.model.Category
 
-class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener {
+class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener, View.OnClickListener {
 
     private var _binding: FragmentMapsBinding? = null
     private val binding get() = _binding!!
@@ -55,7 +58,10 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener {
     private var listPosts: List<Post> = emptyList()
 
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
+
     private var currentLocation: LatLng? = null
+
+    private val listCategoryInfo = mutableListOf<Category>()
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -80,10 +86,19 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener {
                 }
                 is Resource.Success -> {
                     val data = result.data!!
+
+                    for(d in Constants.listDetailBencana){
+                        if (d == "Lainnya") break
+                        val category = Category(d, "", 0)
+                        listCategoryInfo.add(category)
+                    }
+                    listCategoryInfo.addAll(data)
                     val listCategory = mutableListOf("Lihat Semua")
                     for (d in data) {
                         listCategory.add(d.category)
                     }
+
+                    Log.d("ListCategoryInfo", listCategoryInfo.toString())
                     val adapterBencana =
                         ArrayAdapter(requireContext(), R.layout.dropdown_bencana, listCategory)
                     binding.autoCompleteBencana.setAdapter(adapterBencana)
@@ -106,8 +121,10 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener {
         super.onViewCreated(view, savedInstanceState)
         fusedLocationProviderClient =
             LocationServices.getFusedLocationProviderClient(requireContext())
+        binding.btnInfo.setOnClickListener(this)
         observeCategory()
-        init()
+
+        getCurrentLocation()
     }
 
     override fun onPause() {
@@ -117,13 +134,7 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener {
 
     override fun onResume() {
         super.onResume()
-        val checkSelfPermission = PermissionChecker.checkSelfMapsPermission(requireContext())
-
-        if (!checkSelfPermission) {
-            ShowSnackbarPermission().permissionDisabled(requireView(), requireActivity())
-        }else{
-            getCurrentLocation()
-        }
+        getCurrentLocation()
     }
 
     private fun init() {
@@ -138,96 +149,146 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener {
     private fun getCurrentLocation() {
         val checkSelfPermission = PermissionChecker.checkSelfMapsPermission(requireContext())
 
+        val permissionCoarse = ActivityCompat.shouldShowRequestPermissionRationale(
+            requireActivity(),
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        )
+
+        val permissionFine = ActivityCompat.shouldShowRequestPermissionRationale(
+            requireActivity(),
+            Manifest.permission.ACCESS_FINE_LOCATION
+        )
+
         if (!checkSelfPermission) {
-            init()
-            return
-        }
-
-        val task = fusedLocationProviderClient.lastLocation
-
-        task.addOnSuccessListener { location ->
-            if (location != null) {
-                val currentLocation = LatLng(location.latitude, location.longitude)
-
-                this.currentLocation = currentLocation
+            if (permissionCoarse && permissionFine) {
+                ShowSnackbarPermission().permissionDisabled(requireView(), requireActivity())
             } else {
-                ShowSnackbarPermission().locationDisabled(requireView(),requireActivity())
+                ActivityCompat.requestPermissions(
+                    requireActivity(),
+                    arrayOf(
+                        Manifest.permission.ACCESS_COARSE_LOCATION,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    ),
+                    101
+                )
             }
-        }
+        } else {
+            val task = fusedLocationProviderClient.lastLocation
 
-        val semeru = LatLng(-8.2061557, 112.9773703)
+            task.addOnSuccessListener { location ->
+                if (location != null){
+                    val currentLocation = LatLng(location.latitude, location.longitude)
 
-        val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
+                    this.currentLocation = currentLocation
+                }
+            }
 
-        mapFragment?.getMapAsync { googleMap ->
-            googleMap.isMyLocationEnabled = true
-            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(semeru, 12.2f))
+            val semeru = LatLng(-8.2061557, 112.9773703)
 
-            viewModel.getAllPosts().observe(viewLifecycleOwner) { result ->
-                when (result) {
-                    is Resource.Error -> {
-                        Toast.makeText(requireContext(), result.message!!, Toast.LENGTH_SHORT)
-                            .show()
-                    }
-                    is Resource.Loading -> {
-                        Log.d("MapsFragment", "Loading Post")
-                    }
-                    is Resource.Success -> {
-                        val data = result.data!!
+            val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
 
-                        listPosts = data
+            mapFragment?.getMapAsync { googleMap ->
+                googleMap.isMyLocationEnabled = true
+                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(semeru, 12.2f))
 
-                        var category = binding.autoCompleteBencana.text.toString()
-                        binding.textInputLayout.setStartIconDrawable(R.drawable.ic_round_grid_view_24)
-                        binding.autoCompleteBencana.onItemClickListener =
-                            AdapterView.OnItemClickListener { _, _, _, _ ->
-                                googleMap.clear()
-                                category = binding.autoCompleteBencana.text.toString()
+                viewModel.getAllPosts().observe(viewLifecycleOwner) { result ->
+                    when (result) {
+                        is Resource.Error -> {
+                            Toast.makeText(requireContext(), result.message!!, Toast.LENGTH_SHORT)
+                                .show()
+                        }
+                        is Resource.Loading -> {
+                            Log.d("MapsFragment", "Loading Post")
+                        }
+                        is Resource.Success -> {
+                            val data = result.data!!
 
+                            listPosts = data
+
+                            var category = binding.autoCompleteBencana.text.toString()
+                            binding.textInputLayout.setStartIconDrawable(R.drawable.ic_round_grid_view_24)
+                            binding.autoCompleteBencana.onItemClickListener =
+                                AdapterView.OnItemClickListener { _, _, _, _ ->
+                                    googleMap.clear()
+                                    category = binding.autoCompleteBencana.text.toString()
+
+                                    for (d in data) {
+                                        val loc = LatLng(
+                                            d.latitude.toDouble(),
+                                            d.longitude.toDouble()
+                                        )
+
+                                        if (category == "Pilih Bencana" || category == "Lihat Semua" || category == "") {
+                                            addMarkerMaps(
+                                                googleMap,
+                                                loc,
+                                                d.id,
+                                                d.category.image,
+                                                d.category.id,
+                                                d.detailCategory
+                                            )
+                                        } else {
+                                            if (d.category.category == category) {
+                                                addMarkerMaps(
+                                                    googleMap,
+                                                    loc,
+                                                    d.id,
+                                                    d.category.image,
+                                                    d.category.id,
+                                                    d.detailCategory
+                                                )
+                                            } else {
+                                                Log.d("Category", "Null")
+                                            }
+                                        }
+                                        googleMap.setOnMarkerClickListener(this)
+                                    }
+                                }
+
+                            if (category == "Pilih Bencana" || category == "Lihat Semua" || category == "") {
                                 for (d in data) {
                                     val loc = LatLng(
                                         d.latitude.toDouble(),
                                         d.longitude.toDouble()
                                     )
 
-                                    if (category == "Pilih Bencana" || category == "Lihat Semua" || category == "") {
-                                        addMarkerMaps(
-                                            googleMap,
-                                            loc,
-                                            d.id,
-                                            d.category.image
-                                        )
-                                    } else {
-                                        if (d.category.category == category) {
-                                            addMarkerMaps(
-                                                googleMap,
-                                                loc,
-                                                d.id,
-                                                d.category.image
-                                            )
-                                        } else {
-                                            Log.d("Category", "Null")
-                                        }
-                                    }
+                                    addMarkerMaps(
+                                        googleMap,
+                                        loc,
+                                        d.id,
+                                        d.category.image,
+                                        d.category.id,
+                                        d.detailCategory
+                                    )
+
                                     googleMap.setOnMarkerClickListener(this)
+
+                                    binding.textInputLayout.setStartIconDrawable(R.drawable.ic_round_grid_view_24)
                                 }
-                            }
-
-                        if (category == "Pilih Bencana" || category == "Lihat Semua" || category == "") {
-                            for (d in data) {
-                                val loc = LatLng(
-                                    d.latitude.toDouble(),
-                                    d.longitude.toDouble()
-                                )
-
-                                addMarkerMaps(googleMap, loc, d.id, d.category.image)
-
-                                googleMap.setOnMarkerClickListener(this)
-
-                                binding.textInputLayout.setStartIconDrawable(R.drawable.ic_round_grid_view_24)
                             }
                         }
                     }
+                }
+            }
+        }
+
+
+    }
+
+    override fun onClick(p0: View?) {
+        when(p0?.id){
+            R.id.btn_info -> {
+                val bottomSheetDialog = BottomSheetDialog(requireContext())
+                val bindingSheet = BottomSheetInfoMapsBinding.inflate(layoutInflater)
+                bottomSheetDialog.setContentView(bindingSheet.root)
+                bottomSheetDialog.show()
+
+                bindingSheet.apply {
+                    val adapter = InfoAdapter()
+                    adapter.submitData(listCategoryInfo)
+
+                    rvCategory.layoutManager = LinearLayoutManager(requireContext())
+                    rvCategory.adapter = adapter
                 }
             }
         }
@@ -252,24 +313,65 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener {
             tvDate.text = Converter.convertDate(post.updatedAt)
             tvUser.text = name
             tvCategory.text = post.category.category
+            tvAddress.text = post.address
             Glide.with(requireView()).load(imageUrl).into(ivPost)
 
-            setAddress(
-                tvAddress,
-                post.latitude.toDouble(),
-                post.longitude.toDouble()
-            )
+
+            var cardStatusDrawable = cvStatus.background
+            var textStatus = ""
+            val status = post.status
+
+
+            if (post.category.id == 3 || post.category.id == 4) {
+                tvLevel.visibility = View.GONE
+            } else {
+                tvLevel.visibility = View.VISIBLE
+                val level = post.level
+
+                tvLevel.text = post.level
+                var cardDrawable = cvLevel.background
+                cardDrawable = DrawableCompat.wrap(cardDrawable)
+
+                when (level) {
+                    "Ringan" -> DrawableCompat.setTint(cardDrawable, Color.parseColor("#14ff00"))
+                    "Sedang" -> DrawableCompat.setTint(cardDrawable, Color.parseColor("#f8e158"))
+                    "Berat" -> DrawableCompat.setTint(cardDrawable, Color.parseColor("#FF0000"))
+                }
+
+                cvLevel.background = cardDrawable
+            }
+
+            cardStatusDrawable = DrawableCompat.wrap(cardStatusDrawable)
+
+            if ((post.category.id == 1 || post.category.id == 2) && status) {
+                textStatus = "Aktif"
+                DrawableCompat.setTint(cardStatusDrawable, Color.parseColor("#FF0000"))
+            } else if ((post.category.id == 1 || post.category.id == 2) && !status) {
+                textStatus = "Tidak Aktif"
+                DrawableCompat.setTint(cardStatusDrawable, Color.parseColor("#14ff00"))
+            } else if ((post.category.id == 3 || post.category.id == 4) && status) {
+                textStatus = "Aktif"
+                DrawableCompat.setTint(cardStatusDrawable, Color.parseColor("#14ff00"))
+            } else if ((post.category.id == 3 || post.category.id == 4) && !status) {
+                textStatus = "Tidak Aktif"
+                DrawableCompat.setTint(cardStatusDrawable, Color.parseColor("#FF0000"))
+            }
+
+            if (post.category.id == 1) {
+                cvDetailBencana.visibility = View.VISIBLE
+                tvDetailBencana.text = post.detailCategory
+            }
+
+            tvStatus.text = textStatus
 
             if (post.category.id == 4 || post.category.id == 3) {
                 val txtBtn = "Rute ke tempat ini"
                 btnRoute.text = txtBtn
                 btnRoute.setOnClickListener {
-                    if (currentLocation == null) {
-                        Toast.makeText(
-                            requireContext(),
-                            "Aktifkan lokasi terlebih dahulu",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                    init()
+                    if (!isLocationEnable(bottomSheetDialog)) return@setOnClickListener
+                    if (currentLocation == null){
+                        Toast.makeText(requireContext(), "Lokasi belum siap, coba beberapa saat lagi", Toast.LENGTH_SHORT).show()
                         return@setOnClickListener
                     }
                     val gmmIntentUri =
@@ -283,14 +385,13 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener {
                 }
             } else {
                 btnRoute.setOnClickListener {
-                    if (currentLocation == null) {
-                        Toast.makeText(
-                            requireContext(),
-                            "Aktifkan lokasi terlebih dahulu",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                    init()
+                    if (!isLocationEnable(bottomSheetDialog)) return@setOnClickListener
+                    if (currentLocation == null){
+                        Toast.makeText(requireContext(), "Lokasi belum siap, coba beberapa saat lagi", Toast.LENGTH_SHORT).show()
                         return@setOnClickListener
                     }
+                    isLocationEnable(bottomSheetDialog)
                     val nearestLatLng = getNearestPoint()
                     if (nearestLatLng != LatLng(0.0, 0.0)) {
                         val latitude = nearestLatLng.latitude.toString()
@@ -315,6 +416,27 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener {
         }
 
         return false
+    }
+
+    private fun isLocationEnable(bottomSheetDialog: BottomSheetDialog) : Boolean {
+        val locationManager = requireActivity().getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        val providerEnable = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+        if (!providerEnable){
+            bottomSheetDialog.dismiss()
+            ShowActionAlertDialog(
+                context = requireContext(),
+                title = "Lokasi Tidak Diaktifkan",
+                message = "Aplikasi membutuhkan akses Lokasi, buka setting untuk mengaktifkan lokasi sekarang?",
+                positiveButtonText = "Buka Setting",
+                negativeButtonText = "Nanti",
+                positiveButtonAction = {
+                    val i = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                    requireActivity().startActivity(i)
+                }
+            ).invoke()
+            return false
+        }
+        return true
     }
 
     private fun getNearestPoint(): LatLng {
@@ -359,19 +481,40 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener {
 
     }
 
-    private fun setAddress(tvAddress: TextView, lat: Double, lng: Double) {
-        Thread(kotlinx.coroutines.Runnable {
-            val address =
-                Converter.convertAddress(requireContext(), lat, lng)
-            tvAddress.post(kotlinx.coroutines.Runnable {
-                tvAddress.text = address
-            })
-        }).start()
+    private fun addMarkerMaps(
+        googleMap: GoogleMap,
+        loc: LatLng,
+        id1: Int,
+        image: String,
+        id: Int,
+        detailCategory: String
+    ) {
+        val imageUrl = Constants.BASE_URL + image
+        if (id != 1) {
+            addMarkerUrl(imageUrl, googleMap, loc, id1)
+        } else {
+            when (detailCategory) {
+                Constants.listDetailBencana[0] -> {
+                    addMarkerImage(googleMap, loc, Constants.listImageCategory[0], id1)
+                }
+                Constants.listDetailBencana[1] -> {
+                    addMarkerImage(googleMap, loc, Constants.listImageCategory[1], id1)
+                }
+                Constants.listDetailBencana[2] -> {
+                    addMarkerImage(googleMap, loc, Constants.listImageCategory[2], id1)
+                }
+                Constants.listDetailBencana[3] -> {
+                    addMarkerImage(googleMap, loc, Constants.listImageCategory[3], id1)
+                }
+                else -> {
+                    addMarkerUrl(imageUrl, googleMap, loc, id1)
+                }
+            }
+        }
+
     }
 
-    private fun addMarkerMaps(googleMap: GoogleMap, loc: LatLng, id1: Int, image: String) {
-        val imageUrl = Constants.BASE_URL + image
-
+    private fun addMarkerUrl(imageUrl: String, googleMap: GoogleMap, loc: LatLng, id1: Int) {
         Glide.with(requireContext()).asBitmap().load(imageUrl).into(object :
             CustomTarget<Bitmap>() {
             override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
@@ -393,4 +536,16 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener {
         })
     }
 
+    private fun addMarkerImage(googleMap: GoogleMap, loc: LatLng, i: Int, id1: Int) {
+        val markerMap = googleMap.addMarker(
+            MarkerOptions().position(loc)
+                .icon(
+                    BitmapDescriptor.bitmapDescriptorFromVector(
+                        requireContext(),
+                        i
+                    )
+                )
+        )
+        markerMap?.tag = id1
+    }
 }
