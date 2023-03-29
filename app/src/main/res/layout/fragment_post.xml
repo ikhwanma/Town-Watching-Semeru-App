@@ -35,12 +35,28 @@
                 android:scaleType="fitXY" />
         </androidx.cardview.widget.CardView>
 
-        <TextView
-            style="@style/TextViewSemeru"
-            android:layout_marginTop="8dp"
-            android:text="Lokasimu"
-            android:textColor="@color/black"
-            android:textSize="16sp" />
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp">
+
+            <TextView
+                style="@style/TextViewSemeru"
+                android:text="@string/lokasimu"
+                android:textColor="@color/black"
+                android:layout_centerVertical="true"
+                android:textSize="16sp" />
+
+            <Button
+                android:id="@+id/btn_update"
+                style="@style/ButtonSemeru"
+                android:layout_width="wrap_content"
+                android:layout_height="37dp"
+                android:layout_alignParentEnd="true"
+                android:text="@string/update_lokasi"
+                tools:ignore="RelativeOverlap" />
+        </RelativeLayout>
+
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="230dp"

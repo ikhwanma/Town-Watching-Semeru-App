@@ -107,4 +107,6 @@
     <string name="gempa_bumi">Gempa Bumi</string>
     <string name="klik_untuk_bencana">Klik untuk menampilkan informasi siap siaga terhadap bencana gempa bumi</string>
     <string name="isi_data_dengan_benar">Isi data dengan benar</string>
+    <string name="lokasimu">Lokasimu:</string>
+    <string name="update_lokasi">Update Lokasi</string>
 </resources>

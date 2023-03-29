@@ -45,7 +45,9 @@
             app:popUpToInclusive="true" />
         <action
             android:id="@+id/action_postFragment_to_loginFragment"
-            app:destination="@id/loginFragment" />
+            app:destination="@id/loginFragment"
+            app:popUpTo="@id/postFragment"
+            app:popUpToInclusive="true" />
         <action
             android:id="@+id/action_postFragment_self"
             app:destination="@id/postFragment"

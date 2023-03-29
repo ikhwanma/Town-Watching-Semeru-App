@@ -227,20 +227,18 @@ class PostFragment : Fragment(), View.OnClickListener {
             if (it == "") {
                 goToLoginPage()
             } else {
+                getCurrentLocation()
+                observeCategory()
+                initAdapter()
                 this.token = it
+                if (!isLocationEnable()) Log.d("PostFragment", "Disable")
             }
         }
-        if (!isLocationEnable()) Log.d("PostFragment", "Disable")
-
-        observeCategory()
-
-        initAdapter()
-
-        getCurrentLocation()
 
         binding.apply {
             ivPost.setOnClickListener(this@PostFragment)
             btnPost.setOnClickListener(this@PostFragment)
+            btnUpdate.setOnClickListener(this@PostFragment)
         }
 
     }
@@ -364,6 +362,11 @@ class PostFragment : Fragment(), View.OnClickListener {
         } catch (e: Exception) {
             e.printStackTrace();
         }
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        _binding = null
     }
 
     override fun onClick(p0: View?) {
@@ -546,6 +549,14 @@ class PostFragment : Fragment(), View.OnClickListener {
                         }
                     }
                 }
+            }
+            R.id.btn_update -> {
+                dialog.startDialog()
+                val handler = Handler()
+                handler.postDelayed({
+                    Navigation.findNavController(requireView()).navigate(R.id.action_postFragment_self)
+                    dialog.dismissDialog()
+                }, 5000)
             }
         }
     }
