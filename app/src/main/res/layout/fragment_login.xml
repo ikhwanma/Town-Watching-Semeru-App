@@ -7,65 +7,67 @@
     android:padding="20dp"
     tools:context=".presentation.login.LoginFragment">
 
-    <ImageView
-        android:layout_width="180dp"
-        android:layout_height="180dp"
-        android:src="@drawable/app_logo"
-        android:layout_gravity="center_horizontal"
-        android:contentDescription="@string/image"
-        android:layout_marginTop="80dp"/>
-    <TextView
-        style="@style/TextViewSemeru"
-        android:text="@string/semeru_town_watch"
-        android:textSize="18sp"
-        android:textAlignment="center"
-        android:textColor="@color/blue_stw"
-        android:layout_gravity="center_horizontal"
-        android:textAllCaps="true"
-        />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal">
+        <ImageView
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/app_logo_small"
+            android:layout_gravity="center_horizontal"
+            android:contentDescription="@string/image" />
+
+        <TextView
+            style="@style/TextViewSemeru"
+            android:layout_gravity="center_vertical"
+            android:text="@string/app_name"
+            android:textSize="16sp" />
+    </LinearLayout>
+
 
     <TextView
         style="@style/TextViewSemeru"
-        android:textColor="@color/blue_stw"
-        android:text="@string/masuk_menggunakan_akun_anda"
-        android:textSize="20sp"
-        android:textStyle="bold"
+        android:text="@string/selamat_datang"
+        android:textSize="24sp"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="90dp"
         android:layout_marginBottom="10dp"/>
 
     <EditText
         android:id="@+id/et_email"
         style="@style/FormSemeru"
         android:hint="@string/email"
+        android:textColorHint="@color/gray_stw_darker"
         android:inputType="textEmailAddress"
-        android:paddingHorizontal="25dp"
-        android:layout_marginVertical="5dp"
+        android:paddingHorizontal="28dp"
+        android:layout_marginTop="48dp"
         android:autofillHints="emailAddress" />
 
     <EditText
         android:id="@+id/et_password"
         style="@style/FormSemeru"
         android:hint="@string/password"
+        android:textColorHint="@color/gray_stw_darker"
         android:inputType="textPassword"
-        android:paddingHorizontal="25dp"
-        android:layout_marginTop="13dp"
+        android:paddingHorizontal="28dp"
+        android:layout_marginTop="32dp"
         android:autofillHints="password" />
 
     <TextView
         android:id="@+id/btn_lupa_password"
         style="@style/TextViewSemeru"
         android:text="@string/lupa_password_anda"
-        android:textColor="@color/blue_stw"
         android:textSize="18sp"
-        android:layout_marginVertical="15dp"
+        android:layout_marginVertical="30dp"
         android:layout_gravity="center_horizontal"/>
 
-    <Button
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btn_login"
         style="@style/ButtonSemeru"
         android:paddingHorizontal="25dp"
         android:textSize="16sp"
+        android:backgroundTint="@color/orange_stw"
         android:layout_gravity="center_horizontal"
         android:text="@string/masuk"/>
 
@@ -78,7 +80,7 @@
         <TextView
             style="@style/TextViewSemeru"
             android:text="@string/anda_belum_memiliki_akun"
-            android:textColor="@color/blue_stw"
+            android:textColor="@color/black"
             android:textSize="18sp"/>
 
         <TextView

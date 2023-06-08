@@ -37,7 +37,7 @@
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="" />
+            android:value="AIzaSyAYRquOQjEcrSv6tqxCmPiEyNqZP-BUug4" />
 
         <activity
             android:name=".presentation.MainActivity"
@@ -50,7 +50,7 @@
 
             <meta-data
                 android:name="android.app.lib_name"
-                android:value="" />
+                android:value="AIzaSyAYRquOQjEcrSv6tqxCmPiEyNqZP-BUug4" />
         </activity>
         <provider
             android:authorities="com.ikhwan.townwatchingsemeru"

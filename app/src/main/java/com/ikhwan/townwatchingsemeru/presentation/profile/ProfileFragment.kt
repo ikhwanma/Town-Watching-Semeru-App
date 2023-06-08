@@ -65,21 +65,6 @@ class ProfileFragment : Fragment(), View.OnClickListener {
 
     private lateinit var dialog: ShowLoadingAlertDialog
 
-    private val requestPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()
-    ) {
-        it.entries.forEach { permission ->
-            if (!permission.value) {
-                PermissionChecker.checkProfilePermission(requireContext(), requireActivity())
-                val checkSelfPermission =
-                    PermissionChecker.checkSelfProfilePermission(requireContext())
-                if (!checkSelfPermission) {
-                    ShowSnackbarPermission().permissionDisabled(requireView(), requireActivity())
-                }
-            }
-        }
-    }
-
     private val galleryResult =
         registerForActivityResult(ActivityResultContracts.GetContent()) { result ->
             if (result != null){
@@ -98,7 +83,7 @@ class ProfileFragment : Fragment(), View.OnClickListener {
                         1080
                     )
                 }
-                val ei = ExifInterface(PathUtil.getPath(requireContext(), result!!)!!)
+                val ei = ExifInterface(PathUtil.getPath(requireContext(), result)!!)
                 val orientation: Int = ei.getAttributeInt(
                     ExifInterface.TAG_ORIENTATION,
                     ExifInterface.ORIENTATION_UNDEFINED
@@ -216,9 +201,6 @@ class ProfileFragment : Fragment(), View.OnClickListener {
                 is Resource.Success -> {
                     result.data!!.let { user ->
                         val imageUrl = Constants.BASE_URL + user.image
-
-                        val sBCategory = StringBuilder("(")
-                        sBCategory.append("${user.categoryUser.categoryUser})")
                         val circularProgressDrawable = CircularProgressDrawable(requireContext())
                         circularProgressDrawable.strokeWidth = 5f
                         circularProgressDrawable.centerRadius = 30f
@@ -228,7 +210,6 @@ class ProfileFragment : Fragment(), View.OnClickListener {
                             Glide.with(requireView()).load(imageUrl)
                                 .placeholder(circularProgressDrawable).into(imgUser)
                             tvUser.text = user.name
-                            tvCategory.text = sBCategory.toString()
                         }
 
                         this.user = user
@@ -317,10 +298,8 @@ class ProfileFragment : Fragment(), View.OnClickListener {
                         bottomSheetDialog.dismiss()
                         val name = user!!.name
                         val email = user!!.email
-                        val categoryUserId = user!!.categoryUser.id
                         val mBundle = bundleOf(
                             Constants.EXTRA_NAME to name,
-                            Constants.EXTRA_CATEGORY to categoryUserId,
                             Constants.EXTRA_EMAIL to email,
                             Constants.EXTRA_TOKEN to token
                         )

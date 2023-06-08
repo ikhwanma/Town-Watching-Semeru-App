@@ -2,18 +2,20 @@
     <!-- Base application theme. -->
     <style name="Theme.TownWatchingSemeru" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">#1B4967</item>
-        <item name="colorPrimaryVariant">@color/blue_stw</item>
-        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorPrimary">@color/orange_stw</item>
+        <item name="colorPrimaryVariant">@color/white</item>
+        <item name="colorOnPrimary">@color/black</item>
         <!-- Secondary brand color. -->
-        <item name="colorSecondary">#1B4967</item>
-        <item name="colorSecondaryVariant">@color/blue_stw</item>
+        <item name="colorSecondary">@color/orange_stw</item>
+        <item name="colorSecondaryVariant">@color/white</item>
         <item name="colorOnSecondary">@color/black</item>
         <!-- Status bar color. -->
-        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
         <!-- Customize your theme here. -->
         <item name="bottomSheetDialogTheme">@style/AppBottomSheetDialogTheme</item>
         <!-- Customize your theme here. -->
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
     </style>
 
     <style name="AppBottomSheetDialogTheme"
@@ -29,15 +31,16 @@
     <style name="TextViewSemeru">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:fontFamily">@font/roboto_medium</item>
+        <item name="android:fontFamily">@font/inter_regular</item>
+        <item name="android:textColor">@color/black</item>
     </style>
 
     <style name="TextViewSemeru.bold">
-        <item name="android:fontFamily">@font/roboto_black</item>
+        <item name="android:fontFamily">@font/inter_semibold</item>
     </style>
 
     <style name="TextViewSemeru.thin">
-        <item name="android:fontFamily">@font/roboto_light</item>
+        <item name="android:fontFamily">@font/inter_thin</item>
     </style>
 
     <style name="FormSemeru">
@@ -49,9 +52,10 @@
 
     <style name="ButtonSemeru">
         <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:background">@drawable/style_button_rounded</item>
-        <item name="android:fontFamily">@font/roboto_black</item>
+        <item name="android:layout_height">40dp</item>
+        <item name="android:background">@drawable/style_button_stw</item>
+        <item name="android:fontFamily">@font/inter_semibold</item>
         <item name="android:textAllCaps">false</item>
+        <item name="android:textColor">@color/white</item>
     </style>
 </resources>

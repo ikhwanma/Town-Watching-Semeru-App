@@ -12,7 +12,5 @@ data class UpdatePostBody(
     @SerializedName("level")
     val level: String,
     @SerializedName("status")
-    val status: Int,
-    @SerializedName("detailCategory")
-    val detailCategory: String
+    val status: Int
 )

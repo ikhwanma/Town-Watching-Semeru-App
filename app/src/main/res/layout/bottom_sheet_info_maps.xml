@@ -20,7 +20,7 @@
         android:text="@string/informasi_simbol_pada_peta"
         android:layout_gravity="center"
         android:textSize="20sp"
-        android:textColor="@color/blue_stw"/>
+        android:textColor="@color/black"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_category"

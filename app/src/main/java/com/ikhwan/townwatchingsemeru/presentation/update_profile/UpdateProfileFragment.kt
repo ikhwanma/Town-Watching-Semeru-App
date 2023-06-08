@@ -8,7 +8,6 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.navigation.Navigation
@@ -20,7 +19,6 @@ import com.ikhwan.townwatchingsemeru.common.utils.Validator
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.editprofile.UpdateProfileBody
 import com.ikhwan.townwatchingsemeru.databinding.FragmentUpdateProfileBinding
 
-
 class UpdateProfileFragment : Fragment(), View.OnClickListener {
 
     private var _binding: FragmentUpdateProfileBinding? = null
@@ -31,7 +29,6 @@ class UpdateProfileFragment : Fragment(), View.OnClickListener {
     private var email = ""
     private var token = ""
     private var checkName = true
-    private var categoryUserId = 0
 
     private val hashMap = HashMap<Int, String>()
 
@@ -51,15 +48,13 @@ class UpdateProfileFragment : Fragment(), View.OnClickListener {
         name = arguments?.getString(Constants.EXTRA_NAME)!!
         email = arguments?.getString(Constants.EXTRA_EMAIL)!!
         token = arguments?.getString(Constants.EXTRA_TOKEN)!!
-        categoryUserId = arguments?.getInt(Constants.EXTRA_CATEGORY)!!
-
-        setAdapterDropdown()
 
         binding.apply {
             etNama.setText(name)
             etEmail.isEnabled = false
             etEmail.hint = email
             btnUpdateProfile.setOnClickListener(this@UpdateProfileFragment)
+            btnBack.setOnClickListener(this@UpdateProfileFragment)
 
             etNama.addTextChangedListener(object : TextWatcher {
                 override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
@@ -88,53 +83,15 @@ class UpdateProfileFragment : Fragment(), View.OnClickListener {
         }
     }
 
-    private fun setAdapterDropdown() {
-        viewModel.getCategoryUser().observe(viewLifecycleOwner) { result ->
-            when (result) {
-                is Resource.Error -> {
-                    Log.d("UpdateProfileFragment", result.message!!)
-                }
-                is Resource.Loading -> {
-                    Log.d("UpdateProfileFragment", "Loading Category")
-                }
-                is Resource.Success -> {
-                    result.data!!.let {
-                        val listCategory = mutableListOf<String>()
-                        var position = 0
-
-                        for ((i, d) in it.withIndex()) {
-                            listCategory.add(d.categoryUser)
-                            hashMap[d.id] = d.categoryUser
-                            if (d.id == categoryUserId) position = i
-                        }
-
-                        val arrayAdapter =
-                            ArrayAdapter(requireContext(), R.layout.dropdown_bencana, listCategory)
-                        binding.autoCompleteBencana.setText(arrayAdapter.getItem(position))
-                        binding.autoCompleteBencana.setAdapter(arrayAdapter)
-
-                    }
-                }
-            }
-        }
-    }
-
     override fun onClick(p0: View?) {
         when (p0?.id) {
             R.id.btn_update_profile -> {
                 binding.apply {
                     val name = etNama.text.toString()
-                    val categoryUser = autoCompleteBencana.text.toString()
-                    for (key in hashMap.keys) {
-                        if (categoryUser == hashMap[key]) {
-                            categoryUserId = key
-                            break
-                        }
-                    }
                     if (name.isNotEmpty() &&
-                        categoryUser.isNotEmpty() && checkName
+                        checkName
                     ) {
-                        updateProfile(name, categoryUserId)
+                        updateProfile(name)
                     } else {
                         Toast.makeText(
                             requireContext(),
@@ -145,11 +102,14 @@ class UpdateProfileFragment : Fragment(), View.OnClickListener {
                     }
                 }
             }
+            R.id.btn_back -> {
+                Navigation.findNavController(requireView()).navigate(R.id.action_updateProfileFragment_to_profileFragment)
+            }
         }
     }
 
-    private fun updateProfile(name: String, categoryUserId: Int) {
-        val updateProfileBody = UpdateProfileBody(name, categoryUserId)
+    private fun updateProfile(name: String) {
+        val updateProfileBody = UpdateProfileBody(name)
         viewModel.updateProfile(token, updateProfileBody).observe(viewLifecycleOwner) { result ->
             when (result) {
                 is Resource.Error -> {

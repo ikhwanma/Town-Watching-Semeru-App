@@ -3,7 +3,6 @@ package com.ikhwan.townwatchingsemeru.domain.repository
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.UpdateAvaResponseDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.UpdatePasswordResponseDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.UserDto
-import com.ikhwan.townwatchingsemeru.data.remote.dto.user.categoryuser.CategoryUserDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.editpassword.EditPasswordBody
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.editprofile.UpdateProfileBody
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.editprofile.UpdateProfileResponseDto
@@ -17,9 +16,6 @@ import com.ikhwan.townwatchingsemeru.data.remote.dto.user.resetpassword.ResetPas
 import okhttp3.MultipartBody
 
 interface UserRepository {
-    suspend fun getCategoryUser(
-        id: Int? =null,
-    ): List<CategoryUserDto>
 
     suspend fun loginUser(
         user : LoginBody

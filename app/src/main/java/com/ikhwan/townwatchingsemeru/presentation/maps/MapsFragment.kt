@@ -87,11 +87,6 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener, View.OnClickLi
                 is Resource.Success -> {
                     val data = result.data!!
 
-                    for(d in Constants.listDetailBencana){
-                        if (d == "Lainnya") break
-                        val category = Category(d, "", 0)
-                        listCategoryInfo.add(category)
-                    }
                     listCategoryInfo.addAll(data)
                     val listCategory = mutableListOf("Lihat Semua")
                     for (d in data) {
@@ -217,26 +212,13 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener, View.OnClickLi
                                             d.latitude.toDouble(),
                                             d.longitude.toDouble()
                                         )
+                                        val imageUrl = Constants.BASE_URL + d.category.image
 
                                         if (category == "Pilih Bencana" || category == "Lihat Semua" || category == "") {
-                                            addMarkerMaps(
-                                                googleMap,
-                                                loc,
-                                                d.id,
-                                                d.category.image,
-                                                d.category.id,
-                                                d.detailCategory
-                                            )
+                                            addMarkerUrl(imageUrl, googleMap, loc, d.id)
                                         } else {
                                             if (d.category.category == category) {
-                                                addMarkerMaps(
-                                                    googleMap,
-                                                    loc,
-                                                    d.id,
-                                                    d.category.image,
-                                                    d.category.id,
-                                                    d.detailCategory
-                                                )
+                                                addMarkerUrl(imageUrl, googleMap, loc, d.id)
                                             } else {
                                                 Log.d("Category", "Null")
                                             }
@@ -246,20 +228,15 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener, View.OnClickLi
                                 }
 
                             if (category == "Pilih Bencana" || category == "Lihat Semua" || category == "") {
+
                                 for (d in data) {
                                     val loc = LatLng(
                                         d.latitude.toDouble(),
                                         d.longitude.toDouble()
                                     )
+                                    val imageUrl = Constants.BASE_URL + d.category.image
 
-                                    addMarkerMaps(
-                                        googleMap,
-                                        loc,
-                                        d.id,
-                                        d.category.image,
-                                        d.category.id,
-                                        d.detailCategory
-                                    )
+                                    addMarkerUrl(imageUrl, googleMap, loc, d.id)
 
                                     googleMap.setOnMarkerClickListener(this)
 
@@ -322,7 +299,7 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener, View.OnClickLi
             val status = post.status
 
 
-            if (post.category.id == 3 || post.category.id == 4) {
+            if (post.category.id == 4) {
                 tvLevel.visibility = View.GONE
             } else {
                 tvLevel.visibility = View.VISIBLE
@@ -333,9 +310,9 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener, View.OnClickLi
                 cardDrawable = DrawableCompat.wrap(cardDrawable)
 
                 when (level) {
-                    "Ringan" -> DrawableCompat.setTint(cardDrawable, Color.parseColor("#14ff00"))
-                    "Sedang" -> DrawableCompat.setTint(cardDrawable, Color.parseColor("#f8e158"))
-                    "Berat" -> DrawableCompat.setTint(cardDrawable, Color.parseColor("#FF0000"))
+                    "Ringan" -> DrawableCompat.setTint(cardDrawable, Color.parseColor("#00BDAA"))
+                    "Sedang" -> DrawableCompat.setTint(cardDrawable, Color.parseColor("#E8AC13"))
+                    "Berat" -> DrawableCompat.setTint(cardDrawable, Color.parseColor("#CF0A0A"))
                 }
 
                 cvLevel.background = cardDrawable
@@ -343,23 +320,20 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener, View.OnClickLi
 
             cardStatusDrawable = DrawableCompat.wrap(cardStatusDrawable)
 
-            if ((post.category.id == 1 || post.category.id == 2) && status) {
-                textStatus = "Aktif"
-                DrawableCompat.setTint(cardStatusDrawable, Color.parseColor("#FF0000"))
-            } else if ((post.category.id == 1 || post.category.id == 2) && !status) {
-                textStatus = "Tidak Aktif"
-                DrawableCompat.setTint(cardStatusDrawable, Color.parseColor("#14ff00"))
-            } else if ((post.category.id == 3 || post.category.id == 4) && status) {
-                textStatus = "Aktif"
-                DrawableCompat.setTint(cardStatusDrawable, Color.parseColor("#14ff00"))
-            } else if ((post.category.id == 3 || post.category.id == 4) && !status) {
-                textStatus = "Tidak Aktif"
-                DrawableCompat.setTint(cardStatusDrawable, Color.parseColor("#FF0000"))
-            }
-
-            if (post.category.id == 1) {
-                cvDetailBencana.visibility = View.VISIBLE
-                tvDetailBencana.text = post.detailCategory
+            if(post.category.id == 4 && status){
+                textStatus = "Laporan Aktif"
+                DrawableCompat.setTint(cardStatusDrawable, Color.parseColor("#00BDAA"))
+            }else if(post.category.id == 4 && !status){
+                textStatus ="Laporan Tidak Aktif"
+                DrawableCompat.setTint(cardStatusDrawable, Color.parseColor("#CF0A0A"))
+            }else{
+                if(status){
+                    textStatus ="Laporan Aktif"
+                    DrawableCompat.setTint(cardStatusDrawable, Color.parseColor("#CF0A0A"))
+                }else{
+                    textStatus = "Laporan Tidak Aktif"
+                    DrawableCompat.setTint(cardStatusDrawable, Color.parseColor("#00BDAA"))
+                }
             }
 
             tvStatus.text = textStatus
@@ -481,39 +455,6 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener, View.OnClickLi
 
     }
 
-    private fun addMarkerMaps(
-        googleMap: GoogleMap,
-        loc: LatLng,
-        id1: Int,
-        image: String,
-        id: Int,
-        detailCategory: String
-    ) {
-        val imageUrl = Constants.BASE_URL + image
-        if (id != 1) {
-            addMarkerUrl(imageUrl, googleMap, loc, id1)
-        } else {
-            when (detailCategory) {
-                Constants.listDetailBencana[0] -> {
-                    addMarkerImage(googleMap, loc, Constants.listImageCategory[0], id1)
-                }
-                Constants.listDetailBencana[1] -> {
-                    addMarkerImage(googleMap, loc, Constants.listImageCategory[1], id1)
-                }
-                Constants.listDetailBencana[2] -> {
-                    addMarkerImage(googleMap, loc, Constants.listImageCategory[2], id1)
-                }
-                Constants.listDetailBencana[3] -> {
-                    addMarkerImage(googleMap, loc, Constants.listImageCategory[3], id1)
-                }
-                else -> {
-                    addMarkerUrl(imageUrl, googleMap, loc, id1)
-                }
-            }
-        }
-
-    }
-
     private fun addMarkerUrl(imageUrl: String, googleMap: GoogleMap, loc: LatLng, id1: Int) {
         Glide.with(requireContext()).asBitmap().load(imageUrl).into(object :
             CustomTarget<Bitmap>() {
@@ -534,18 +475,5 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener, View.OnClickLi
 
 
         })
-    }
-
-    private fun addMarkerImage(googleMap: GoogleMap, loc: LatLng, i: Int, id1: Int) {
-        val markerMap = googleMap.addMarker(
-            MarkerOptions().position(loc)
-                .icon(
-                    BitmapDescriptor.bitmapDescriptorFromVector(
-                        requireContext(),
-                        i
-                    )
-                )
-        )
-        markerMap?.tag = id1
     }
 }

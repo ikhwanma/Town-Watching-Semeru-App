@@ -47,7 +47,6 @@ class RegisterFragment : Fragment(), View.OnClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         dialog = ShowLoadingAlertDialog(requireActivity())
-        setAdapterDropdown()
 
         binding.etEmail.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
@@ -130,32 +129,6 @@ class RegisterFragment : Fragment(), View.OnClickListener {
         binding.btnLogin.setOnClickListener(this)
     }
 
-    private fun setAdapterDropdown() {
-        viewModel.getCategoryUser().observe(viewLifecycleOwner) { result ->
-            when (result) {
-                is Resource.Error -> {
-                    Log.d("RegisterFragment", result.message!!)
-                }
-                is Resource.Loading -> {
-                    Log.d("RegisterFragment", "Loading Category")
-                }
-                is Resource.Success -> {
-                    result.data!!.let {
-                        val listCategory = mutableListOf<String>()
-
-                        for (d in it) {
-                            listCategory.add(d.categoryUser)
-                            hashMap[d.id] = d.categoryUser
-                        }
-
-                        val arrayAdapter =
-                            ArrayAdapter(requireContext(), R.layout.dropdown_bencana, listCategory)
-                        binding.autoCompleteBencana.setAdapter(arrayAdapter)
-                    }
-                }
-            }
-        }
-    }
 
     override fun onClick(p0: View?) {
         when (p0?.id) {
@@ -164,20 +137,12 @@ class RegisterFragment : Fragment(), View.OnClickListener {
                     val name = etNama.text.toString()
                     val email = etEmail.text.toString()
                     val password = etPassword.text.toString()
-                    val categoryUser = autoCompleteBencana.text.toString()
-                    var categoryUserId = 0
-                    for (key in hashMap.keys) {
-                        if (categoryUser == hashMap[key]) {
-                            categoryUserId = key
-                            break
-                        }
-                    }
 
                     if (checkName &&
                         checkEmail &&
                         checkPassword
                     ) {
-                        registerUser(name, email, password, categoryUserId)
+                        registerUser(name, email, password)
                     } else if (
                         name.isEmpty() || email.isEmpty() || password.isEmpty()
                     ) {
@@ -192,12 +157,11 @@ class RegisterFragment : Fragment(), View.OnClickListener {
         }
     }
 
-    private fun registerUser(name: String, email: String, password: String, categoryUserId: Int) {
+    private fun registerUser(name: String, email: String, password: String) {
         val registerBody = RegisterBody(
             name = name,
             email = email,
-            password = password,
-            categoryUserId = categoryUserId
+            password = password
         )
         viewModel.registerUser(registerBody).observe(viewLifecycleOwner) { result ->
             when (result) {
@@ -213,7 +177,6 @@ class RegisterFragment : Fragment(), View.OnClickListener {
                     } else {
                         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
                     }
-
                 }
                 is Resource.Loading -> {
                     dialog.startDialog()

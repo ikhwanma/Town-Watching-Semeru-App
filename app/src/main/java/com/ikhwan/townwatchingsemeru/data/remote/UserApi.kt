@@ -3,7 +3,6 @@ package com.ikhwan.townwatchingsemeru.data.remote
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.UpdateAvaResponseDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.UpdatePasswordResponseDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.UserDto
-import com.ikhwan.townwatchingsemeru.data.remote.dto.user.categoryuser.CategoryUserDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.editpassword.EditPasswordBody
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.editprofile.UpdateProfileBody
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.editprofile.UpdateProfileResponseDto
@@ -18,10 +17,6 @@ import okhttp3.MultipartBody
 import retrofit2.http.*
 
 interface UserApi {
-    @GET("user/category?")
-    suspend fun getCategoryUser(
-        @Query("id") id: Int? = null
-    ): List<CategoryUserDto>
 
     @POST("user/login")
     suspend fun loginUser(

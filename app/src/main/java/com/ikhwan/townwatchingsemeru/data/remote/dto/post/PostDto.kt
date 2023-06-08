@@ -27,8 +27,6 @@ data class PostDto(
     val address: String,
     @SerializedName("level")
     val level: String,
-    @SerializedName("detailCategory")
-    val detailCategory: String,
     @SerializedName("like")
     val like: List<LikeDto>,
     @SerializedName("longitude")
@@ -51,7 +49,6 @@ fun PostDto.toPost(): Post {
         latitude = latitude,
         address = address,
         level = level,
-        detailCategory = detailCategory,
         like = like,
         longitude = longitude,
         status = status,

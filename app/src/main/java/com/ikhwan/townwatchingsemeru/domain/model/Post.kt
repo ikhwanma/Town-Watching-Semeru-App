@@ -14,7 +14,6 @@ data class Post(
     val latitude: String,
     val address: String,
     val level: String,
-    val detailCategory: String,
     val like: List<LikeDto>,
     val longitude: String,
     val status: Boolean,

@@ -10,6 +10,7 @@ import android.view.animation.AnimationUtils
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
@@ -123,7 +124,7 @@ class HomeFragment : Fragment(), View.OnClickListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        (activity as AppCompatActivity?)!!.supportActionBar?.show()
         observeGetId()
         observeListPosts(null, null, null)
         observeGetToken()
@@ -187,7 +188,7 @@ class HomeFragment : Fragment(), View.OnClickListener {
                         val sBLike =
                             StringBuilder(like!!.size.toString())
 
-                        sBLike.append(" Menyukai")
+                        sBLike.append(" Menyimpan Laporan")
                         tvLike.text = sBLike.toString()
                     }
                 }
@@ -252,7 +253,7 @@ class HomeFragment : Fragment(), View.OnClickListener {
                     categoryId = null
                     category = null
                     setFilterCategory(null)
-                    observeListPosts()
+                    observeListPosts(categoryId, level, status)
                     bottomSheetDialog.dismiss()
                 }
                 val listImage = mutableListOf<String>()
@@ -288,7 +289,7 @@ class HomeFragment : Fragment(), View.OnClickListener {
                 bindingSheet.btnDeleteCategory.setOnClickListener {
                     level = null
                     setFilterLevel(null)
-                    observeListPosts()
+                    observeListPosts(categoryId, level, status)
                     bottomSheetDialog.dismiss()
                 }
 
@@ -320,7 +321,7 @@ class HomeFragment : Fragment(), View.OnClickListener {
                 bindingSheet.btnDeleteCategory.setOnClickListener {
                     status = null
                     setFilterStatus(null)
-                    observeListPosts()
+                    observeListPosts(categoryId, level, status)
                     bottomSheetDialog.dismiss()
                 }
                 val listStatus = mutableListOf("Aktif", "Tidak Aktif")

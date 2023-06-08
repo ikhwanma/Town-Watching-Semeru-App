@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="20dp"
+    tools:context=".presentation.user_manual.UserManualFirstFragment">
+
+    <TextView
+        android:id="@+id/tv_title"
+        style="@style/TextViewSemeru.bold"
+        android:layout_marginTop="70dp"
+        android:text="@string/selamat_datang_di_aplikasi_semeru_town_watch"
+        android:textSize="23sp" />
+
+    <TextView
+        android:id="@+id/tv_description"
+        style="@style/TextViewSemeru"
+        android:text="@string/first_user_manual"
+        android:layout_below="@id/tv_title"
+        android:textSize="16sp"
+        android:justificationMode="inter_word"
+        android:layout_marginTop="50dp"
+        tools:targetApi="o" />
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:src="@drawable/img_first_user_maual"
+        android:layout_below="@+id/tv_description"
+        android:contentDescription="@string/image"/>
+
+    <Button
+        android:id="@+id/btn_next"
+        style="@style/ButtonSemeru"
+        android:layout_width="wrap_content"
+        android:text="@string/selanjutnya"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginBottom="10dp"/>
+
+
+
+</RelativeLayout>

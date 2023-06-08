@@ -8,6 +8,9 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_prabencana"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        tools:itemCount="6"
+        tools:listitem="@layout/item_buku_saku_detail"
+        android:paddingVertical="10dp"/>
 
 </FrameLayout>

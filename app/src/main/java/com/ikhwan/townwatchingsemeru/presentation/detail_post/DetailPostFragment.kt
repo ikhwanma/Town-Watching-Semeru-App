@@ -1,16 +1,11 @@
 package com.ikhwan.townwatchingsemeru.presentation.detail_post
 
 import android.Manifest
-import android.content.Context
-import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.drawable.Drawable
-import android.location.LocationManager
 import android.os.Bundle
-import android.provider.Settings
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,10 +14,11 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.ActivityCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.graphics.scale
 import androidx.core.os.bundleOf
+import androidx.fragment.app.Fragment
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.navigation.Navigation
 import com.bumptech.glide.Glide
@@ -109,10 +105,32 @@ class DetailPostFragment : Fragment(), View.OnClickListener {
         }
     }
 
-    private fun getCurrentLocation(detailCategory: String) {
-        val checkSelfPermission = PermissionChecker.checkSelfPostPermission(requireContext())
+    private fun getCurrentLocation(d: Post) {
+        val checkSelfPermission = PermissionChecker.checkSelfMapsPermission(requireContext())
+
+        val permissionCoarse = ActivityCompat.shouldShowRequestPermissionRationale(
+            requireActivity(),
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        )
+
+        val permissionFine = ActivityCompat.shouldShowRequestPermissionRationale(
+            requireActivity(),
+            Manifest.permission.ACCESS_FINE_LOCATION
+        )
 
         if (!checkSelfPermission) {
+            if (permissionCoarse && permissionFine) {
+                ShowSnackbarPermission().permissionDisabled(requireView(), requireActivity())
+            } else {
+                ActivityCompat.requestPermissions(
+                    requireActivity(),
+                    arrayOf(
+                        Manifest.permission.ACCESS_COARSE_LOCATION,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    ),
+                    101
+                )
+            }
             return
         }
 
@@ -131,39 +149,8 @@ class DetailPostFragment : Fragment(), View.OnClickListener {
                     location, 10.0f
                 )
             )
-
-            addMarkerMaps(googleMap, location, post!!.id, post!!.category.image, detailCategory)
-        }
-    }
-
-    private fun addMarkerMaps(
-        googleMap: GoogleMap,
-        loc: LatLng,
-        id1: Int,
-        image: String,
-        detailCategory: String
-    ) {
-        val imageUrl = Constants.BASE_URL + image
-        if (post!!.category.id != 1) {
-            addMarkerUrl(imageUrl, googleMap, loc, id1)
-        } else {
-            when(detailCategory){
-                Constants.listDetailBencana[0] -> {
-                    addMarkerImage(googleMap, loc, Constants.listImageCategory[0], id1)
-                }
-                Constants.listDetailBencana[1] -> {
-                    addMarkerImage(googleMap, loc, Constants.listImageCategory[1], id1)
-                }
-                Constants.listDetailBencana[2] -> {
-                    addMarkerImage(googleMap, loc, Constants.listImageCategory[2], id1)
-                }
-                Constants.listDetailBencana[3] -> {
-                    addMarkerImage(googleMap, loc, Constants.listImageCategory[3], id1)
-                }
-                else -> {
-                    addMarkerUrl(imageUrl, googleMap, loc, id1)
-                }
-            }
+            val imageUrl = Constants.BASE_URL + d.category.image
+            addMarkerUrl(imageUrl, googleMap, location, d.id)
         }
     }
 
@@ -189,19 +176,6 @@ class DetailPostFragment : Fragment(), View.OnClickListener {
         })
     }
 
-    private fun addMarkerImage(googleMap: GoogleMap, loc: LatLng, i: Int, id1: Int) {
-        val markerMap = googleMap.addMarker(
-            MarkerOptions().position(loc)
-                .icon(
-                    BitmapDescriptor.bitmapDescriptorFromVector(
-                        requireContext(),
-                        i
-                    )
-                )
-        )
-        markerMap?.tag = id1
-    }
-
     private fun setDetailPost(idPost: Int, userId: Int) {
         viewModel.getDetailPost(idPost).observe(viewLifecycleOwner) { result ->
             when (result) {
@@ -224,15 +198,15 @@ class DetailPostFragment : Fragment(), View.OnClickListener {
                             val txtDate =
                                 "${datePost[0]} ${datePost[1]} ${datePost[2]} - ${datePost[3]} WIB"
 
-                            getCurrentLocation(post.detailCategory)
+                            getCurrentLocation(post)
                             Glide.with(requireView()).load(imageUrl).into(ivPost)
                             tvAddress.text = post.address
                             tvDescription.text = post.description
                             Glide.with(requireView()).load(imageUserUrl).into(ivUser)
-                            val nameCat = "${post.user.name} (${post.user.categoryUser.categoryUser})"
+                            val nameCat = "${post.user.name}"
                             tvUser.text = nameCat
 
-                            if (post.category.id == 3 || post.category.id == 4) {
+                            if (post.category.id == 4) {
                                 tvLevel.visibility = View.GONE
                             } else {
                                 tvLevel.visibility = View.VISIBLE
@@ -243,53 +217,29 @@ class DetailPostFragment : Fragment(), View.OnClickListener {
                                 cardDrawable = DrawableCompat.wrap(cardDrawable)
 
                                 when (level) {
-                                    "Ringan" -> DrawableCompat.setTint(
-                                        cardDrawable,
-                                        Color.parseColor("#14ff00")
-                                    )
-                                    "Sedang" -> DrawableCompat.setTint(
-                                        cardDrawable,
-                                        Color.parseColor("#f8e158")
-                                    )
-                                    "Berat" -> DrawableCompat.setTint(
-                                        cardDrawable,
-                                        Color.parseColor("#FF0000")
-                                    )
+                                    "Ringan" -> DrawableCompat.setTint(cardDrawable, Color.parseColor("#00BDAA"))
+                                    "Sedang" -> DrawableCompat.setTint(cardDrawable, Color.parseColor("#E8AC13"))
+                                    "Berat" -> DrawableCompat.setTint(cardDrawable, Color.parseColor("#CF0A0A"))
                                 }
 
                                 cvLevel.background = cardDrawable
                             }
 
                             cardStatusDrawable = DrawableCompat.wrap(cardStatusDrawable)
-                            if ((post.category.id == 1 || post.category.id == 2) && status) {
-                                textStatus = "Aktif"
-                                DrawableCompat.setTint(
-                                    cardStatusDrawable,
-                                    Color.parseColor("#FF0000")
-                                )
-                            } else if ((post.category.id == 1 || post.category.id == 2) && !status) {
-                                textStatus = "Tidak Aktif"
-                                DrawableCompat.setTint(
-                                    cardStatusDrawable,
-                                    Color.parseColor("#14ff00")
-                                )
-                            } else if ((post.category.id == 3 || post.category.id == 4) && status) {
-                                textStatus = "Aktif"
-                                DrawableCompat.setTint(
-                                    cardStatusDrawable,
-                                    Color.parseColor("#14ff00")
-                                )
-                            } else if ((post.category.id == 3 || post.category.id == 4) && !status) {
-                                textStatus = "Tidak Aktif"
-                                DrawableCompat.setTint(
-                                    cardStatusDrawable,
-                                    Color.parseColor("#FF0000")
-                                )
-                            }
-
-                            if (post.category.id == 1){
-                                cvDetailBencana.visibility = View.VISIBLE
-                                tvDetailBencana.text = post.detailCategory
+                            if(post.category.id == 4 && status){
+                                textStatus = "Laporan Aktif"
+                                DrawableCompat.setTint(cardStatusDrawable, Color.parseColor("#00BDAA"))
+                            }else if(post.category.id == 4 && !status){
+                                textStatus ="Laporan Tidak Aktif"
+                                DrawableCompat.setTint(cardStatusDrawable, Color.parseColor("#CF0A0A"))
+                            }else{
+                                if(status){
+                                    textStatus ="Laporan Aktif"
+                                    DrawableCompat.setTint(cardStatusDrawable, Color.parseColor("#CF0A0A"))
+                                }else{
+                                    textStatus = "Laporan Tidak Aktif"
+                                    DrawableCompat.setTint(cardStatusDrawable, Color.parseColor("#00BDAA"))
+                                }
                             }
 
                             tvBencana.text = post.category.category
@@ -317,7 +267,7 @@ class DetailPostFragment : Fragment(), View.OnClickListener {
         val sBLike =
             StringBuilder(likeSum.toString())
 
-        sBLike.append(" Menyukai")
+        sBLike.append(" Menyimpan Laporan")
         tvLike.text = sBLike.toString()
 
         for (d in post.like) {
@@ -339,8 +289,7 @@ class DetailPostFragment : Fragment(), View.OnClickListener {
                     Constants.EXTRA_TOKEN to token,
                     Constants.EXTRA_IMAGE to post!!.image,
                     Constants.EXTRA_DESCRIPTION to post!!.description,
-                    Constants.EXTRA_STATUS to post!!.status,
-                    Constants.EXTRA_DETAIL_BENCANA to post!!.detailCategory
+                    Constants.EXTRA_STATUS to post!!.status
                 )
                 Navigation.findNavController(requireView())
                     .navigate(R.id.action_detailPostFragment_to_updatePostFragment, mBundle)

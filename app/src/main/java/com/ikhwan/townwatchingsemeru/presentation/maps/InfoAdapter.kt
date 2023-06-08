@@ -21,13 +21,7 @@ class InfoAdapter(): RecyclerView.Adapter<InfoAdapter.ViewHolder>() {
                 }else{
                     ivCategory.setImageResource(Constants.listImageCategory[position])
                 }
-                if (data.id == 1){
-                    val txtLainnya = "Bencana Alam Lainnya"
-                    tvCategory.text = txtLainnya
-                }else{
-                    tvCategory.text = data.category
-                }
-
+                tvCategory.text = data.category
             }
         }
     }

@@ -34,6 +34,7 @@ class PostAdapter(
                 val baseUrl = Constants.BASE_URL
                 val imageUrl = baseUrl + data.image
                 val imageUser = baseUrl + data.user.image
+                val imageCategory = baseUrl + data.category.image
                 val status = data.status
                 var cardStatusDrawable = cvStatus.background
                 val sBLike = StringBuilder(data.like.size.toString())
@@ -41,6 +42,16 @@ class PostAdapter(
                 val datePost = Converter.convertDate(data.updatedAt).split(" ")
                 val txtCate = "${datePost[0]} ${datePost[1]} ${datePost[2]}"
                 val txtTime = "- ${datePost[3]} WIB"
+                val addr = data.address.split(",")
+                val addrSize = addr.size
+                var txtAddress = ""
+                for (i in 4 downTo 3){
+                    txtAddress += if (i == 4){
+                        addr[addrSize-i] + ","
+                    }else{
+                        addr[addrSize-i]
+                    }
+                }
 
                 if(data.updatedAt != data.createdAt){
                     tvUpdated.visibility = View.VISIBLE
@@ -48,35 +59,27 @@ class PostAdapter(
                     tvUpdated.visibility = View.GONE
                 }
 
-                sBLike.append(" Menyimpan")
+                sBLike.append(" Menyimpan Laporan")
                 val sLike = sBLike.toString()
 
-                tvAddress.text = data.address
-                val txtName = "${data.user.name}(${data.user.categoryUser.categoryUser})"
-                tvUser.text = txtName
+                tvAddress.text = txtAddress
+                tvUser.text = data.user.name
 
-                if (check){
-                    tvDate.visibility = View.VISIBLE
-                    cvIconBlue.visibility = View.VISIBLE
-                }else{
-                    tvDate.visibility = View.GONE
-                    cvIconBlue.visibility = View.GONE
-                }
-
-                if (data.category.id == 3 || data.category.id == 4){
+                if (data.category.id == 4){
+                    cvLevel.visibility = View.GONE
                     tvLevel.visibility = View.GONE
                 }else{
                     tvLevel.visibility = View.VISIBLE
                     val level = data.level
 
-                    tvLevel.text = data.level
+                    tvLevel.append(" ${data.level}")
                     var cardDrawable = cvLevel.background
                     cardDrawable = DrawableCompat.wrap(cardDrawable)
 
                     when(level){
-                        "Ringan" -> DrawableCompat.setTint(cardDrawable, Color.parseColor("#14ff00"))
-                        "Sedang" -> DrawableCompat.setTint(cardDrawable, Color.parseColor("#f8e158"))
-                        "Berat" -> DrawableCompat.setTint(cardDrawable, Color.parseColor("#FF0000"))
+                        "Ringan" -> DrawableCompat.setTint(cardDrawable, Color.parseColor("#00BDAA"))
+                        "Sedang" -> DrawableCompat.setTint(cardDrawable, Color.parseColor("#E8AC13"))
+                        "Berat" -> DrawableCompat.setTint(cardDrawable, Color.parseColor("#CF0A0A"))
                     }
 
                     cvLevel.background = cardDrawable
@@ -84,23 +87,20 @@ class PostAdapter(
 
                 cardStatusDrawable = DrawableCompat.wrap(cardStatusDrawable)
 
-                if ( (data.category.id == 1 || data.category.id == 2)&& status){
-                    textStatus ="Aktif"
-                    DrawableCompat.setTint(cardStatusDrawable, Color.parseColor("#FF0000"))
-                }else if ((data.category.id == 1 || data.category.id == 2) && !status){
-                    textStatus = "Tidak Aktif"
-                    DrawableCompat.setTint(cardStatusDrawable, Color.parseColor("#14ff00"))
-                }else if((data.category.id == 3 || data.category.id == 4) && status){
-                    textStatus = "Aktif"
-                    DrawableCompat.setTint(cardStatusDrawable, Color.parseColor("#14ff00"))
-                }else if((data.category.id == 3 || data.category.id == 4) && !status){
-                    textStatus ="Tidak Aktif"
-                    DrawableCompat.setTint(cardStatusDrawable, Color.parseColor("#FF0000"))
-                }
-
-                if (data.category.id == 1){
-                    cvDetailBencana.visibility = View.VISIBLE
-                    tvDetailBencana.text = data.detailCategory
+                if(data.category.id == 4 && status){
+                    textStatus = "Laporan Aktif"
+                    DrawableCompat.setTint(cardStatusDrawable, Color.parseColor("#00BDAA"))
+                }else if(data.category.id == 4 && !status){
+                    textStatus ="Laporan Tidak Aktif"
+                    DrawableCompat.setTint(cardStatusDrawable, Color.parseColor("#CF0A0A"))
+                }else{
+                    if(status){
+                        textStatus ="Laporan Aktif"
+                        DrawableCompat.setTint(cardStatusDrawable, Color.parseColor("#CF0A0A"))
+                    }else{
+                        textStatus = "Laporan Tidak Aktif"
+                        DrawableCompat.setTint(cardStatusDrawable, Color.parseColor("#00BDAA"))
+                    }
                 }
 
                 btnLike.setBackgroundResource(R.drawable.baseline_bookmark_border_24)
@@ -114,6 +114,7 @@ class PostAdapter(
 
                 Glide.with(itemView).load(imageUrl).into(binding.ivPost)
                 Glide.with(itemView).load(imageUser).into(binding.ivUser)
+                Glide.with(itemView).load(imageCategory).into(imgCategory)
                 tvDescription.text = data.description
                 tvBencana.text = data.category.category
                 tvStatus.text = textStatus

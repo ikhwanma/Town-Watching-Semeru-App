@@ -4,7 +4,5 @@ import com.google.gson.annotations.SerializedName
 
 data class UpdateProfileBody(
     @SerializedName("name")
-    val name: String,
-    @SerializedName("categoryUserId")
-    val categoryUserId: Int
+    val name: String
 )

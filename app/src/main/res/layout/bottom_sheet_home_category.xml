@@ -33,13 +33,13 @@
         <ImageView
             android:layout_width="35dp"
             android:layout_height="35dp"
-            android:src="@drawable/ic_baseline_close_24"
+            android:src="@drawable/ic_round_grid_view_24"
             android:contentDescription="@string/icon"
             />
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/hapus_filter_kategori"
+            android:text="@string/lihat_semua_kategori"
             style="@style/TextViewSemeru"
             android:textSize="18sp"
             />

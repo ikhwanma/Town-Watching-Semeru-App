@@ -3,16 +3,18 @@ package com.ikhwan.townwatchingsemeru.presentation.buku_saku_detail
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.ikhwan.townwatchingsemeru.data.local.DetailBencanaDescription
 import com.ikhwan.townwatchingsemeru.databinding.ItemBukuSakuDetailBinding
 
-class BukuSakuDetailAdapter(val list: List<String>) :
+class BukuSakuDetailAdapter(val list: List<DetailBencanaDescription>) :
     RecyclerView.Adapter<BukuSakuDetailAdapter.ViewHolder>() {
     inner class ViewHolder(private val binding: ItemBukuSakuDetailBinding) :
         RecyclerView.ViewHolder(binding.root) {
-            fun bind(data: String, position: Int){
+            fun bind(data: DetailBencanaDescription, position: Int){
                 binding.apply {
-                    tvDescription.text = data
+                    tvDescription.text = data.desc
                     tvPosition.text = position.toString()
+                    ivDescription.setImageResource(data.img)
                 }
             }
     }

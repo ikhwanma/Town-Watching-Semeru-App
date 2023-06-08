@@ -89,27 +89,6 @@
 
         </androidx.cardview.widget.CardView>
 
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cv_detail_bencana"
-            app:cardCornerRadius="8dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="5dp"
-            android:visibility="gone"
-            android:backgroundTint="@color/blue_stw">
-
-            <TextView
-                android:id="@+id/tv_detail_bencana"
-                style="@style/TextViewSemeru"
-                android:layout_height="match_parent"
-                android:layout_marginHorizontal="5dp"
-                android:padding="3dp"
-                android:text="@string/status"
-                android:textColor="@color/white"
-                android:textSize="12sp"
-                tools:ignore="SmallSp" />
-
-        </androidx.cardview.widget.CardView>
     </LinearLayout>
 
     <LinearLayout

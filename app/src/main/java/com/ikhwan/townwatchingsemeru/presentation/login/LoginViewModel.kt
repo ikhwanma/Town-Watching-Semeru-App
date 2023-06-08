@@ -8,7 +8,6 @@ import com.ikhwan.townwatchingsemeru.common.Resource
 import com.ikhwan.townwatchingsemeru.data.local.DataStoreManager
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.login.LoginBody
 import com.ikhwan.townwatchingsemeru.domain.model.PostLoginResponse
-import com.ikhwan.townwatchingsemeru.domain.use_case.user.GetCategoryUserUseCase
 import com.ikhwan.townwatchingsemeru.domain.use_case.user.LoginUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch

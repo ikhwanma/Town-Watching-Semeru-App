@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".presentation.splash.SplashFragment">
+
+    <ImageView
+        android:id="@+id/iv_logo"
+        android:layout_width="180dp"
+        android:layout_height="200dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="160dp"
+        android:src="@drawable/app_logo"
+        android:contentDescription="@string/image" />
+
+    <TextView
+        style="@style/TextViewSemeru"
+        android:text="@string/app_name"
+        android:textSize="25sp"
+        android:layout_below="@+id/iv_logo"
+        android:layout_centerHorizontal="true"/>
+
+    <LinearLayout
+        android:id="@+id/ll_univ"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_alignParentBottom="true"
+        android:gravity="center_horizontal"
+        android:layout_marginBottom="30dp">
+        <ImageView
+            android:id="@+id/iv_filkom"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_ub"
+            android:contentDescription="@string/image" />
+        <ImageView
+            android:id="@+id/iv_ub"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:src="@drawable/ic_filkom"
+            android:contentDescription="@string/image" />
+    </LinearLayout>
+
+    <TextView
+        style="@style/TextViewSemeru"
+        android:text="@string/dipersembahkan_oleh"
+        android:layout_above="@id/ll_univ"
+        android:layout_centerHorizontal="true"
+        android:textSize="16sp"/>
+   
+
+</RelativeLayout>

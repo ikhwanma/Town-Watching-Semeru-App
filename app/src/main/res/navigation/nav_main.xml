@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_main"
-    app:startDestination="@id/homeFragment">
+    app:startDestination="@id/splashFragment">
 
     <fragment
         android:id="@+id/homeFragment"
@@ -219,5 +219,62 @@
             app:destination="@id/bukuSakuFragment"
             app:popUpTo="@id/bukuSakuDetailFragment"
             app:popUpToInclusive="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/splashFragment"
+        android:name="com.ikhwan.townwatchingsemeru.presentation.splash.SplashFragment"
+        android:label="fragment_splash"
+        tools:layout="@layout/fragment_splash" >
+        <action
+            android:id="@+id/action_splashFragment_to_homeFragment"
+            app:destination="@id/homeFragment"
+            app:popUpTo="@id/splashFragment"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_splashFragment_to_userManualFirstFragment2"
+            app:destination="@id/userManualFirstFragment"
+            app:popUpTo="@id/splashFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/userManualFirstFragment"
+        android:name="com.ikhwan.townwatchingsemeru.presentation.user_manual.UserManualFirstFragment"
+        android:label="fragment_user_manual_first"
+        tools:layout="@layout/fragment_user_manual_first" >
+        <action
+            android:id="@+id/action_userManualFirstFragment_to_userManualSecondFragment"
+            app:destination="@id/userManualSecondFragment"
+            app:popUpTo="@id/userManualFirstFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/userManualSecondFragment"
+        android:name="com.ikhwan.townwatchingsemeru.presentation.user_manual.UserManualSecondFragment"
+        android:label="fragment_user_manual_second"
+        tools:layout="@layout/fragment_user_manual_second" >
+        <action
+            android:id="@+id/action_userManualSecondFragment_to_userManualFirstFragment"
+            app:destination="@id/userManualFirstFragment"
+            app:popUpTo="@id/userManualSecondFragment"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_userManualSecondFragment_to_userManualThirdFragment"
+            app:destination="@id/userManualThirdFragment"
+            app:popUpTo="@id/userManualSecondFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/userManualThirdFragment"
+        android:name="com.ikhwan.townwatchingsemeru.presentation.user_manual.UserManualThirdFragment"
+        android:label="fragment_user_manual_third"
+        tools:layout="@layout/fragment_user_manual_third" >
+        <action
+            android:id="@+id/action_userManualThirdFragment_to_homeFragment"
+            app:destination="@id/homeFragment"
+            app:popUpTo="@id/userManualThirdFragment"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_userManualThirdFragment_to_userManualSecondFragment"
+            app:destination="@id/userManualSecondFragment" />
     </fragment>
 </navigation>

@@ -35,9 +35,6 @@ class UpdatePostFragment : Fragment(), View.OnClickListener {
     private var categoryId = 0
     private var level = ""
     private var status: Boolean? = null
-    private var detailCategory = ""
-
-    private var cekKategori: Boolean = false
 
     private val listCategories = mutableListOf<Category>()
 
@@ -61,7 +58,6 @@ class UpdatePostFragment : Fragment(), View.OnClickListener {
         imageUrl = arguments?.getString(Constants.EXTRA_IMAGE)!!
         description = arguments?.getString(Constants.EXTRA_DESCRIPTION)!!
         status = arguments?.getBoolean(Constants.EXTRA_STATUS)!!
-        detailCategory = arguments?.getString(Constants.EXTRA_DETAIL_BENCANA)!!
 
         observeCategory()
         initView()
@@ -122,20 +118,11 @@ class UpdatePostFragment : Fragment(), View.OnClickListener {
             ArrayAdapter(requireContext(), R.layout.dropdown_bencana, Constants.listStatus)
         val adapterCategory =
             ArrayAdapter(requireContext(), R.layout.dropdown_bencana, listCategoryName)
-        val adapterDetailBencana =
-            ArrayAdapter(requireContext(), R.layout.dropdown_bencana, Constants.listDetailBencana)
 
         binding.apply {
             autoCompleteLevel.setText(adapterLevel.getItem(positionLevel))
             autoCompleteStatus.setText(adapterStatus.getItem(positionStatus))
             autoCompleteBencana.setText(adapterCategory.getItem(positionCategory))
-
-            if (detailCategory != ""){
-                autoCompleteDetailBencana.setText(detailCategory)
-                textInputDetailBencana.visibility = View.VISIBLE
-                tvDetailBencana.visibility = View.VISIBLE
-                cekKategori = true
-            }
 
             val categoryBencana = autoCompleteBencana.text.toString()
             if (categoryBencana == listCategory[2].category || categoryBencana == listCategory[3].category) {
@@ -151,7 +138,6 @@ class UpdatePostFragment : Fragment(), View.OnClickListener {
             autoCompleteLevel.setAdapter(adapterLevel)
             autoCompleteStatus.setAdapter(adapterStatus)
             autoCompleteBencana.setAdapter(adapterCategory)
-            autoCompleteDetailBencana.setAdapter(adapterDetailBencana)
             autoCompleteBencana.onItemClickListener =
                 AdapterView.OnItemClickListener { _, _, _, _ ->
                     val category = autoCompleteBencana.text.toString()
@@ -163,15 +149,6 @@ class UpdatePostFragment : Fragment(), View.OnClickListener {
                         textInputLevel.visibility = View.VISIBLE
                         tvPilihLevel.visibility = View.VISIBLE
                         level = autoCompleteLevel.text.toString()
-                    }
-                    if (category == listCategory[0].category){
-                        textInputDetailBencana.visibility = View.VISIBLE
-                        tvDetailBencana.visibility = View.VISIBLE
-                        cekKategori = true
-                    }else{
-                        textInputDetailBencana.visibility = View.GONE
-                        tvDetailBencana.visibility = View.GONE
-                        cekKategori = false
                     }
                 }
         }
@@ -198,11 +175,6 @@ class UpdatePostFragment : Fragment(), View.OnClickListener {
                     }
                     val level = autoCompleteLevel.text.toString()
                     val txtStatus = autoCompleteStatus.text.toString()
-                    val detailCategory = if (cekKategori){
-                        autoCompleteDetailBencana.text.toString()
-                    }else{
-                        ""
-                    }
                     val status = if (txtStatus == "Aktif") {
                         1
                     } else {
@@ -216,7 +188,7 @@ class UpdatePostFragment : Fragment(), View.OnClickListener {
                             Toast.LENGTH_SHORT
                         ).show()
                     } else {
-                        val updatePostBody = UpdatePostBody(idPost, description, category, level, status, detailCategory)
+                        val updatePostBody = UpdatePostBody(idPost, description, category, level, status)
                         updatePost(updatePostBody)
                     }
                 }

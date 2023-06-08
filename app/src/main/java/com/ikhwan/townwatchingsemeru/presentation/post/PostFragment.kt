@@ -5,18 +5,14 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.location.Geocoder
-import android.location.Location
-import android.location.LocationListener
 import android.location.LocationManager
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.os.Handler
-import android.os.Looper
 import android.provider.MediaStore
 import android.provider.Settings
 import android.util.Log
@@ -39,6 +35,7 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.android.material.snackbar.Snackbar
 import com.ikhwan.townwatchingsemeru.R
 import com.ikhwan.townwatchingsemeru.common.Constants
 import com.ikhwan.townwatchingsemeru.common.Resource
@@ -112,6 +109,16 @@ class PostFragment : Fragment(), View.OnClickListener {
 
     private val locationResult =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            val handler = Handler()
+            dialog.startDialog()
+            handler.postDelayed({
+                Navigation.findNavController(requireView()).navigate(R.id.action_postFragment_self)
+                dialog.dismissDialog()
+            }, 5000)
+        }
+
+    private val permissionResult =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()){
             val handler = Handler()
             dialog.startDialog()
             handler.postDelayed({
@@ -257,30 +264,20 @@ class PostFragment : Fragment(), View.OnClickListener {
             ArrayAdapter(requireContext(), R.layout.dropdown_bencana, Constants.listLevel)
         val adapterCategory =
             ArrayAdapter(requireContext(), R.layout.dropdown_bencana, listCategoryName)
-        val adapterDetailBencana =
-            ArrayAdapter(requireContext(), R.layout.dropdown_bencana, Constants.listDetailBencana)
 
         binding.apply {
             autoCompleteLevel.setAdapter(adapterLevel)
             autoCompleteBencana.setAdapter(adapterCategory)
-            autoCompleteDetailBencana.setAdapter(adapterDetailBencana)
             autoCompleteBencana.onItemClickListener =
                 AdapterView.OnItemClickListener { _, _, _, _ ->
                     val category = autoCompleteBencana.text.toString()
-                    if (category == listCategory[2].category || category == listCategory[3].category) {
+                    if (category == listCategory[2].category) {
                         textInputLevel.visibility = View.GONE
                         tvPilihLevel.visibility = View.GONE
                     } else {
                         textInputLevel.visibility = View.VISIBLE
                         tvPilihLevel.visibility = View.VISIBLE
                         cekBencana = true
-                    }
-                    if (category == listCategory[0].category) {
-                        tvDetailBencana.visibility = View.VISIBLE
-                        textInputDetailBencana.visibility = View.VISIBLE
-                    } else {
-                        tvDetailBencana.visibility = View.GONE
-                        textInputDetailBencana.visibility = View.GONE
                     }
                 }
         }
@@ -309,7 +306,14 @@ class PostFragment : Fragment(), View.OnClickListener {
 
         if (!checkSelfPermission) {
             if (permissionCoarse && permissionFine) {
-                ShowSnackbarPermission().permissionDisabled(requireView(), requireActivity())
+                Snackbar.make(
+                    requireView(),
+                    "Aplikasi memerlukan izin akses, berikan izin terlebih dahulu",
+                    Snackbar.LENGTH_INDEFINITE
+                ).setAction("Buka Pengaturan"){
+                    val i = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + requireActivity().packageName))
+                    permissionResult.launch(i)
+                }.show()
             } else {
                 ActivityCompat.requestPermissions(
                     requireActivity(),
@@ -473,10 +477,14 @@ class PostFragment : Fragment(), View.OnClickListener {
 
                 if (!checkSelfPermission) {
                     if (permissionCoarse && permissionFine) {
-                        ShowSnackbarPermission().permissionDisabled(
+                        Snackbar.make(
                             requireView(),
-                            requireActivity()
-                        )
+                            "Aplikasi memerlukan izin akses, berikan izin terlebih dahulu",
+                            Snackbar.LENGTH_INDEFINITE
+                        ).setAction("Buka Pengaturan"){
+                            val i = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + requireActivity().packageName))
+                            permissionResult.launch(i)
+                        }.show()
                     } else {
                         ActivityCompat.requestPermissions(
                             requireActivity(),
@@ -531,11 +539,6 @@ class PostFragment : Fragment(), View.OnClickListener {
                             }
                             val latitude = currentLocation!!.latitude.toString()
                             val longitude = currentLocation!!.longitude.toString()
-                            val detailCategory = if (category == "1") {
-                                autoCompleteDetailBencana.text.toString()
-                            } else {
-                                ""
-                            }
 
                             createFileForUpload(
                                 description = description,
@@ -544,7 +547,7 @@ class PostFragment : Fragment(), View.OnClickListener {
                                 address = address,
                                 category = category,
                                 level = level,
-                                detailCategory = detailCategory
+                                detailCategory = ""
                             )
                         }
                     }

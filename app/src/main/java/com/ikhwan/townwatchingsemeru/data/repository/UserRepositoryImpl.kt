@@ -4,7 +4,6 @@ import com.ikhwan.townwatchingsemeru.data.remote.UserApi
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.UpdateAvaResponseDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.UpdatePasswordResponseDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.UserDto
-import com.ikhwan.townwatchingsemeru.data.remote.dto.user.categoryuser.CategoryUserDto
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.editpassword.EditPasswordBody
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.editprofile.UpdateProfileBody
 import com.ikhwan.townwatchingsemeru.data.remote.dto.user.editprofile.UpdateProfileResponseDto
@@ -22,10 +21,6 @@ import javax.inject.Inject
 class UserRepositoryImpl @Inject constructor(
     private val api: UserApi
 ) : UserRepository{
-
-    override suspend fun getCategoryUser(id: Int?): List<CategoryUserDto> {
-        return api.getCategoryUser(id)
-    }
 
     override suspend fun loginUser(user: LoginBody): PostLoginResponseDto {
         return api.loginUser(user)

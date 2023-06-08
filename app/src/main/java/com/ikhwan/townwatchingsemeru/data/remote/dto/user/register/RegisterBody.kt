@@ -8,7 +8,5 @@ data class RegisterBody(
     @SerializedName("email")
     val email: String,
     @SerializedName("password")
-    val password: String,
-    @SerializedName("categoryUserId")
-    val categoryUserId: Int
+    val password: String
 )
