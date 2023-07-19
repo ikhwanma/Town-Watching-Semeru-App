@@ -67,7 +67,7 @@ class HomeFragment : Fragment(), View.OnClickListener {
         level: String? = null,
         status: Int? = null
     ) {
-        viewModel.getAllPosts(categoryId, level, status).observe(viewLifecycleOwner) { result ->
+        viewModel.observeListPosts(categoryId, level, status).observe(viewLifecycleOwner) { result ->
             when (result) {
                 is Resource.Error -> {
                     binding.progressCircular.visibility = View.GONE
@@ -187,6 +187,7 @@ class HomeFragment : Fragment(), View.OnClickListener {
                     result.data.let { like ->
                         val sBLike =
                             StringBuilder(like!!.size.toString())
+
 
                         sBLike.append(" Menyimpan Laporan")
                         tvLike.text = sBLike.toString()

@@ -21,7 +21,11 @@
         android:id="@+id/mapsFragment"
         android:name="com.ikhwan.townwatchingsemeru.presentation.maps.MapsFragment"
         android:label="fragment_maps"
-        tools:layout="@layout/fragment_maps" />
+        tools:layout="@layout/fragment_maps" >
+        <action
+            android:id="@+id/action_mapsFragment_to_bukuSakuDetailFragment"
+            app:destination="@id/bukuSakuDetailFragment" />
+    </fragment>
     <fragment
         android:id="@+id/commentFragment"
         android:name="com.ikhwan.townwatchingsemeru.presentation.comments.CommentFragment"

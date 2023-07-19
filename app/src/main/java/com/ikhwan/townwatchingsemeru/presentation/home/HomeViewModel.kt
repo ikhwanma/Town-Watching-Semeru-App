@@ -20,7 +20,7 @@ class HomeViewModel @Inject constructor(
     private val pref: DataStoreManager
 ) : ViewModel() {
 
-    fun getAllPosts(
+    fun observeListPosts(
         categoryId: Int?,
         level: String?,
         status: Int?

@@ -1,6 +1,7 @@
 package com.ikhwan.townwatchingsemeru.presentation.maps
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
@@ -9,8 +10,9 @@ import com.bumptech.glide.Glide
 import com.ikhwan.townwatchingsemeru.common.Constants
 import com.ikhwan.townwatchingsemeru.databinding.ItemCategoryBinding
 import com.ikhwan.townwatchingsemeru.domain.model.Category
+import com.ikhwan.townwatchingsemeru.domain.model.Post
 
-class InfoAdapter(): RecyclerView.Adapter<InfoAdapter.ViewHolder>() {
+class InfoAdapter(val onItemClick: (String) -> Unit): RecyclerView.Adapter<InfoAdapter.ViewHolder>() {
     inner class ViewHolder(private val binding: ItemCategoryBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(data: Category, position: Int){
@@ -22,6 +24,9 @@ class InfoAdapter(): RecyclerView.Adapter<InfoAdapter.ViewHolder>() {
                     ivCategory.setImageResource(Constants.listImageCategory[position])
                 }
                 tvCategory.text = data.category
+                root.setOnClickListener {
+                    onItemClick(data.category)
+                }
             }
         }
     }

@@ -28,7 +28,7 @@ class PascaBencanaFragment(private val idCategory: Int) : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val listData = getPascaBencana().filter {it.id == idCategory }
+        val listData = getPascaBencana().filter { it.id == idCategory }
         val adapter = BukuSakuDetailAdapter(listData[0].desc)
 
         binding.apply {

@@ -125,4 +125,6 @@
     <string name="sebelumnya">Sebelumnya</string>
     <string name="siap_siaga_bencana_bersama_aplikasi_semeru_town_watch">SIAP SIAGA BENCANA BERSAMA APLIKASI SEMERU TOWN WATCH</string>
     <string name="user_manual_third">Tingkatkan kesiap siagaan anda akan bencana, ketahui semua informasi yang terjadi disekitar daerah anda, dan kurangi resiko jatuhnya korban jiwa karena bencana yang terjadi.</string>
+    <string name="bahaya_erupsi">Bahaya erupsi gunungapi memiliki dua jenis bahaya berdasarkan waktu kejadian, yaitu bahaya primer dan sekunder. Berikut ini bahaya dari erupsi gunungapi.\n\nInstitusi teknis terkait dengan kegunungapian adalah Pusat Vulkanologi dan Mitigasi Bencana Geologi (PVMBG). Informasi terkait gunungapi dapat dilihat pada laman berikut: http://www.vsi.esdm.go.id/</string>
+    <string name="lihat_selengkapnya"><![CDATA[Lihat Selengkapnya >]]></string>
 </resources>

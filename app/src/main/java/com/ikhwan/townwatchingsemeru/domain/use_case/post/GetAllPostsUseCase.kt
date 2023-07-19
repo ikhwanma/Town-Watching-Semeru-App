@@ -2,6 +2,7 @@ package com.ikhwan.townwatchingsemeru.domain.use_case.post
 
 import com.ikhwan.townwatchingsemeru.common.Resource
 import com.ikhwan.townwatchingsemeru.data.remote.dto.post.toPost
+import com.ikhwan.townwatchingsemeru.data.repository.PostRepositoryImpl
 import com.ikhwan.townwatchingsemeru.domain.model.Post
 import com.ikhwan.townwatchingsemeru.domain.repository.PostRepository
 import kotlinx.coroutines.flow.Flow
@@ -11,7 +12,7 @@ import java.io.IOException
 import javax.inject.Inject
 
 class GetAllPostsUseCase @Inject constructor(
-    private val repository: PostRepository
+    private val repository: PostRepositoryImpl,
 ) {
     operator fun invoke(
         categoryId: Int?,

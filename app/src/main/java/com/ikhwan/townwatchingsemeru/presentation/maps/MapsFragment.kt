@@ -23,8 +23,10 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.graphics.scale
+import androidx.core.os.bundleOf
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
@@ -171,7 +173,7 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener, View.OnClickLi
             val task = fusedLocationProviderClient.lastLocation
 
             task.addOnSuccessListener { location ->
-                if (location != null){
+                if (location != null) {
                     val currentLocation = LatLng(location.latitude, location.longitude)
 
                     this.currentLocation = currentLocation
@@ -253,7 +255,7 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener, View.OnClickLi
     }
 
     override fun onClick(p0: View?) {
-        when(p0?.id){
+        when (p0?.id) {
             R.id.btn_info -> {
                 val bottomSheetDialog = BottomSheetDialog(requireContext())
                 val bindingSheet = BottomSheetInfoMapsBinding.inflate(layoutInflater)
@@ -261,7 +263,54 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener, View.OnClickLi
                 bottomSheetDialog.show()
 
                 bindingSheet.apply {
-                    val adapter = InfoAdapter()
+                    val adapter = InfoAdapter() {
+                        val mBundle = when (it) {
+                            "Erupsi" -> {
+                                bundleOf(
+                                    Constants.EXTRA_ID to 1,
+                                    Constants.EXTRA_CATEGORY to it
+                                )
+                            }
+                            "Gempa Bumi" -> {
+                                bundleOf(
+                                    Constants.EXTRA_ID to 2,
+                                    Constants.EXTRA_CATEGORY to it
+                                )
+                            }
+                            "Tanah Longsor" -> {
+                                bundleOf(
+                                    Constants.EXTRA_ID to 3,
+                                    Constants.EXTRA_CATEGORY to it
+                                )
+                            }
+                            "Banjir" -> {
+                                bundleOf(
+                                    Constants.EXTRA_ID to 4,
+                                    Constants.EXTRA_CATEGORY to it
+                                )
+                            }
+                            "Angin Kencang" -> {
+                                bundleOf(
+                                    Constants.EXTRA_ID to 5,
+                                    Constants.EXTRA_CATEGORY to it
+                                )
+                            }
+                            else -> {
+                                bundleOf(
+                                    Constants.EXTRA_ID to 0,
+                                    Constants.EXTRA_CATEGORY to ""
+                                )
+                            }
+                        }
+                        if(it != "Titik Kumpul"){
+                            Navigation.findNavController(requireView())
+                                .navigate(R.id.action_mapsFragment_to_bukuSakuDetailFragment, mBundle)
+                        }else{
+                            Toast.makeText(requireContext(), "Cari titik kumpul terdekat saat bencana terjadi!", Toast.LENGTH_SHORT).show()
+                        }
+
+                        bottomSheetDialog.dismiss()
+                    }
                     adapter.submitData(listCategoryInfo)
 
                     rvCategory.layoutManager = LinearLayoutManager(requireContext())
@@ -320,17 +369,17 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener, View.OnClickLi
 
             cardStatusDrawable = DrawableCompat.wrap(cardStatusDrawable)
 
-            if(post.category.id == 4 && status){
+            if (post.category.id == 4 && status) {
                 textStatus = "Laporan Aktif"
                 DrawableCompat.setTint(cardStatusDrawable, Color.parseColor("#00BDAA"))
-            }else if(post.category.id == 4 && !status){
-                textStatus ="Laporan Tidak Aktif"
+            } else if (post.category.id == 4 && !status) {
+                textStatus = "Laporan Tidak Aktif"
                 DrawableCompat.setTint(cardStatusDrawable, Color.parseColor("#CF0A0A"))
-            }else{
-                if(status){
-                    textStatus ="Laporan Aktif"
+            } else {
+                if (status) {
+                    textStatus = "Laporan Aktif"
                     DrawableCompat.setTint(cardStatusDrawable, Color.parseColor("#CF0A0A"))
-                }else{
+                } else {
                     textStatus = "Laporan Tidak Aktif"
                     DrawableCompat.setTint(cardStatusDrawable, Color.parseColor("#00BDAA"))
                 }
@@ -344,8 +393,12 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener, View.OnClickLi
                 btnRoute.setOnClickListener {
                     init()
                     if (!isLocationEnable(bottomSheetDialog)) return@setOnClickListener
-                    if (currentLocation == null){
-                        Toast.makeText(requireContext(), "Lokasi belum siap, coba beberapa saat lagi", Toast.LENGTH_SHORT).show()
+                    if (currentLocation == null) {
+                        Toast.makeText(
+                            requireContext(),
+                            "Lokasi belum siap, coba beberapa saat lagi",
+                            Toast.LENGTH_SHORT
+                        ).show()
                         return@setOnClickListener
                     }
                     val gmmIntentUri =
@@ -361,8 +414,12 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener, View.OnClickLi
                 btnRoute.setOnClickListener {
                     init()
                     if (!isLocationEnable(bottomSheetDialog)) return@setOnClickListener
-                    if (currentLocation == null){
-                        Toast.makeText(requireContext(), "Lokasi belum siap, coba beberapa saat lagi", Toast.LENGTH_SHORT).show()
+                    if (currentLocation == null) {
+                        Toast.makeText(
+                            requireContext(),
+                            "Lokasi belum siap, coba beberapa saat lagi",
+                            Toast.LENGTH_SHORT
+                        ).show()
                         return@setOnClickListener
                     }
                     isLocationEnable(bottomSheetDialog)
@@ -392,10 +449,11 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener, View.OnClickLi
         return false
     }
 
-    private fun isLocationEnable(bottomSheetDialog: BottomSheetDialog) : Boolean {
-        val locationManager = requireActivity().getSystemService(Context.LOCATION_SERVICE) as LocationManager
+    private fun isLocationEnable(bottomSheetDialog: BottomSheetDialog): Boolean {
+        val locationManager =
+            requireActivity().getSystemService(Context.LOCATION_SERVICE) as LocationManager
         val providerEnable = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
-        if (!providerEnable){
+        if (!providerEnable) {
             bottomSheetDialog.dismiss()
             ShowActionAlertDialog(
                 context = requireContext(),

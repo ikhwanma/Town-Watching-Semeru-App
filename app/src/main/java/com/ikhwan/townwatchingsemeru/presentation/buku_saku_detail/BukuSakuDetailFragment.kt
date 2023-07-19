@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
 import androidx.navigation.Navigation
 import com.google.android.material.tabs.TabLayoutMediator
 import com.ikhwan.townwatchingsemeru.R
@@ -19,7 +20,7 @@ class BukuSakuDetailFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val textAdapter =
-        mutableListOf("PraBencana", "Saat Bencana", "Pasca Bencana")
+        mutableListOf("Deskripsi", "PraBencana", "Saat Bencana", "Pasca Bencana")
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -34,6 +35,15 @@ class BukuSakuDetailFragment : Fragment() {
 
         val category = requireArguments().getString(Constants.EXTRA_CATEGORY)
         val id = requireArguments().getInt(Constants.EXTRA_ID)
+
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    Navigation.findNavController(requireView())
+                        .navigate(R.id.action_bukuSakuDetailFragment_to_bukuSakuFragment)
+                }
+            })
 
         binding.apply {
             viewPager2.adapter = BukuSakuDetailPagerAdapter(this@BukuSakuDetailFragment, id)
